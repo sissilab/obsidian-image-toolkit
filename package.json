@@ -1,8 +1,8 @@
 {
-  "name": "obsidian-sample-plugin",
+  "name": "obsidian-image-toolkit",
   "version": "0.12.0",
-  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
-  "main": "main.js",
+  "description": "This plugin provides some image toolkit.",
+  "main": "src/main.js",
   "scripts": {
     "dev": "rollup --config rollup.config.js -w",
     "build": "rollup --config rollup.config.js --environment BUILD:production"
@@ -19,5 +19,6 @@
     "rollup": "^2.32.1",
     "tslib": "^2.2.0",
     "typescript": "^4.2.4"
-  }
+  },
+  "dependencies": {}
 }
