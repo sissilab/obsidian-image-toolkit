@@ -14,6 +14,8 @@ When you click an image, it will be displayed in a popup layer and you can view,
 
 ![view_image.png](example/view_image.gif)
 
+* You can also zoom an image by mouse wheel and close the popup layer by Esc.
+
 ## Download and Install
 [Enter the github release page to download.](https://github.com/sissilab/obsidian-image-toolkit/releases)
 
