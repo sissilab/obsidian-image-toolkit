@@ -247,7 +247,3 @@ function addOrRemoveEvent(flag: boolean) {
         TARGET_IMG_INFO.viewContainerEl && TARGET_IMG_INFO.viewContainerEl.removeEventListener('mousewheel', mousewheelViewContainer);
     }
 }
-
-function solveImgActiveConflict() {
-
-}

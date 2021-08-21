@@ -38,18 +38,6 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     this.plugin.settings.viewImageToggle = value;
                     await this.plugin.saveSettings();
                 }));
-
-        new Setting(containerEl)
-            .setName(t("VIEW_IMAGE_TOGGLE_NAME"))
-            .setDesc(t("VIEW_IMAGE_TOGGLE_DESC"))
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.imgActiveConflict)
-                .onChange(async (value) => {
-                    this.plugin.settings.imgActiveConflict = value;
-                    // 
-                    await this.plugin.saveSettings();
-                }));
-
     }
 
 }
