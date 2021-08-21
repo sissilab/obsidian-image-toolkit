@@ -4,11 +4,15 @@ import type ImageToolkitPlugin from "src/main";
 
 
 export interface ImageToolkitSettings {
-    viewImageToggle: boolean
+    // 是否启用点击图片预览功能
+    viewImageToggle: boolean,
+    // 图片标签鼠标点击激活时，禁止其他css特效，如缩放、旋转
+    imgActiveConflict: boolean
 }
 
 export const DEFAULT_SETTINGS: ImageToolkitSettings = {
-    viewImageToggle: true
+    viewImageToggle: true,
+    imgActiveConflict: false
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -35,5 +39,17 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
+        new Setting(containerEl)
+            .setName(t("VIEW_IMAGE_TOGGLE_NAME"))
+            .setDesc(t("VIEW_IMAGE_TOGGLE_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.imgActiveConflict)
+                .onChange(async (value) => {
+                    this.plugin.settings.imgActiveConflict = value;
+                    // 
+                    await this.plugin.saveSettings();
+                }));
+
     }
+
 }

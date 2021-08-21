@@ -44,7 +44,7 @@ export function renderViewContainer(targetEl: HTMLImageElement, containerEl: HTM
 
 export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLElement) {
     if (null == TARGET_IMG_INFO.viewContainerEl || !TARGET_IMG_INFO.viewContainerEl) {
-        console.log('initViewContainer....');
+        // console.log('initViewContainer....', containerEl);
         // <div class="image-toolkit-view-container">
         TARGET_IMG_INFO.viewContainerEl = createDiv();
         TARGET_IMG_INFO.viewContainerEl.setAttribute('class', 'image-toolkit-view-container');
@@ -195,34 +195,34 @@ function closeViewContainerByKeyup(event: KeyboardEvent) {
 const mousedownImgView = (event: MouseEvent) => {
     // console.log('mousedownImgView', event);
     DRAGGING = true;
-    event.preventDefault();
     event.stopPropagation();
+    event.preventDefault();
     // 鼠标相对于图片的位置
     TARGET_IMG_INFO.moveX = TARGET_IMG_INFO.imgViewEl.offsetLeft - event.clientX;
     TARGET_IMG_INFO.moveY = TARGET_IMG_INFO.imgViewEl.offsetTop - event.clientY;
     // 鼠标按下时持续触发/移动事件 
-    TARGET_IMG_INFO.imgViewEl.addEventListener('mousemove', mousemoveImgView);
+    TARGET_IMG_INFO.viewContainerEl.onmousemove = mousemoveImgView;
     // 鼠标松开/回弹触发事件
-    TARGET_IMG_INFO.imgViewEl.addEventListener('mouseup', mouseupImgView);
+    TARGET_IMG_INFO.viewContainerEl.onmouseup = mouseupImgView;
+    TARGET_IMG_INFO.viewContainerEl.onmouseleave = mouseupImgView;
 }
 
 const mousemoveImgView = (event: MouseEvent) => {
     if (!DRAGGING) {
         return;
     }
-    event.preventDefault();
-    event.stopPropagation();
     // 修改图片位置
     TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-top', (event.clientY + TARGET_IMG_INFO.moveY) + 'px', 'important');
     TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-left', (event.clientX + TARGET_IMG_INFO.moveX) + 'px', 'important');
 }
 
 const mouseupImgView = (event: MouseEvent) => {
+    // console.log('mouseup...');
     DRAGGING = false;
     event.preventDefault();
     event.stopPropagation();
-    TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.removeEventListener('mousemove', mousemoveImgView);
-    TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.removeEventListener('mouseup', mouseupImgView);
+    TARGET_IMG_INFO.imgViewEl.onmousemove = null;
+    TARGET_IMG_INFO.imgViewEl.onmouseup = null;
 }
 
 const mousewheelViewContainer = (event: WheelEvent) => {
@@ -237,7 +237,8 @@ function addOrRemoveEvent(flag: boolean) {
         // close the popup layer (image-toolkit-view-container) via clicking pressing Esc
         document.addEventListener('keyup', closeViewContainerByKeyup);
         // drag the image via mouse
-        TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.addEventListener('mousedown', mousedownImgView);
+        TARGET_IMG_INFO.imgViewEl.onmousedown = mousedownImgView;
+        // TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.addEventListener('mousedown', mousedownImgView);
         // zoom the image via mouse wheel
         TARGET_IMG_INFO.viewContainerEl && TARGET_IMG_INFO.viewContainerEl.addEventListener('mousewheel', mousewheelViewContainer);
     } else {
@@ -245,4 +246,8 @@ function addOrRemoveEvent(flag: boolean) {
         TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.removeEventListener('mousedown', mousedownImgView);
         TARGET_IMG_INFO.viewContainerEl && TARGET_IMG_INFO.viewContainerEl.removeEventListener('mousewheel', mousewheelViewContainer);
     }
+}
+
+function solveImgActiveConflict() {
+
 }

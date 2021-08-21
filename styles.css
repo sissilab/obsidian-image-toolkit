@@ -1,3 +1,14 @@
+.view-content img {
+    cursor: zoom-in !important;
+}
+
+.view-content img:active {
+    position: inherit !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+}
+
 .image-toolkit-view-container {
     position: fixed;
     font-size: 0;
@@ -67,6 +78,9 @@
     width: 23px;
     height: 23px;
     margin: 0 2px;
+    padding: 0;
+    line-height: 0;
+    border: none;
     cursor: pointer;
     overflow: hidden;
 }
