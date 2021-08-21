@@ -1,6 +1,6 @@
  <h1 align="center">Obsidian Image Toolkit</h1>
  <p align="center">
-    <span>Obsidian Image Toolkit is an obsidian plug-in that can provide some image toolkit.</span>
+    <span>Obsidian Image Toolkit is an Obsidian plug-in that can provide some image toolkit.</span>
     <br/>
     <a href="https://github.com/sissilab/obsidian-image-toolkit/issues">Feedback</a>
     ·

@@ -17,6 +17,6 @@
 ## 下载安装
 [进入版本发布页面去下载](https://github.com/sissilab/obsidian-image-toolkit/releases)
 
-## Others
+## 其他
 * 目前仅是一个简单版，后续将丰富关于图片的各种操作功能。
 * 欢迎各位提出建议，以便完善插件功能。
