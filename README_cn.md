@@ -14,6 +14,8 @@
 
 ![view_image.png](example/view_image.gif)
 
+* 同时，你还可以通过鼠标滑轮实现图片的放大和缩小，通过 Esc 键来实现图片预览弹出层的关闭。
+
 ## 下载安装
 [进入版本发布页面去下载](https://github.com/sissilab/obsidian-image-toolkit/releases)
 
