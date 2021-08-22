@@ -5,6 +5,6 @@
 	"minAppVersion": "0.1.0-beta",
 	"description": "This plugin provides some image toolkit.",
 	"author": "sissilab",
-	"authorUrl": "https://github.com/sissilab/obsidian-image-toolkit",
+	"authorUrl": "https://github.com/sissilab",
 	"isDesktopOnly": true
 }
