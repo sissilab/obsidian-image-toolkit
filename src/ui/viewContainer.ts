@@ -1,8 +1,10 @@
+import { isFunction } from 'util';
 import { IMG_TOOLBAR_ICONS, CLOSE_ICON } from '../conf/constants';
 import { calculateImgZoomSize, zoom, rotate } from '../util/imgUtil';
 
 
 let DRAGGING = false;
+let REAL_IMG_INTERVAL: NodeJS.Timeout;
 export const TARGET_IMG_INFO: IMG_INFO = {
     // true: the popup layer of viewing image is displayed
     state: false,
@@ -86,7 +88,7 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         imgToolbarUl.addEventListener('click', clickToolbarUl);
     }
     // show the clicked image
-    renderImgView(targetEl.src, targetEl.alt);
+    renderImgTitle(targetEl.alt);
     // add all events
     addOrRemoveEvent(true);
 }
@@ -104,6 +106,7 @@ function closeViewContainer() {
     if (TARGET_IMG_INFO.viewContainerEl) {
         TARGET_IMG_INFO.viewContainerEl.style.setProperty('display', 'none');
         TARGET_IMG_INFO.state = false;
+        renderImgTitle('');
         renderImgView('', '');
         // remove all events
         addOrRemoveEvent(false);
@@ -128,10 +131,13 @@ export function removeViewContainer() {
     TARGET_IMG_INFO.rotate = 0;
 }
 
-function renderImgView(src: string, alt: string) {
+function renderImgTitle(alt: string) {
     if (TARGET_IMG_INFO.imgTitleEl) {
         TARGET_IMG_INFO.imgTitleEl.setText(alt);
     }
+}
+
+function renderImgView(src: string, alt: string) {
     if (TARGET_IMG_INFO.imgViewEl) {
         TARGET_IMG_INFO.imgViewEl.setAttribute('src', src);
         TARGET_IMG_INFO.imgViewEl.setAttribute('alt', alt);
@@ -151,9 +157,19 @@ function setImgViewPosition(imgZoomSize: any, rotate?: number) {
 
 function refreshImg(imgSrc?: string) {
     const src = imgSrc ? imgSrc : TARGET_IMG_INFO.imgViewEl.src;
+    const alt = imgSrc ? imgSrc : TARGET_IMG_INFO.imgViewEl.alt;
     if (src) {
-        let imgZoomSize = calculateImgZoomSize(src);
-        setImgViewPosition(imgZoomSize, 0);
+        let realImg = new Image();
+        realImg.src = src;
+        REAL_IMG_INTERVAL = setInterval((img) => {
+            if (img.width > 0 || img.height > 0) {
+                clearInterval(REAL_IMG_INTERVAL);
+                REAL_IMG_INTERVAL = null;
+                let imgZoomSize = calculateImgZoomSize(img, TARGET_IMG_INFO);
+                setImgViewPosition(imgZoomSize, 0);
+                renderImgView(src, alt);
+            }
+        }, 40, realImg);
     }
 }
 
@@ -161,19 +177,19 @@ function clickToolbarUl(event: MouseEvent) {
     const targetElClass = (<HTMLElement>event.target).className;
     switch (targetElClass) {
         case 'toolbar_zoom_im':
-            TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(0.1) + 'px');
+            TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(0.1, TARGET_IMG_INFO) + 'px');
             break;
         case 'toolbar_zoom_out':
-            TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(-0.1) + 'px');
+            TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(-0.1, TARGET_IMG_INFO) + 'px');
             break;
         case 'toolbar_refresh':
             refreshImg();
             break;
         case 'toolbar_rotate_left':
-            rotate(-90);
+            rotate(-90, TARGET_IMG_INFO);
             break;
         case 'toolbar_rotate_right':
-            rotate(90);
+            rotate(90, TARGET_IMG_INFO);
             break;
         default:
             break;
@@ -181,7 +197,7 @@ function clickToolbarUl(event: MouseEvent) {
 }
 
 function closeViewContainerByKeyup(event: KeyboardEvent) {
-    console.log('keyup', event, event.code);
+    //console.log('keyup', event, event.code);
     event.stopPropagation();
     switch (event.code) {
         case 'Escape': // Esc
@@ -229,7 +245,7 @@ const mousewheelViewContainer = (event: WheelEvent) => {
     // console.log('mousewheel', event, event.wheelDelta);
     event.preventDefault();
     event.stopPropagation();
-    TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(0 < event.wheelDelta ? 0.1 : -0.1) + 'px');
+    TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(0 < event.wheelDelta ? 0.1 : -0.1, TARGET_IMG_INFO) + 'px');
 }
 
 function addOrRemoveEvent(flag: boolean) {
@@ -240,10 +256,14 @@ function addOrRemoveEvent(flag: boolean) {
         TARGET_IMG_INFO.imgViewEl.onmousedown = mousedownImgView;
         // TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.addEventListener('mousedown', mousedownImgView);
         // zoom the image via mouse wheel
-        TARGET_IMG_INFO.viewContainerEl && TARGET_IMG_INFO.viewContainerEl.addEventListener('mousewheel', mousewheelViewContainer);
+        TARGET_IMG_INFO.viewContainerEl.addEventListener('mousewheel', mousewheelViewContainer);
     } else {
         document.removeEventListener('keyup', closeViewContainerByKeyup);
-        TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.removeEventListener('mousedown', mousedownImgView);
-        TARGET_IMG_INFO.viewContainerEl && TARGET_IMG_INFO.viewContainerEl.removeEventListener('mousewheel', mousewheelViewContainer);
+        TARGET_IMG_INFO.imgViewEl.removeEventListener('mousedown', mousedownImgView);
+        TARGET_IMG_INFO.viewContainerEl.removeEventListener('mousewheel', mousewheelViewContainer);
+        if (REAL_IMG_INTERVAL) {
+            clearInterval(REAL_IMG_INTERVAL);
+            REAL_IMG_INTERVAL = null;
+        }
     }
 }

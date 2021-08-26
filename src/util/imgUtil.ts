@@ -1,4 +1,7 @@
-import { TARGET_IMG_INFO } from '../ui/viewContainer'
+import { rejects } from 'assert';
+import { resolve } from 'path';
+import tr from 'src/lang/locale/tr';
+import { IMG_INFO } from 'src/ui/viewContainer';
 import { ZOOM_FACTOR } from '../conf/constants'
 
 
@@ -7,10 +10,10 @@ import { ZOOM_FACTOR } from '../conf/constants'
  * @param imgSrc 
  * @returns 
  */
-export function calculateImgZoomSize(imgSrc: string): object {
-    if (!imgSrc) {
-        return;
-    }
+export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO: IMG_INFO): object {
+    // if (!imgSrc) {
+    //     return;
+    // }
     // 当前窗口宽高（可视宽高）
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
@@ -18,8 +21,31 @@ export function calculateImgZoomSize(imgSrc: string): object {
     const windowZoomWidth = windowWidth * ZOOM_FACTOR;
     const windowZoomHeight = windowHeight * ZOOM_FACTOR;
     // 获取原图宽高
-    let realImg = new Image();
-    realImg.src = imgSrc;
+    // const realImg = getRealImageSize(imgSrc);
+    // let realImg = new Image();
+    // realImg.src = imgSrc;
+    // const realImgPromise = new Promise((resolve, reject) => {
+    //     const realImgInterval = setInterval(() => {
+    //         if (realImg.width > 0 || realImg.height > 0) {
+    //             clearInterval(realImgInterval);
+    //         }
+    //     }, 100);
+    // });
+    // console.log('start..');
+    
+    // let flag = true;
+    // setTimeout((f) => {
+    //     console.log('count...');
+    //     f = false;
+    // }, 3000, flag);
+    // while (true) {
+    //     if (!flag) {
+    //         console.log('........');
+    //         break;
+    //     }
+    // }
+    // console.log('out...');
+
     let tempWidth = realImg.width, tempHeight = realImg.height;
     if (realImg.height > windowZoomHeight) {
         tempHeight = windowZoomHeight;
@@ -46,13 +72,33 @@ export function calculateImgZoomSize(imgSrc: string): object {
     return { width, height, top, left };
 }
 
+function getRealImageSize(imgSrc: string, delay: number) {
+    let realImg = new Image();
+    realImg.src = imgSrc;
+
+
+
+    let flag = true;
+    console.log('start...');
+    const realImgInterval = setInterval(() => {
+        console.log('Interval...');
+        if (realImg.width > 0 || realImg.height > 0) {
+            console.log('Got...', realImg.width);
+            clearInterval(realImgInterval);
+            flag = false;
+        }
+    }, 100);
+
+    return realImg;
+}
+
 /**
  * zoom an image 
  * @param ratio 
  * @param imgInfo 
  * @returns 
  */
-export const zoom = (ratio: number): number => {
+export const zoom = (ratio: number, TARGET_IMG_INFO: IMG_INFO): number => {
     ratio = ratio > 0 ? 1 + ratio : 1 / (1 - ratio);
     let zoomRatio = TARGET_IMG_INFO.curWidth * ratio / TARGET_IMG_INFO.realWidth;
     const newWidth = TARGET_IMG_INFO.realWidth * zoomRatio;
@@ -63,6 +109,6 @@ export const zoom = (ratio: number): number => {
     return newWidth;
 }
 
-export const rotate = (degree: number) => {
+export const rotate = (degree: number, TARGET_IMG_INFO: IMG_INFO) => {
     TARGET_IMG_INFO.imgViewEl.style.setProperty('transform', 'rotate(' + (TARGET_IMG_INFO.rotate += degree) + 'deg)');
 }
