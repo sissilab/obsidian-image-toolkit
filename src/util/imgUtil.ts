@@ -20,31 +20,6 @@ export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO:
     // 当前窗口缩放后的宽高
     const windowZoomWidth = windowWidth * ZOOM_FACTOR;
     const windowZoomHeight = windowHeight * ZOOM_FACTOR;
-    // 获取原图宽高
-    // const realImg = getRealImageSize(imgSrc);
-    // let realImg = new Image();
-    // realImg.src = imgSrc;
-    // const realImgPromise = new Promise((resolve, reject) => {
-    //     const realImgInterval = setInterval(() => {
-    //         if (realImg.width > 0 || realImg.height > 0) {
-    //             clearInterval(realImgInterval);
-    //         }
-    //     }, 100);
-    // });
-    // console.log('start..');
-    
-    // let flag = true;
-    // setTimeout((f) => {
-    //     console.log('count...');
-    //     f = false;
-    // }, 3000, flag);
-    // while (true) {
-    //     if (!flag) {
-    //         console.log('........');
-    //         break;
-    //     }
-    // }
-    // console.log('out...');
 
     let tempWidth = realImg.width, tempHeight = realImg.height;
     if (realImg.height > windowZoomHeight) {
@@ -72,25 +47,6 @@ export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO:
     return { width, height, top, left };
 }
 
-function getRealImageSize(imgSrc: string, delay: number) {
-    let realImg = new Image();
-    realImg.src = imgSrc;
-
-
-
-    let flag = true;
-    console.log('start...');
-    const realImgInterval = setInterval(() => {
-        console.log('Interval...');
-        if (realImg.width > 0 || realImg.height > 0) {
-            console.log('Got...', realImg.width);
-            clearInterval(realImgInterval);
-            flag = false;
-        }
-    }, 100);
-
-    return realImg;
-}
 
 /**
  * zoom an image 
