@@ -41,7 +41,7 @@ export interface IMG_INFO {
 export function renderViewContainer(targetEl: HTMLImageElement, containerEl: HTMLElement) {
     initViewContainer(targetEl, containerEl);
     openViewContainer();
-    refreshImg(targetEl.src);
+    refreshImg(targetEl.src, targetEl.alt);
 }
 
 export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLElement) {
@@ -155,9 +155,9 @@ function setImgViewPosition(imgZoomSize: any, rotate?: number) {
     TARGET_IMG_INFO.rotate = rotateDeg;
 }
 
-function refreshImg(imgSrc?: string) {
+function refreshImg(imgSrc?: string, imgAlt?: string) {
     const src = imgSrc ? imgSrc : TARGET_IMG_INFO.imgViewEl.src;
-    const alt = imgSrc ? imgSrc : TARGET_IMG_INFO.imgViewEl.alt;
+    const alt = imgAlt ? imgAlt : TARGET_IMG_INFO.imgViewEl.alt;
     if (src) {
         let realImg = new Image();
         realImg.src = src;
