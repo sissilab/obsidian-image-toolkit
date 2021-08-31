@@ -41,6 +41,21 @@
     /* background-image: url(../img/close.svg); */
 }
 
+.image-toolkit-view-container .img-tip {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    font-size: 12px;
+    line-height: 20px;
+    height: 20px;
+    width: 50px;
+    text-align: center;
+    color: #fff;
+    border-radius: 10px;
+    background-color: rgb(0, 0, 0, .4);
+    z-index: 1;
+}
+
 .image-toolkit-view-container .img-footer {
     position: absolute;
     text-align: center;
@@ -86,7 +101,8 @@
 }
 
 .image-toolkit-view-container .img-footer .img-toolbar>li:hover {
-    background-color: rgba(82, 79, 67, .8)
+    /* background-color: rgba(82, 79, 67, .8); */
+    transform: rotate(30deg);
 }
 
 .image-toolkit-view-container .img-footer .img-toolbar .toolbar_zoom_im::before,

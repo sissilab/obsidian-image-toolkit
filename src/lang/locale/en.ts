@@ -8,5 +8,11 @@ export default {
   VIEW_IMAGE_TOGGLE_NAME: "Enable Clicking on a Picture to View",
   VIEW_IMAGE_TOGGLE_DESC: "You can zoom, rotate and drag it on the popup layer when clicking on a picture.",
   
+  // toolbar icon title
+  ZOOM_IN: "zoom in",
+  ZOOM_OUT: "zoom out",
+  REFRESH: "refresh",
+  ROTATE_LEFT: "rotate left",
+  ROTATE_RIGHT: "rotate right",
 
 };

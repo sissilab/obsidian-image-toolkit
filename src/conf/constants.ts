@@ -3,19 +3,24 @@ export const ZOOM_FACTOR = 0.8;
 
 export const IMG_TOOLBAR_ICONS = [{
     key: 'zoom_in',
-    class: 'toolbar_zoom_im',
+    title: "ZOOM_IN",
+    class: 'toolbar_zoom_im'
 }, {
     key: 'zoom_out',
-    class: 'toolbar_zoom_out',
+    title: "ZOOM_OUT",
+    class: 'toolbar_zoom_out'
 }, {
     key: 'refresh',
-    class: 'toolbar_refresh',
+    title: "REFRESH",
+    class: 'toolbar_refresh'
 }, {
     key: 'rotate_left',
-    class: 'toolbar_rotate_left',
+    title: "ROTATE_LEFT",
+    class: 'toolbar_rotate_left'
 }, {
     key: 'rotate_right',
-    class: 'toolbar_rotate_right',
+    title: "ROTATE_RIGHT",
+    class: 'toolbar_rotate_right'
 }];
 
 export const CLOSE_ICON = {

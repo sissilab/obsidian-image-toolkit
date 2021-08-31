@@ -1,7 +1,4 @@
-import { rejects } from 'assert';
-import { resolve } from 'path';
-import tr from 'src/lang/locale/tr';
-import { IMG_INFO } from 'src/ui/viewContainer';
+import { IMG_INFO, renderImgTip } from 'src/ui/viewContainer';
 import { ZOOM_FACTOR } from '../conf/constants'
 
 
@@ -62,9 +59,43 @@ export const zoom = (ratio: number, TARGET_IMG_INFO: IMG_INFO): number => {
     // cache image info
     TARGET_IMG_INFO.curWidth = newWidth;
     TARGET_IMG_INFO.curHeight = newHeight;
+    // render tip
+    renderImgTip();
     return newWidth;
 }
 
 export const rotate = (degree: number, TARGET_IMG_INFO: IMG_INFO) => {
     TARGET_IMG_INFO.imgViewEl.style.setProperty('transform', 'rotate(' + (TARGET_IMG_INFO.rotate += degree) + 'deg)');
+}
+
+export function copyText(text: string) {
+    console.log('text:', text);
+
+    navigator.clipboard.writeText(text)
+        .then(() => {
+            console.log('copyText:', copyText);
+        })
+        .catch(err => {
+            console.error('copy text error', err);
+        });
+}
+
+export function copyImage(imgSrc: string) {
+    let image = new Image();
+    image.src = imgSrc;
+    image.crossOrigin = 'anonymous';
+    image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+        // const imgBase64 = canvas.toDataURL("image/png");
+        // console.log('imgBase64', imgBase64);
+        canvas.toBlob((blob: any) => {
+            const item = new ClipboardItem({ "image/png": blob });
+            navigator.clipboard.write([item]);
+            console.log('copy end!');
+        });
+    };
 }

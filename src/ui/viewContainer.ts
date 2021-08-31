@@ -1,6 +1,7 @@
-import { isFunction } from 'util';
+import { t } from 'src/lang/helpers';
+import tr from 'src/lang/locale/tr';
 import { IMG_TOOLBAR_ICONS, CLOSE_ICON } from '../conf/constants';
-import { calculateImgZoomSize, zoom, rotate } from '../util/imgUtil';
+import { calculateImgZoomSize, zoom, rotate, copyText, copyImage } from '../util/imgUtil';
 
 
 let DRAGGING = false;
@@ -12,6 +13,8 @@ export const TARGET_IMG_INFO: IMG_INFO = {
     viewContainerEl: null,
     imgViewEl: null,
     imgTitleEl: null,
+    imgTipEl: null,
+    imgTipTimeout: null,
 
     curWidth: 0,
     curHeight: 0,
@@ -27,7 +30,9 @@ export interface IMG_INFO {
 
     viewContainerEl: HTMLDivElement,
     imgViewEl: HTMLImageElement,
-    imgTitleEl: HTMLDivElement
+    imgTitleEl: HTMLDivElement,
+    imgTipEl: HTMLDivElement,
+    imgTipTimeout?: NodeJS.Timeout,
 
     curWidth: number,
     curHeight: number,
@@ -59,18 +64,23 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         TARGET_IMG_INFO.imgViewEl.setAttribute('src', '');
         TARGET_IMG_INFO.imgViewEl.setAttribute('alt', '');
         imgContainerDiv.appendChild(TARGET_IMG_INFO.imgViewEl);
-        TARGET_IMG_INFO.viewContainerEl.appendChild(imgContainerDiv);
+        TARGET_IMG_INFO.viewContainerEl.appendChild(imgContainerDiv); // img-container
         // <div class="img-close"></div>
         const imgCloseDiv = createDiv();
         imgCloseDiv.innerHTML = CLOSE_ICON.svg;
         imgCloseDiv.setAttribute('class', 'img-close');
         // add event: close the popup layer (image-toolkit-view-container) via clicking close button
         imgCloseDiv.addEventListener('click', closeViewContainer);
-        TARGET_IMG_INFO.viewContainerEl.appendChild(imgCloseDiv);
+        TARGET_IMG_INFO.viewContainerEl.appendChild(imgCloseDiv); // img-close
+        // <div class="img-tip"></div>
+        TARGET_IMG_INFO.imgTipEl = createDiv();
+        TARGET_IMG_INFO.imgTipEl.setAttribute('class', 'img-tip');
+        TARGET_IMG_INFO.imgTipEl.hidden = true;
+        TARGET_IMG_INFO.viewContainerEl.appendChild(TARGET_IMG_INFO.imgTipEl); // img-tip
         // <div class="img-footer"> ... <div>
         const imgFooterDiv = createDiv();
         imgFooterDiv.setAttribute('class', 'img-footer');
-        TARGET_IMG_INFO.viewContainerEl.appendChild(imgFooterDiv);
+        TARGET_IMG_INFO.viewContainerEl.appendChild(imgFooterDiv); // img-footer
         // <div class="img-title"></div>
         TARGET_IMG_INFO.imgTitleEl = createDiv();
         TARGET_IMG_INFO.imgTitleEl.setAttribute('class', 'img-title');
@@ -82,6 +92,8 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         for (const toolbar of IMG_TOOLBAR_ICONS) {
             const toolbarLi = createEl('li');
             toolbarLi.setAttribute('class', toolbar.class);
+            toolbarLi.setAttribute('alt', toolbar.key);
+            toolbarLi.setAttribute('title', t(toolbar.title));
             imgToolbarUl.appendChild(toolbarLi);
         }
         // add event: for img-toolbar ul
@@ -144,6 +156,19 @@ function renderImgView(src: string, alt: string) {
     }
 }
 
+export function renderImgTip() {
+    if (TARGET_IMG_INFO.realWidth > 0 && TARGET_IMG_INFO.curWidth > 0) {
+        if (TARGET_IMG_INFO.imgTipTimeout) {
+            clearTimeout(TARGET_IMG_INFO.imgTipTimeout);
+        }
+        TARGET_IMG_INFO.imgTipEl.hidden = false;
+        TARGET_IMG_INFO.imgTipEl.setText(parseInt(TARGET_IMG_INFO.curWidth * 100 / TARGET_IMG_INFO.realWidth + '') + '%');
+        TARGET_IMG_INFO.imgTipTimeout = setTimeout(() => {
+            TARGET_IMG_INFO.imgTipEl.hidden = true;
+        }, 1000);
+    }
+}
+
 function setImgViewPosition(imgZoomSize: any, rotate?: number) {
     if (imgZoomSize) {
         TARGET_IMG_INFO.imgViewEl.setAttribute('width', imgZoomSize.width);
@@ -168,6 +193,7 @@ function refreshImg(imgSrc?: string, imgAlt?: string) {
                 let imgZoomSize = calculateImgZoomSize(img, TARGET_IMG_INFO);
                 setImgViewPosition(imgZoomSize, 0);
                 renderImgView(src, alt);
+                renderImgTip();
             }
         }, 40, realImg);
     }
