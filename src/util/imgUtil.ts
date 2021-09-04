@@ -1,3 +1,5 @@
+import { Notice } from 'obsidian';
+import { t } from 'src/lang/helpers';
 import { IMG_INFO, renderImgTip } from 'src/ui/viewContainer';
 import { ZOOM_FACTOR } from '../conf/constants'
 
@@ -68,6 +70,10 @@ export const rotate = (degree: number, TARGET_IMG_INFO: IMG_INFO) => {
     TARGET_IMG_INFO.imgViewEl.style.setProperty('transform', 'rotate(' + (TARGET_IMG_INFO.rotate += degree) + 'deg)');
 }
 
+export const invertImgColor = (imgEle: HTMLImageElement, open: boolean) => {
+    open ? imgEle.addClass('image-toolkit-img-invert') : imgEle.removeClass('image-toolkit-img-invert');
+}
+
 export function copyText(text: string) {
     console.log('text:', text);
 
@@ -80,9 +86,9 @@ export function copyText(text: string) {
         });
 }
 
-export function copyImage(imgSrc: string) {
+export function copyImage(imgEle: HTMLImageElement, width: number, height: number) {
     let image = new Image();
-    image.src = imgSrc;
+    image.src = imgEle.src;
     image.crossOrigin = 'anonymous';
     image.onload = () => {
         const canvas = document.createElement('canvas');
@@ -90,12 +96,12 @@ export function copyImage(imgSrc: string) {
         canvas.height = image.height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(image, 0, 0);
-        // const imgBase64 = canvas.toDataURL("image/png");
-        // console.log('imgBase64', imgBase64);
         canvas.toBlob((blob: any) => {
+            // @ts-ignore
             const item = new ClipboardItem({ "image/png": blob });
+            // @ts-ignore
             navigator.clipboard.write([item]);
-            console.log('copy end!');
+            new Notice(t("COPY_IMAGE_SUCCESS"));
         });
     };
 }

@@ -14,5 +14,9 @@ export default {
   REFRESH: "刷新",
   ROTATE_LEFT: "左旋",
   ROTATE_RIGHT: "右旋",
+  INVERT_COLOR: '反色',
+  COPY: '复制',
+  
+  COPY_IMAGE_SUCCESS: '拷贝图片成功！'
 
 };

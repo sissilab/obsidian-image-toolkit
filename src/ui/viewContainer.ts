@@ -1,10 +1,10 @@
 import { t } from 'src/lang/helpers';
-import tr from 'src/lang/locale/tr';
 import { IMG_TOOLBAR_ICONS, CLOSE_ICON } from '../conf/constants';
-import { calculateImgZoomSize, zoom, rotate, copyText, copyImage } from '../util/imgUtil';
+import { calculateImgZoomSize, zoom, rotate, invertImgColor, copyImage } from '../util/imgUtil';
 
 
 let DRAGGING = false;
+let INVERT_SWITCH = false;
 let REAL_IMG_INTERVAL: NodeJS.Timeout;
 export const TARGET_IMG_INFO: IMG_INFO = {
     // true: the popup layer of viewing image is displayed
@@ -93,6 +93,7 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
             const toolbarLi = createEl('li');
             toolbarLi.setAttribute('class', toolbar.class);
             toolbarLi.setAttribute('alt', toolbar.key);
+            // @ts-ignore
             toolbarLi.setAttribute('title', t(toolbar.title));
             imgToolbarUl.appendChild(toolbarLi);
         }
@@ -217,6 +218,13 @@ function clickToolbarUl(event: MouseEvent) {
         case 'toolbar_rotate_right':
             rotate(90, TARGET_IMG_INFO);
             break;
+        case 'toolbar_invert_color':
+            INVERT_SWITCH = !INVERT_SWITCH;
+            invertImgColor(TARGET_IMG_INFO.imgViewEl, INVERT_SWITCH);
+            break;
+        case 'toolbar_copy':
+            copyImage(TARGET_IMG_INFO.imgViewEl, TARGET_IMG_INFO.curWidth, TARGET_IMG_INFO.curHeight);
+            break;
         default:
             break;
     }
@@ -271,6 +279,7 @@ const mousewheelViewContainer = (event: WheelEvent) => {
     // console.log('mousewheel', event, event.wheelDelta);
     event.preventDefault();
     event.stopPropagation();
+    // @ts-ignore
     TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(0 < event.wheelDelta ? 0.1 : -0.1, TARGET_IMG_INFO) + 'px');
 }
 
@@ -293,3 +302,5 @@ function addOrRemoveEvent(flag: boolean) {
         }
     }
 }
+
+

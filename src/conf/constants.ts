@@ -21,6 +21,14 @@ export const IMG_TOOLBAR_ICONS = [{
     key: 'rotate_right',
     title: "ROTATE_RIGHT",
     class: 'toolbar_rotate_right'
+}, {
+    key: 'invert_color',
+    title: "INVERT_COLOR",
+    class: 'toolbar_invert_color'
+}, {
+    key: 'copy',
+    title: "COPY",
+    class: 'toolbar_copy'
 }];
 
 export const CLOSE_ICON = {

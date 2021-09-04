@@ -14,5 +14,9 @@ export default {
   REFRESH: "refresh",
   ROTATE_LEFT: "rotate left",
   ROTATE_RIGHT: "rotate right",
+  INVERT_COLOR: 'invert color',
+  COPY: 'copy',
+
+  COPY_IMAGE_SUCCESS: 'Copy the image successfully!'
 
 };
