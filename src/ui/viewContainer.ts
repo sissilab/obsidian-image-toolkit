@@ -1,4 +1,5 @@
 import { t } from 'src/lang/helpers';
+import tr from 'src/lang/locale/tr';
 import { IMG_TOOLBAR_ICONS, CLOSE_ICON } from '../conf/constants';
 import { calculateImgZoomSize, zoom, rotate, invertImgColor, copyImage } from '../util/imgUtil';
 
@@ -6,6 +7,13 @@ import { calculateImgZoomSize, zoom, rotate, invertImgColor, copyImage } from '.
 let DRAGGING = false;
 let INVERT_SWITCH = false;
 let REAL_IMG_INTERVAL: NodeJS.Timeout;
+const IMG_MOVE_OFFSET = 5;
+let ARROW_PRESS_STATUS = {
+    arrowUp: false,
+    arrowDown: false,
+    arrowLeft: false,
+    arrowRight: false
+}
 export const TARGET_IMG_INFO: IMG_INFO = {
     // true: the popup layer of viewing image is displayed
     state: false,
@@ -260,12 +268,64 @@ function clickToolbarUl(event: MouseEvent) {
     }
 }
 
-function closeViewContainerByKeyup(event: KeyboardEvent) {
+const triggerkeyup = (event: KeyboardEvent) => {
     //console.log('keyup', event, event.code);
+    event.preventDefault();
     event.stopPropagation();
     switch (event.code) {
         case 'Escape': // Esc
             closeViewContainer();
+            break;
+        case 'ArrowUp':
+            ARROW_PRESS_STATUS.arrowUp = false;
+            break;
+        case 'ArrowDown':
+            ARROW_PRESS_STATUS.arrowDown = false;
+            break;
+        case 'ArrowLeft':
+            ARROW_PRESS_STATUS.arrowLeft = false;
+            break;
+        case 'ArrowRight':
+            ARROW_PRESS_STATUS.arrowRight = false;
+            break;
+        default:
+            break
+    }
+}
+
+const triggerkeydown = (event: KeyboardEvent) => {
+    // console.log('keyup', event, event.code);
+    event.preventDefault();
+    event.stopPropagation();
+    if (ARROW_PRESS_STATUS.arrowUp && ARROW_PRESS_STATUS.arrowLeft) {
+        mousemoveImgView(null, { offsetX: -IMG_MOVE_OFFSET, offsetY: -IMG_MOVE_OFFSET });
+        return;
+    } else if (ARROW_PRESS_STATUS.arrowUp && ARROW_PRESS_STATUS.arrowRight) {
+        mousemoveImgView(null, { offsetX: IMG_MOVE_OFFSET, offsetY: -IMG_MOVE_OFFSET });
+        return;
+    } else if (ARROW_PRESS_STATUS.arrowDown && ARROW_PRESS_STATUS.arrowLeft) {
+        mousemoveImgView(null, { offsetX: -IMG_MOVE_OFFSET, offsetY: IMG_MOVE_OFFSET });
+        return;
+    } else if (ARROW_PRESS_STATUS.arrowDown && ARROW_PRESS_STATUS.arrowRight) {
+        mousemoveImgView(null, { offsetX: IMG_MOVE_OFFSET, offsetY: IMG_MOVE_OFFSET });
+        return;
+    }
+    switch (event.code) {
+        case 'ArrowUp':
+            mousemoveImgView(null, { offsetX: 0, offsetY: -IMG_MOVE_OFFSET });
+            ARROW_PRESS_STATUS.arrowUp = true;
+            break;
+        case 'ArrowDown':
+            mousemoveImgView(null, { offsetX: 0, offsetY: IMG_MOVE_OFFSET });
+            ARROW_PRESS_STATUS.arrowDown = true;
+            break;
+        case 'ArrowLeft':
+            mousemoveImgView(null, { offsetX: -IMG_MOVE_OFFSET, offsetY: 0 });
+            ARROW_PRESS_STATUS.arrowLeft = true;
+            break;
+        case 'ArrowRight':
+            mousemoveImgView(null, { offsetX: IMG_MOVE_OFFSET, offsetY: 0 });
+            ARROW_PRESS_STATUS.arrowRight = true;
             break;
         default:
             break
@@ -287,12 +347,19 @@ const mousedownImgView = (event: MouseEvent) => {
     TARGET_IMG_INFO.viewContainerEl.onmouseleave = mouseupImgView;
 }
 
-const mousemoveImgView = (event: MouseEvent) => {
-    if (!DRAGGING) {
+const mousemoveImgView = (event: MouseEvent, offsetSize?: OFFSET_SIZE) => {
+    if (!DRAGGING && !offsetSize) {
         return;
     }
-    TARGET_IMG_INFO.top = event.clientY + TARGET_IMG_INFO.moveY;
-    TARGET_IMG_INFO.left = event.clientX + TARGET_IMG_INFO.moveX;
+    if (event) {
+        TARGET_IMG_INFO.left = event.clientX + TARGET_IMG_INFO.moveX;
+        TARGET_IMG_INFO.top = event.clientY + TARGET_IMG_INFO.moveY;
+    } else if (offsetSize) {
+        TARGET_IMG_INFO.left += offsetSize.offsetX;
+        TARGET_IMG_INFO.top += offsetSize.offsetY;
+    } else {
+        return;
+    }
     // 修改图片位置
     TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-top', TARGET_IMG_INFO.top + 'px', 'important');
     TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-left', TARGET_IMG_INFO.left + 'px', 'important');
@@ -317,14 +384,16 @@ const mousewheelViewContainer = (event: WheelEvent) => {
 function addOrRemoveEvent(flag: boolean) {
     if (flag) {
         // close the popup layer (image-toolkit-view-container) via clicking pressing Esc
-        document.addEventListener('keyup', closeViewContainerByKeyup);
+        document.addEventListener('keyup', triggerkeyup);
+        document.addEventListener('keydown', triggerkeydown);
         TARGET_IMG_INFO.viewContainerEl.onclick = closeViewContainer;
         // drag the image via mouse
         TARGET_IMG_INFO.imgViewEl.onmousedown = mousedownImgView;
         // zoom the image via mouse wheel
         TARGET_IMG_INFO.imgViewEl.addEventListener('mousewheel', mousewheelViewContainer);
     } else {
-        document.removeEventListener('keyup', closeViewContainerByKeyup);
+        document.removeEventListener('keyup', triggerkeyup);
+        document.removeEventListener('keydown', triggerkeydown);
         TARGET_IMG_INFO.viewContainerEl.removeEventListener('onclick', closeViewContainer);
         TARGET_IMG_INFO.imgViewEl.removeEventListener('mousedown', mousedownImgView);
         TARGET_IMG_INFO.viewContainerEl.removeEventListener('mousewheel', mousewheelViewContainer);
