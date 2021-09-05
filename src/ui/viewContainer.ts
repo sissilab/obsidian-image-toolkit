@@ -20,6 +20,8 @@ export const TARGET_IMG_INFO: IMG_INFO = {
     curHeight: 0,
     realWidth: 0,
     realHeight: 0,
+    left: 0,
+    top: 0,
     moveX: 0,
     moveY: 0,
     rotate: 0
@@ -38,9 +40,16 @@ export interface IMG_INFO {
     curHeight: number,
     realWidth: number,
     realHeight: number,
+    left: number,
+    top: number,
     moveX: number,
     moveY: number,
     rotate: number,
+}
+
+export interface OFFSET_SIZE {
+    offsetX: number,
+    offsetY: number
 }
 
 export function renderViewContainer(targetEl: HTMLImageElement, containerEl: HTMLElement) {
@@ -66,12 +75,10 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         imgContainerDiv.appendChild(TARGET_IMG_INFO.imgViewEl);
         TARGET_IMG_INFO.viewContainerEl.appendChild(imgContainerDiv); // img-container
         // <div class="img-close"></div>
-        const imgCloseDiv = createDiv();
-        imgCloseDiv.innerHTML = CLOSE_ICON.svg;
-        imgCloseDiv.setAttribute('class', 'img-close');
-        // add event: close the popup layer (image-toolkit-view-container) via clicking close button
-        imgCloseDiv.addEventListener('click', closeViewContainer);
-        TARGET_IMG_INFO.viewContainerEl.appendChild(imgCloseDiv); // img-close
+        // const imgCloseDiv = createDiv();
+        // imgCloseDiv.innerHTML = CLOSE_ICON.svg;
+        // imgCloseDiv.setAttribute('class', 'img-close');
+        // TARGET_IMG_INFO.viewContainerEl.appendChild(imgCloseDiv); // img-close
         // <div class="img-tip"></div>
         TARGET_IMG_INFO.imgTipEl = createDiv();
         TARGET_IMG_INFO.imgTipEl.setAttribute('class', 'img-tip');
@@ -115,7 +122,13 @@ function openViewContainer() {
     TARGET_IMG_INFO.state = true;
 }
 
-function closeViewContainer() {
+const closeViewContainer = (event?: MouseEvent): void => {
+    if (event) {
+        const targetClassName = (<HTMLElement>event.target).className;
+        if ('img-container' != targetClassName && 'image-toolkit-view-container' != targetClassName && 'img-close' != targetClassName) {
+            return;
+        }
+    }
     if (TARGET_IMG_INFO.viewContainerEl) {
         TARGET_IMG_INFO.viewContainerEl.style.setProperty('display', 'none');
         TARGET_IMG_INFO.state = false;
@@ -194,20 +207,37 @@ function refreshImg(imgSrc?: string, imgAlt?: string) {
                 let imgZoomSize = calculateImgZoomSize(img, TARGET_IMG_INFO);
                 setImgViewPosition(imgZoomSize, 0);
                 renderImgView(src, alt);
+                invertImgColor(TARGET_IMG_INFO.imgViewEl, false);
                 renderImgTip();
             }
         }, 40, realImg);
     }
 }
 
+function zoomAndRender(ratio: number, event?: WheelEvent): any {
+    let offsetSize: OFFSET_SIZE = { offsetX: 0, offsetY: 0 };
+    if (event) {
+        offsetSize.offsetX = event.offsetX;
+        offsetSize.offsetY = event.offsetY;
+    } else {
+        offsetSize.offsetX = TARGET_IMG_INFO.curWidth / 2;
+        offsetSize.offsetY = TARGET_IMG_INFO.curHeight / 2;
+    }
+    const zoomData = zoom(ratio, TARGET_IMG_INFO, offsetSize);
+    renderImgTip();
+    TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoomData.newWidth) + 'px';
+    TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
+    TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-left', zoomData.left + 'px', 'important');
+}
+
 function clickToolbarUl(event: MouseEvent) {
     const targetElClass = (<HTMLElement>event.target).className;
     switch (targetElClass) {
         case 'toolbar_zoom_im':
-            TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(0.1, TARGET_IMG_INFO) + 'px');
+            zoomAndRender(0.1);
             break;
         case 'toolbar_zoom_out':
-            TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(-0.1, TARGET_IMG_INFO) + 'px');
+            zoomAndRender(-0.1);
             break;
         case 'toolbar_refresh':
             refreshImg();
@@ -261,9 +291,11 @@ const mousemoveImgView = (event: MouseEvent) => {
     if (!DRAGGING) {
         return;
     }
+    TARGET_IMG_INFO.top = event.clientY + TARGET_IMG_INFO.moveY;
+    TARGET_IMG_INFO.left = event.clientX + TARGET_IMG_INFO.moveX;
     // 修改图片位置
-    TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-top', (event.clientY + TARGET_IMG_INFO.moveY) + 'px', 'important');
-    TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-left', (event.clientX + TARGET_IMG_INFO.moveX) + 'px', 'important');
+    TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-top', TARGET_IMG_INFO.top + 'px', 'important');
+    TARGET_IMG_INFO.imgViewEl.style.setProperty('margin-left', TARGET_IMG_INFO.left + 'px', 'important');
 }
 
 const mouseupImgView = (event: MouseEvent) => {
@@ -276,24 +308,24 @@ const mouseupImgView = (event: MouseEvent) => {
 }
 
 const mousewheelViewContainer = (event: WheelEvent) => {
-    // console.log('mousewheel', event, event.wheelDelta);
     event.preventDefault();
     event.stopPropagation();
     // @ts-ignore
-    TARGET_IMG_INFO.imgViewEl.setAttribute('width', zoom(0 < event.wheelDelta ? 0.1 : -0.1, TARGET_IMG_INFO) + 'px');
+    zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);
 }
 
 function addOrRemoveEvent(flag: boolean) {
     if (flag) {
         // close the popup layer (image-toolkit-view-container) via clicking pressing Esc
         document.addEventListener('keyup', closeViewContainerByKeyup);
+        TARGET_IMG_INFO.viewContainerEl.onclick = closeViewContainer;
         // drag the image via mouse
         TARGET_IMG_INFO.imgViewEl.onmousedown = mousedownImgView;
-        // TARGET_IMG_INFO.imgViewEl && TARGET_IMG_INFO.imgViewEl.addEventListener('mousedown', mousedownImgView);
         // zoom the image via mouse wheel
-        TARGET_IMG_INFO.viewContainerEl.addEventListener('mousewheel', mousewheelViewContainer);
+        TARGET_IMG_INFO.imgViewEl.addEventListener('mousewheel', mousewheelViewContainer);
     } else {
         document.removeEventListener('keyup', closeViewContainerByKeyup);
+        TARGET_IMG_INFO.viewContainerEl.removeEventListener('onclick', closeViewContainer);
         TARGET_IMG_INFO.imgViewEl.removeEventListener('mousedown', mousedownImgView);
         TARGET_IMG_INFO.viewContainerEl.removeEventListener('mousewheel', mousewheelViewContainer);
         if (REAL_IMG_INTERVAL) {

@@ -1,6 +1,6 @@
 import { Notice } from 'obsidian';
 import { t } from 'src/lang/helpers';
-import { IMG_INFO, renderImgTip } from 'src/ui/viewContainer';
+import { IMG_INFO, OFFSET_SIZE } from 'src/ui/viewContainer';
 import { ZOOM_FACTOR } from '../conf/constants'
 
 
@@ -32,13 +32,16 @@ export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO:
     }
     let width = tempWidth + 'px';
     let height = tempHeight + 'px';
-    let top = (windowHeight - tempHeight) / 2 + 'px';
-    let left = (windowWidth - tempWidth) / 2 + 'px';
-    // cache image info
+    // cache image info: curWidth, curHeight, realWidth, realHeight, left, top
+    TARGET_IMG_INFO.left = (windowWidth - tempWidth) / 2;
+    TARGET_IMG_INFO.top = (windowHeight - tempHeight) / 2;
     TARGET_IMG_INFO.curWidth = tempWidth;
     TARGET_IMG_INFO.curHeight = tempHeight;
     TARGET_IMG_INFO.realWidth = realImg.width;
     TARGET_IMG_INFO.realHeight = realImg.height;
+    const left = TARGET_IMG_INFO.left + 'px';
+    const top = TARGET_IMG_INFO.top + 'px';
+
     /* console.log('calculateImgZoomSize', 'realImg: ' + realImg.width + ',' + realImg.height,
         'tempSize: ' + tempWidth + ',' + tempHeight,
         'windowZoomSize: ' + windowZoomWidth + ',' + windowZoomHeight,
@@ -53,17 +56,22 @@ export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO:
  * @param imgInfo 
  * @returns 
  */
-export const zoom = (ratio: number, TARGET_IMG_INFO: IMG_INFO): number => {
-    ratio = ratio > 0 ? 1 + ratio : 1 / (1 - ratio);
-    let zoomRatio = TARGET_IMG_INFO.curWidth * ratio / TARGET_IMG_INFO.realWidth;
+export const zoom = (ratio: number, TARGET_IMG_INFO: IMG_INFO, offsetSize?: OFFSET_SIZE): any => {
+    const zoomInFlag = ratio > 0;
+    ratio = zoomInFlag ? 1 + ratio : 1 / (1 - ratio);
+    const curWidth = TARGET_IMG_INFO.curWidth;
+    const curHeight = TARGET_IMG_INFO.curHeight;
+    let zoomRatio = curWidth * ratio / TARGET_IMG_INFO.realWidth;
     const newWidth = TARGET_IMG_INFO.realWidth * zoomRatio;
-    const newHeight = TARGET_IMG_INFO.curHeight * zoomRatio;
-    // cache image info
+    const newHeight = curHeight * zoomRatio;
+    const left = TARGET_IMG_INFO.left + (offsetSize.offsetX - offsetSize.offsetX * ratio);
+    const top = TARGET_IMG_INFO.top + (offsetSize.offsetY - offsetSize.offsetY * ratio);
+    // cache image info: curWidth, curHeight, left, top
     TARGET_IMG_INFO.curWidth = newWidth;
     TARGET_IMG_INFO.curHeight = newHeight;
-    // render tip
-    renderImgTip();
-    return newWidth;
+    TARGET_IMG_INFO.left = left;
+    TARGET_IMG_INFO.top = top;
+    return { newWidth, left, top };
 }
 
 export const rotate = (degree: number, TARGET_IMG_INFO: IMG_INFO) => {
