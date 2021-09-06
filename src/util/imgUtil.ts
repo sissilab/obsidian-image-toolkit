@@ -83,7 +83,7 @@ export const invertImgColor = (imgEle: HTMLImageElement, open: boolean) => {
 }
 
 export function copyText(text: string) {
-    console.log('text:', text);
+    // console.log('text:', text);
 
     navigator.clipboard.writeText(text)
         .then(() => {
