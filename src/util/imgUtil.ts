@@ -10,9 +10,6 @@ import { ZOOM_FACTOR } from '../conf/constants'
  * @returns 
  */
 export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO: IMG_INFO): object {
-    // if (!imgSrc) {
-    //     return;
-    // }
     // 当前窗口宽高（可视宽高）
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
@@ -105,7 +102,7 @@ export function copyText(text: string) {
 
     navigator.clipboard.writeText(text)
         .then(() => {
-            console.log('copyText:', copyText);
+            //console.log('copyText:', copyText);
         })
         .catch(err => {
             console.error('copy text error', err);

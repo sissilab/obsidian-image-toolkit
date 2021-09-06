@@ -1,11 +1,18 @@
+import { parse } from 'path';
 import { t } from 'src/lang/helpers';
 import { IMG_TOOLBAR_ICONS } from '../conf/constants';
 import { calculateImgZoomSize, zoom, invertImgColor, copyImage, transform } from '../util/imgUtil';
 
 
 let DRAGGING = false;
-let DEFAULT_INVERT_COLOR: boolean = false;
 let REAL_IMG_INTERVAL: NodeJS.Timeout;
+
+const DEFAULT_IMG_STYLES = {
+    transform: 'none',
+    filter: 'none',
+    mixBlendMode: 'normal'
+}
+
 const IMG_MOVE_OFFSET = 5;
 let ARROW_PRESS_STATUS = {
     arrowUp: false,
@@ -122,7 +129,19 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         // add event: for img-toolbar ul
         imgToolbarUl.addEventListener('click', clickToolbarUl);
     }
-    DEFAULT_INVERT_COLOR = window.getComputedStyle(targetEl).filter.indexOf('invert(1)') > -1
+    const targetImgStyle = window.getComputedStyle(targetEl);
+    if (targetImgStyle) {
+        DEFAULT_IMG_STYLES.transform = targetImgStyle.transform;
+        DEFAULT_IMG_STYLES.filter = targetImgStyle.filter;
+        DEFAULT_IMG_STYLES.mixBlendMode = targetImgStyle.mixBlendMode;
+        // let rotateDeg = DEFAULT_IMG_STYLES.transform.match(/rotate\(([\-|\+]?\d+)deg\)/);
+        // if (rotateDeg && rotateDeg.length > 1) {
+        //     TARGET_IMG_INFO.rotate = parseInt(rotateDeg[1]);
+        // }
+    }
+    TARGET_IMG_INFO.invertColor = false;
+    TARGET_IMG_INFO.scaleX = false;
+    TARGET_IMG_INFO.scaleY = false;
     // show the clicked image
     renderImgTitle(targetEl.alt);
     // add all events
@@ -224,7 +243,9 @@ function refreshImg(imgSrc?: string, imgAlt?: string) {
                 setImgViewPosition(imgZoomSize, 0);
                 renderImgView(src, alt);
                 renderImgTip();
-                invertImgColor(TARGET_IMG_INFO.imgViewEl, DEFAULT_INVERT_COLOR);
+                TARGET_IMG_INFO.imgViewEl.style.setProperty('transform', DEFAULT_IMG_STYLES.transform);
+                TARGET_IMG_INFO.imgViewEl.style.setProperty('filter', DEFAULT_IMG_STYLES.filter);
+                TARGET_IMG_INFO.imgViewEl.style.setProperty('mix-blend-mode', DEFAULT_IMG_STYLES.mixBlendMode);
             }
         }, 40, realImg);
     }
