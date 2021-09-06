@@ -14,6 +14,8 @@ export default {
   REFRESH: "刷新",
   ROTATE_LEFT: "左旋",
   ROTATE_RIGHT: "右旋",
+  SCALE_X: 'x轴缩放',
+  SCALE_Y: 'y轴缩放',
   INVERT_COLOR: '反色',
   COPY: '复制',
   

@@ -22,6 +22,14 @@ export const IMG_TOOLBAR_ICONS = [{
     title: "ROTATE_RIGHT",
     class: 'toolbar_rotate_right'
 }, {
+    key: 'scale_x',
+    title: "SCALE_X",
+    class: 'toolbar_scale_x'
+}, {
+    key: 'scale_y',
+    title: "SCALE_Y",
+    class: 'toolbar_scale_y'
+}, {
     key: 'invert_color',
     title: "INVERT_COLOR",
     class: 'toolbar_invert_color'

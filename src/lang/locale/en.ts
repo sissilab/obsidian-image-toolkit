@@ -14,6 +14,8 @@ export default {
   REFRESH: "refresh",
   ROTATE_LEFT: "rotate left",
   ROTATE_RIGHT: "rotate right",
+  SCALE_X: 'scale x',
+  SCALE_Y: 'scale y',
   INVERT_COLOR: 'invert color',
   COPY: 'copy',
 

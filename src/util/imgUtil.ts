@@ -74,12 +74,30 @@ export const zoom = (ratio: number, TARGET_IMG_INFO: IMG_INFO, offsetSize?: OFFS
     return { newWidth, left, top };
 }
 
+export const transform = (TARGET_IMG_INFO: IMG_INFO) => {
+    let transform = 'rotate(' + TARGET_IMG_INFO.rotate + 'deg)';
+    if (TARGET_IMG_INFO.scaleX) {
+        transform += ' scaleX(-1)'
+    }
+    if (TARGET_IMG_INFO.scaleY) {
+        transform += ' scaleY(-1)'
+    }
+    TARGET_IMG_INFO.imgViewEl.style.setProperty('transform', transform);
+}
+
 export const rotate = (degree: number, TARGET_IMG_INFO: IMG_INFO) => {
     TARGET_IMG_INFO.imgViewEl.style.setProperty('transform', 'rotate(' + (TARGET_IMG_INFO.rotate += degree) + 'deg)');
 }
 
 export const invertImgColor = (imgEle: HTMLImageElement, open: boolean) => {
-    open ? imgEle.addClass('image-toolkit-img-invert') : imgEle.removeClass('image-toolkit-img-invert');
+    if (open) {
+        imgEle.style.setProperty('filter', 'invert(1) hue-rotate(180deg)');
+        imgEle.style.setProperty('mix-blend-mode', 'screen');
+    } else {
+        imgEle.style.setProperty('filter', 'none');
+        imgEle.style.setProperty('mix-blend-mode', 'normal');
+    }
+    // open ? imgEle.addClass('image-toolkit-img-invert') : imgEle.removeClass('image-toolkit-img-invert');
 }
 
 export function copyText(text: string) {

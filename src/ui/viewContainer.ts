@@ -1,11 +1,10 @@
 import { t } from 'src/lang/helpers';
-import tr from 'src/lang/locale/tr';
-import { IMG_TOOLBAR_ICONS, CLOSE_ICON } from '../conf/constants';
-import { calculateImgZoomSize, zoom, rotate, invertImgColor, copyImage } from '../util/imgUtil';
+import { IMG_TOOLBAR_ICONS } from '../conf/constants';
+import { calculateImgZoomSize, zoom, invertImgColor, copyImage, transform } from '../util/imgUtil';
 
 
 let DRAGGING = false;
-let INVERT_SWITCH = false;
+let DEFAULT_INVERT_COLOR: boolean = false;
 let REAL_IMG_INTERVAL: NodeJS.Timeout;
 const IMG_MOVE_OFFSET = 5;
 let ARROW_PRESS_STATUS = {
@@ -32,7 +31,11 @@ export const TARGET_IMG_INFO: IMG_INFO = {
     top: 0,
     moveX: 0,
     moveY: 0,
-    rotate: 0
+    rotate: 0,
+
+    invertColor: false,
+    scaleX: false,
+    scaleY: false
 }
 
 export interface IMG_INFO {
@@ -53,6 +56,10 @@ export interface IMG_INFO {
     moveX: number,
     moveY: number,
     rotate: number,
+
+    invertColor: boolean,
+    scaleX: boolean,
+    scaleY: boolean
 }
 
 export interface OFFSET_SIZE {
@@ -115,6 +122,7 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         // add event: for img-toolbar ul
         imgToolbarUl.addEventListener('click', clickToolbarUl);
     }
+    DEFAULT_INVERT_COLOR = window.getComputedStyle(targetEl).filter.indexOf('invert(1)') > -1
     // show the clicked image
     renderImgTitle(targetEl.alt);
     // add all events
@@ -215,8 +223,8 @@ function refreshImg(imgSrc?: string, imgAlt?: string) {
                 let imgZoomSize = calculateImgZoomSize(img, TARGET_IMG_INFO);
                 setImgViewPosition(imgZoomSize, 0);
                 renderImgView(src, alt);
-                invertImgColor(TARGET_IMG_INFO.imgViewEl, false);
                 renderImgTip();
+                invertImgColor(TARGET_IMG_INFO.imgViewEl, DEFAULT_INVERT_COLOR);
             }
         }, 40, realImg);
     }
@@ -251,14 +259,24 @@ function clickToolbarUl(event: MouseEvent) {
             refreshImg();
             break;
         case 'toolbar_rotate_left':
-            rotate(-90, TARGET_IMG_INFO);
+            TARGET_IMG_INFO.rotate -= 90;
+            transform(TARGET_IMG_INFO);
             break;
         case 'toolbar_rotate_right':
-            rotate(90, TARGET_IMG_INFO);
+            TARGET_IMG_INFO.rotate += 90;
+            transform(TARGET_IMG_INFO);
+            break;
+        case 'toolbar_scale_x':
+            TARGET_IMG_INFO.scaleX = !TARGET_IMG_INFO.scaleX;
+            transform(TARGET_IMG_INFO);
+            break;
+        case 'toolbar_scale_y':
+            TARGET_IMG_INFO.scaleY = !TARGET_IMG_INFO.scaleY;
+            transform(TARGET_IMG_INFO);
             break;
         case 'toolbar_invert_color':
-            INVERT_SWITCH = !INVERT_SWITCH;
-            invertImgColor(TARGET_IMG_INFO.imgViewEl, INVERT_SWITCH);
+            TARGET_IMG_INFO.invertColor = !TARGET_IMG_INFO.invertColor;
+            invertImgColor(TARGET_IMG_INFO.imgViewEl, TARGET_IMG_INFO.invertColor);
             break;
         case 'toolbar_copy':
             copyImage(TARGET_IMG_INFO.imgViewEl, TARGET_IMG_INFO.curWidth, TARGET_IMG_INFO.curHeight);
