@@ -1,10 +1,11 @@
-import { parse } from 'path';
 import { t } from 'src/lang/helpers';
+import tr from 'src/lang/locale/tr';
 import { IMG_TOOLBAR_ICONS } from '../conf/constants';
 import { calculateImgZoomSize, zoom, invertImgColor, copyImage, transform } from '../util/imgUtil';
 
 
 let DRAGGING = false;
+let IMG_PLAYER = false;
 let REAL_IMG_INTERVAL: NodeJS.Timeout;
 
 const DEFAULT_IMG_STYLES = {
@@ -29,6 +30,9 @@ export const TARGET_IMG_INFO: IMG_INFO = {
     imgTitleEl: null,
     imgTipEl: null,
     imgTipTimeout: null,
+    imgFooterEl: null,
+    imgPlayerEl: null,
+    imgPlayerImgViewEl: null,
 
     curWidth: 0,
     curHeight: 0,
@@ -53,6 +57,9 @@ export interface IMG_INFO {
     imgTitleEl: HTMLDivElement,
     imgTipEl: HTMLDivElement,
     imgTipTimeout?: NodeJS.Timeout,
+    imgFooterEl: HTMLElement,
+    imgPlayerEl: HTMLDivElement,
+    imgPlayerImgViewEl: HTMLImageElement,
 
     curWidth: number,
     curHeight: number,
@@ -107,17 +114,16 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         TARGET_IMG_INFO.imgTipEl.hidden = true;
         TARGET_IMG_INFO.viewContainerEl.appendChild(TARGET_IMG_INFO.imgTipEl); // img-tip
         // <div class="img-footer"> ... <div>
-        const imgFooterDiv = createDiv();
-        imgFooterDiv.setAttribute('class', 'img-footer');
-        TARGET_IMG_INFO.viewContainerEl.appendChild(imgFooterDiv); // img-footer
+        TARGET_IMG_INFO.viewContainerEl.appendChild(TARGET_IMG_INFO.imgFooterEl = createDiv()); // img-footer
+        TARGET_IMG_INFO.imgFooterEl.setAttribute('class', 'img-footer');
         // <div class="img-title"></div>
         TARGET_IMG_INFO.imgTitleEl = createDiv();
         TARGET_IMG_INFO.imgTitleEl.setAttribute('class', 'img-title');
-        imgFooterDiv.appendChild(TARGET_IMG_INFO.imgTitleEl);
+        TARGET_IMG_INFO.imgFooterEl.appendChild(TARGET_IMG_INFO.imgTitleEl);
         // <ul class="img-toolbar">
         const imgToolbarUl = createEl('ul');
         imgToolbarUl.setAttribute('class', 'img-toolbar');
-        imgFooterDiv.appendChild(imgToolbarUl);
+        TARGET_IMG_INFO.imgFooterEl.appendChild(imgToolbarUl);
         for (const toolbar of IMG_TOOLBAR_ICONS) {
             const toolbarLi = createEl('li');
             toolbarLi.setAttribute('class', toolbar.class);
@@ -128,24 +134,40 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         }
         // add event: for img-toolbar ul
         imgToolbarUl.addEventListener('click', clickToolbarUl);
+        // <div class="img-player"> <img src=''> </div>
+        TARGET_IMG_INFO.viewContainerEl.appendChild(TARGET_IMG_INFO.imgPlayerEl = createDiv()); // img-player
+        TARGET_IMG_INFO.imgPlayerEl.setAttribute('class', 'img-player');
+        TARGET_IMG_INFO.imgPlayerEl.appendChild(TARGET_IMG_INFO.imgPlayerImgViewEl = createEl('img'));
     }
     const targetImgStyle = window.getComputedStyle(targetEl);
     if (targetImgStyle) {
         DEFAULT_IMG_STYLES.transform = targetImgStyle.transform;
         DEFAULT_IMG_STYLES.filter = targetImgStyle.filter;
+        // @ts-ignore
         DEFAULT_IMG_STYLES.mixBlendMode = targetImgStyle.mixBlendMode;
         // let rotateDeg = DEFAULT_IMG_STYLES.transform.match(/rotate\(([\-|\+]?\d+)deg\)/);
         // if (rotateDeg && rotateDeg.length > 1) {
         //     TARGET_IMG_INFO.rotate = parseInt(rotateDeg[1]);
         // }
     }
+    initDefaultData();
+    // show the clicked image
+    renderImgTitle(targetEl.alt)
+    // add all events
+    addOrRemoveEvent(true);
+}
+
+function initDefaultData() {
+    DRAGGING = false;
+    IMG_PLAYER = false;
+    REAL_IMG_INTERVAL = null;
+    ARROW_PRESS_STATUS.arrowUp = false;
+    ARROW_PRESS_STATUS.arrowDown = false;
+    ARROW_PRESS_STATUS.arrowLeft = false;
+    ARROW_PRESS_STATUS.arrowRight = false;
     TARGET_IMG_INFO.invertColor = false;
     TARGET_IMG_INFO.scaleX = false;
     TARGET_IMG_INFO.scaleY = false;
-    // show the clicked image
-    renderImgTitle(targetEl.alt);
-    // add all events
-    addOrRemoveEvent(true);
 }
 
 function openViewContainer() {
@@ -251,6 +273,38 @@ function refreshImg(imgSrc?: string, imgAlt?: string) {
     }
 }
 
+function showPlayerImg() {
+    IMG_PLAYER = true;
+    TARGET_IMG_INFO.imgViewEl.style.setProperty('display', 'none', 'important');
+    TARGET_IMG_INFO.imgFooterEl.style.setProperty('display', 'none');
+    TARGET_IMG_INFO.imgPlayerEl.style.setProperty('display', 'block');
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('src', TARGET_IMG_INFO.imgViewEl.src);
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('alt', TARGET_IMG_INFO.imgViewEl.alt);
+    const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
+    const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+    let newWidth, newHeight;
+    if (windowWidth <= windowHeight) {
+        newWidth = windowWidth;
+        newHeight = newWidth * TARGET_IMG_INFO.realHeight / TARGET_IMG_INFO.realWidth;
+    } else {
+        newHeight = windowHeight;
+        newWidth = newHeight * TARGET_IMG_INFO.realWidth / TARGET_IMG_INFO.realHeight;
+    }
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('width', newWidth + 'px');
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('height', newHeight + 'px');
+    TARGET_IMG_INFO.imgPlayerEl.addEventListener('click', closePlayerImg);
+}
+
+function closePlayerImg() {
+    IMG_PLAYER = false;
+    TARGET_IMG_INFO.imgViewEl.style.setProperty('display', 'block', 'important');
+    TARGET_IMG_INFO.imgFooterEl.style.setProperty('display', 'block');
+    TARGET_IMG_INFO.imgPlayerEl.style.setProperty('display', 'none');
+    TARGET_IMG_INFO.imgPlayerImgViewEl.src = '';
+    TARGET_IMG_INFO.imgPlayerImgViewEl.alt = '';
+    TARGET_IMG_INFO.imgPlayerEl.removeEventListener('click', closePlayerImg);
+}
+
 function zoomAndRender(ratio: number, event?: WheelEvent): any {
     let offsetSize: OFFSET_SIZE = { offsetX: 0, offsetY: 0 };
     if (event) {
@@ -275,6 +329,9 @@ function clickToolbarUl(event: MouseEvent) {
             break;
         case 'toolbar_zoom_out':
             zoomAndRender(-0.1);
+            break;
+        case 'toolbar_full_screen':
+            showPlayerImg();
             break;
         case 'toolbar_refresh':
             refreshImg();
@@ -313,7 +370,7 @@ const triggerkeyup = (event: KeyboardEvent) => {
     event.stopPropagation();
     switch (event.code) {
         case 'Escape': // Esc
-            closeViewContainer();
+            IMG_PLAYER ? closePlayerImg() : closeViewContainer();
             break;
         case 'ArrowUp':
             ARROW_PRESS_STATUS.arrowUp = false;
@@ -425,7 +482,7 @@ function addOrRemoveEvent(flag: boolean) {
         // close the popup layer (image-toolkit-view-container) via clicking pressing Esc
         document.addEventListener('keyup', triggerkeyup);
         document.addEventListener('keydown', triggerkeydown);
-        TARGET_IMG_INFO.viewContainerEl.onclick = closeViewContainer;
+        TARGET_IMG_INFO.viewContainerEl.addEventListener('click', closeViewContainer);
         // drag the image via mouse
         TARGET_IMG_INFO.imgViewEl.onmousedown = mousedownImgView;
         // zoom the image via mouse wheel
@@ -433,7 +490,7 @@ function addOrRemoveEvent(flag: boolean) {
     } else {
         document.removeEventListener('keyup', triggerkeyup);
         document.removeEventListener('keydown', triggerkeydown);
-        TARGET_IMG_INFO.viewContainerEl.removeEventListener('onclick', closeViewContainer);
+        TARGET_IMG_INFO.viewContainerEl.removeEventListener('click', closeViewContainer);
         TARGET_IMG_INFO.imgViewEl.removeEventListener('mousedown', mousedownImgView);
         TARGET_IMG_INFO.viewContainerEl.removeEventListener('mousewheel', mousewheelViewContainer);
         if (REAL_IMG_INTERVAL) {

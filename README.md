@@ -10,11 +10,18 @@
 </p>
 
 ## About the Plugin
-When you click an image, it will be displayed in a popup layer and you can view, drag, zoom, rotate the image.
+When you click an image, it will be displayed in a popup layer and you can view, drag, zoom, rotate, invert the image.
 
 ![view_image.png](example/view_image.gif)
 
-* You can also zoom an image by mouse wheel and close the popup layer by Esc.
+## Features
+- Zoom in or out the image by mouse wheel.
+- Move the image by mouse or keyboard (up, down, left, right).
+- View the image in full-screen mode.
+- Rotate the image by clicking footer toolbar icons.
+- Invert the color of the image.
+- Copy the image (You can only copy the original image now).
+- Close the popup layer by Esc or clicking the outside of the image.
 
 ## Download and Install
 [Enter the github release page to download.](https://github.com/sissilab/obsidian-image-toolkit/releases)

@@ -11,6 +11,7 @@ export default {
   // toolbar icon title
   ZOOM_IN: "zoom in",
   ZOOM_OUT: "zoom out",
+  FULL_SCREEN: 'full screen',
   REFRESH: "refresh",
   ROTATE_LEFT: "rotate left",
   ROTATE_RIGHT: "rotate right",

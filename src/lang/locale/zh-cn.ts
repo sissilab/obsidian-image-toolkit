@@ -11,6 +11,7 @@ export default {
   // toolbar icon title
   ZOOM_IN: "放大",
   ZOOM_OUT: "缩小",
+  FULL_SCREEN: "全屏",
   REFRESH: "刷新",
   ROTATE_LEFT: "左旋",
   ROTATE_RIGHT: "右旋",

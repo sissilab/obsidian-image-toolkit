@@ -10,6 +10,10 @@ export const IMG_TOOLBAR_ICONS = [{
     title: "ZOOM_OUT",
     class: 'toolbar_zoom_out'
 }, {
+    key: 'full_screen',
+    title: "FULL_SCREEN",
+    class: 'toolbar_full_screen'
+}, {
     key: 'refresh',
     title: "REFRESH",
     class: 'toolbar_refresh'
