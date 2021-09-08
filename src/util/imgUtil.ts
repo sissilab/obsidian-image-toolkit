@@ -57,10 +57,10 @@ export const zoom = (ratio: number, TARGET_IMG_INFO: IMG_INFO, offsetSize?: OFFS
     const zoomInFlag = ratio > 0;
     ratio = zoomInFlag ? 1 + ratio : 1 / (1 - ratio);
     const curWidth = TARGET_IMG_INFO.curWidth;
-    const curHeight = TARGET_IMG_INFO.curHeight;
+    // const curHeight = TARGET_IMG_INFO.curHeight;
     let zoomRatio = curWidth * ratio / TARGET_IMG_INFO.realWidth;
     const newWidth = TARGET_IMG_INFO.realWidth * zoomRatio;
-    const newHeight = curHeight * zoomRatio;
+    const newHeight = TARGET_IMG_INFO.realHeight * zoomRatio;
     const left = TARGET_IMG_INFO.left + (offsetSize.offsetX - offsetSize.offsetX * ratio);
     const top = TARGET_IMG_INFO.top + (offsetSize.offsetY - offsetSize.offsetY * ratio);
     // cache image info: curWidth, curHeight, left, top

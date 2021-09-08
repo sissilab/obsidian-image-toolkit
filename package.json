@@ -1,7 +1,7 @@
 {
   "name": "obsidian-image-toolkit",
-  "version": "0.3.0-beta",
-  "description": "This plugin provides some image toolkit.",
+  "version": "0.3.5",
+  "description": "This plugin provides some image viewing toolkit.",
   "main": "src/main.js",
   "scripts": {
     "dev": "rollup --config rollup.config.js -w",

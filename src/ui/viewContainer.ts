@@ -1,5 +1,4 @@
 import { t } from 'src/lang/helpers';
-import tr from 'src/lang/locale/tr';
 import { IMG_TOOLBAR_ICONS } from '../conf/constants';
 import { calculateImgZoomSize, zoom, invertImgColor, copyImage, transform } from '../util/imgUtil';
 

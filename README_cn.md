@@ -1,6 +1,6 @@
  <h1 align="center">Obsidian Image Toolkit</h1>
  <p align="center">
-    <span>Obsidian Image Toolkit 是一款 Obsidian 的第三方插件，它提供了一些有关图片操作的小功能。</span>
+    <span>Obsidian Image Toolkit 是一款 Obsidian 的第三方插件，它提供了一些有关图片查看操作的小功能。</span>
     <br/>
     <a href="https://github.com/sissilab/obsidian-image-toolkit/issues">反馈问题</a>
     ·
