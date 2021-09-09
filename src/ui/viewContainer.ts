@@ -133,6 +133,13 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         }
         // add event: for img-toolbar ul
         imgToolbarUl.addEventListener('click', clickToolbarUl);
+        window.addEventListener('click', function(e){
+            if (e.target.classList.contains('img-container') || 
+                e.target.classList.contains('image-toolkit-view-container' ||
+                e.target.classList.contains('img-footer'))){
+                closeViewContainer();
+            }
+        });
         // <div class="img-player"> <img src=''> </div>
         TARGET_IMG_INFO.viewContainerEl.appendChild(TARGET_IMG_INFO.imgPlayerEl = createDiv()); // img-player
         TARGET_IMG_INFO.imgPlayerEl.setAttribute('class', 'img-player');
