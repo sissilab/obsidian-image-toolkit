@@ -79,6 +79,7 @@ body {
     top: 0;
     cursor: none;
     background-color: #000;
+    text-align: center;
 }
 
 .image-toolkit-view-container .img-footer {
