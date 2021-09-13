@@ -12,6 +12,10 @@ body {
     cursor: zoom-in !important;
 }
 
+.community-plugin-details img {
+    cursor: zoom-in !important;
+}
+
 /* .view-content img:active {
     position: inherit !important;
     width: auto !important;
@@ -80,6 +84,7 @@ body {
     cursor: none;
     background-color: #000;
     text-align: center;
+    cursor: pointer;
 }
 
 .image-toolkit-view-container .img-footer {

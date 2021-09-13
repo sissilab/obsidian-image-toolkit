@@ -1,7 +1,7 @@
 import { t } from 'src/lang/helpers';
 import { IMG_TOOLBAR_ICONS } from '../conf/constants';
 import { calculateImgZoomSize, zoom, invertImgColor, copyImage, transform } from '../util/imgUtil';
-
+import { DEFAULT_SETTINGS } from 'src/conf/settings';
 
 let DRAGGING = false;
 let IMG_PLAYER = false;
@@ -13,7 +13,7 @@ const DEFAULT_IMG_STYLES = {
     mixBlendMode: 'normal'
 }
 
-const IMG_MOVE_OFFSET = 5;
+// let IMG_MOVE_OFFSET: number = 5;
 let ARROW_PRESS_STATUS = {
     arrowUp: false,
     arrowDown: false,
@@ -21,7 +21,6 @@ let ARROW_PRESS_STATUS = {
     arrowRight: false
 }
 export const TARGET_IMG_INFO: IMG_INFO = {
-    // true: the popup layer of viewing image is displayed
     state: false,
 
     viewContainerEl: null,
@@ -49,6 +48,7 @@ export const TARGET_IMG_INFO: IMG_INFO = {
 }
 
 export interface IMG_INFO {
+    // true: the popup layer of viewing image is displayed
     state: boolean,
 
     viewContainerEl: HTMLDivElement,
@@ -393,33 +393,33 @@ const triggerkeydown = (event: KeyboardEvent) => {
     event.preventDefault();
     event.stopPropagation();
     if (ARROW_PRESS_STATUS.arrowUp && ARROW_PRESS_STATUS.arrowLeft) {
-        mousemoveImgView(null, { offsetX: -IMG_MOVE_OFFSET, offsetY: -IMG_MOVE_OFFSET });
+        mousemoveImgView(null, { offsetX: -DEFAULT_SETTINGS.imageMoveSpeed, offsetY: -DEFAULT_SETTINGS.imageMoveSpeed });
         return;
     } else if (ARROW_PRESS_STATUS.arrowUp && ARROW_PRESS_STATUS.arrowRight) {
-        mousemoveImgView(null, { offsetX: IMG_MOVE_OFFSET, offsetY: -IMG_MOVE_OFFSET });
+        mousemoveImgView(null, { offsetX: DEFAULT_SETTINGS.imageMoveSpeed, offsetY: -DEFAULT_SETTINGS.imageMoveSpeed });
         return;
-    } else if (ARROW_PRESS_STATUS.arrowDown && ARROW_PRESS_STATUS.arrowLeft) {
-        mousemoveImgView(null, { offsetX: -IMG_MOVE_OFFSET, offsetY: IMG_MOVE_OFFSET });
+    } else if (ARROW_PRESS_STATUS.arrowDown && ARROW_PRESS_STATUS.arrowLeft) {  
+        mousemoveImgView(null, { offsetX: -DEFAULT_SETTINGS.imageMoveSpeed, offsetY: DEFAULT_SETTINGS.imageMoveSpeed });
         return;
     } else if (ARROW_PRESS_STATUS.arrowDown && ARROW_PRESS_STATUS.arrowRight) {
-        mousemoveImgView(null, { offsetX: IMG_MOVE_OFFSET, offsetY: IMG_MOVE_OFFSET });
+        mousemoveImgView(null, { offsetX: DEFAULT_SETTINGS.imageMoveSpeed, offsetY: DEFAULT_SETTINGS.imageMoveSpeed });
         return;
     }
     switch (event.code) {
         case 'ArrowUp':
-            mousemoveImgView(null, { offsetX: 0, offsetY: -IMG_MOVE_OFFSET });
+            mousemoveImgView(null, { offsetX: 0, offsetY: -DEFAULT_SETTINGS.imageMoveSpeed });
             ARROW_PRESS_STATUS.arrowUp = true;
             break;
         case 'ArrowDown':
-            mousemoveImgView(null, { offsetX: 0, offsetY: IMG_MOVE_OFFSET });
+            mousemoveImgView(null, { offsetX: 0, offsetY: DEFAULT_SETTINGS.imageMoveSpeed });
             ARROW_PRESS_STATUS.arrowDown = true;
             break;
         case 'ArrowLeft':
-            mousemoveImgView(null, { offsetX: -IMG_MOVE_OFFSET, offsetY: 0 });
+            mousemoveImgView(null, { offsetX: -DEFAULT_SETTINGS.imageMoveSpeed, offsetY: 0 });
             ARROW_PRESS_STATUS.arrowLeft = true;
             break;
         case 'ArrowRight':
-            mousemoveImgView(null, { offsetX: IMG_MOVE_OFFSET, offsetY: 0 });
+            mousemoveImgView(null, { offsetX: DEFAULT_SETTINGS.imageMoveSpeed, offsetY: 0 });
             ARROW_PRESS_STATUS.arrowRight = true;
             break;
         default:
@@ -443,6 +443,8 @@ const mousedownImgView = (event: MouseEvent) => {
 }
 
 const mousemoveImgView = (event: MouseEvent, offsetSize?: OFFSET_SIZE) => {
+    console.log(offsetSize);
+    
     if (!DRAGGING && !offsetSize) {
         return;
     }
