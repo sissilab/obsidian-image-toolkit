@@ -14,6 +14,11 @@ export default {
   VIEW_IMAGE_WITH_A_LINK_DESC: '开启后，支持点击带链接的图片（注意：点击该图片，会同时打开浏览器访问指定地址和弹出预览图片）',
   IMAG_MOVE_SPEED_NAME: '图片移动速度设置',
   IMAG_MOVE_SPEED_DESC: '当使用键盘（上、下、左、右）移动图片时，可对图片移动速度进行设置。',
+  IMG_FULL_SCREEN_MODE_NAME: '全屏预览模式',
+
+  FIT: '自适应',
+  FILL: '填充',
+  STRETCH: '拉伸',
 
   // toolbar icon title
   ZOOM_IN: "放大",
@@ -28,6 +33,7 @@ export default {
   COPY: '复制',
   
   // tip
-  COPY_IMAGE_SUCCESS: '拷贝图片成功！'
+  COPY_IMAGE_SUCCESS: '拷贝图片成功！',
+  COPY_IMAGE_ERROR: '拷贝图片失败！'
 
 };

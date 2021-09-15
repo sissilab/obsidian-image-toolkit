@@ -1,12 +1,14 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
+import { IMG_FULL_SCREEN_MODE } from './constants';
 
 export interface ImageToolkitSettings {
     viewImageToggle: boolean,
     viewImageInCPB: boolean,
     viewImageWithALink: boolean
-    imageMoveSpeed: number
+    imageMoveSpeed: number,
+    imgFullScreenMode: string
     // imgActiveConflict: boolean,
 }
 
@@ -14,7 +16,8 @@ export const DEFAULT_SETTINGS: ImageToolkitSettings = {
     viewImageToggle: true,
     viewImageInCPB: false,
     viewImageWithALink: false,
-    imageMoveSpeed: 10
+    imageMoveSpeed: 10,
+    imgFullScreenMode: IMG_FULL_SCREEN_MODE.FIT
     // imgActiveConflict: false
 }
 
@@ -25,6 +28,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         super(app, plugin);
         this.plugin = plugin;
         DEFAULT_SETTINGS.imageMoveSpeed = this.plugin.settings.imageMoveSpeed;
+        DEFAULT_SETTINGS.imgFullScreenMode = this.plugin.settings.imgFullScreenMode;
     }
 
     display(): void {
@@ -84,6 +88,22 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 el.style.minWidth = "2.3em";
                 el.style.textAlign = "right";
                 el.innerText = " " + this.plugin.settings.imageMoveSpeed.toString();
+            });
+
+
+        new Setting(containerEl)
+            .setName(t("IMG_FULL_SCREEN_MODE_NAME"))
+            .addDropdown(async (dropdown) => {
+                for (const key in IMG_FULL_SCREEN_MODE) {
+                    // @ts-ignore
+                    dropdown.addOption(key, t(key));
+                }
+                dropdown.setValue(DEFAULT_SETTINGS.imgFullScreenMode);
+                dropdown.onChange(async (option) => {
+                    this.plugin.settings.imgFullScreenMode = option;
+                    DEFAULT_SETTINGS.imgFullScreenMode = option;
+                    await this.plugin.saveSettings();
+                });
             });
     }
 

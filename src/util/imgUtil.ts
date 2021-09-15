@@ -1,3 +1,4 @@
+import { rejects } from 'assert';
 import { Notice } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import { IMG_INFO, OFFSET_SIZE } from 'src/ui/viewContainer';
@@ -111,8 +112,8 @@ export function copyText(text: string) {
 
 export function copyImage(imgEle: HTMLImageElement, width: number, height: number) {
     let image = new Image();
-    image.src = imgEle.src;
     image.crossOrigin = 'anonymous';
+    image.src = imgEle.src;
     image.onload = () => {
         const canvas = document.createElement('canvas');
         canvas.width = image.width;
@@ -127,4 +128,7 @@ export function copyImage(imgEle: HTMLImageElement, width: number, height: numbe
             new Notice(t("COPY_IMAGE_SUCCESS"));
         });
     };
+    image.onerror = () => {
+        new Notice(t("COPY_IMAGE_ERROR"));
+    }
 }

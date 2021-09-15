@@ -1,5 +1,5 @@
 import { t } from 'src/lang/helpers';
-import { IMG_TOOLBAR_ICONS } from '../conf/constants';
+import { IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from '../conf/constants';
 import { calculateImgZoomSize, zoom, invertImgColor, copyImage, transform } from '../util/imgUtil';
 import { DEFAULT_SETTINGS } from 'src/conf/settings';
 
@@ -272,6 +272,9 @@ function refreshImg(imgSrc?: string, imgAlt?: string) {
     }
 }
 
+/**
+ * full-screen mode
+ */
 function showPlayerImg() {
     IMG_PLAYER = true;
     TARGET_IMG_INFO.imgViewEl.style.setProperty('display', 'none', 'important');
@@ -282,15 +285,26 @@ function showPlayerImg() {
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
     let newWidth, newHeight;
-    if (windowWidth <= windowHeight) {
-        newWidth = windowWidth;
-        newHeight = newWidth * TARGET_IMG_INFO.realHeight / TARGET_IMG_INFO.realWidth;
+    if (IMG_FULL_SCREEN_MODE.STRETCH == DEFAULT_SETTINGS.imgFullScreenMode) {
+        newWidth = windowWidth + 'px';
+        newHeight = windowHeight + 'px';
+    } else if (IMG_FULL_SCREEN_MODE.FILL == DEFAULT_SETTINGS.imgFullScreenMode) {
+        newWidth = '100%';
+        newHeight = '100%';
     } else {
-        newHeight = windowHeight;
-        newWidth = newHeight * TARGET_IMG_INFO.realWidth / TARGET_IMG_INFO.realHeight;
+        if (windowWidth <= windowHeight) {
+            newWidth = windowWidth;
+            newHeight = newWidth * TARGET_IMG_INFO.realHeight / TARGET_IMG_INFO.realWidth;
+        } else {
+            newHeight = windowHeight;
+            newWidth = newHeight * TARGET_IMG_INFO.realWidth / TARGET_IMG_INFO.realHeight;
+        }
+        newWidth = newWidth + 'px';
+        newHeight = newHeight + 'px';
     }
-    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('width', newWidth + 'px');
-    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('height', newHeight + 'px');
+    
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('width', newWidth);
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('height', newHeight);
     TARGET_IMG_INFO.imgPlayerEl.addEventListener('click', closePlayerImg);
 }
 
@@ -398,7 +412,7 @@ const triggerkeydown = (event: KeyboardEvent) => {
     } else if (ARROW_PRESS_STATUS.arrowUp && ARROW_PRESS_STATUS.arrowRight) {
         mousemoveImgView(null, { offsetX: DEFAULT_SETTINGS.imageMoveSpeed, offsetY: -DEFAULT_SETTINGS.imageMoveSpeed });
         return;
-    } else if (ARROW_PRESS_STATUS.arrowDown && ARROW_PRESS_STATUS.arrowLeft) {  
+    } else if (ARROW_PRESS_STATUS.arrowDown && ARROW_PRESS_STATUS.arrowLeft) {
         mousemoveImgView(null, { offsetX: -DEFAULT_SETTINGS.imageMoveSpeed, offsetY: DEFAULT_SETTINGS.imageMoveSpeed });
         return;
     } else if (ARROW_PRESS_STATUS.arrowDown && ARROW_PRESS_STATUS.arrowRight) {
@@ -443,8 +457,6 @@ const mousedownImgView = (event: MouseEvent) => {
 }
 
 const mousemoveImgView = (event: MouseEvent, offsetSize?: OFFSET_SIZE) => {
-    console.log(offsetSize);
-    
     if (!DRAGGING && !offsetSize) {
         return;
     }
