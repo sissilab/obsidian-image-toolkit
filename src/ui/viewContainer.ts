@@ -138,7 +138,7 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         TARGET_IMG_INFO.imgPlayerEl.setAttribute('class', 'img-player');
         TARGET_IMG_INFO.imgPlayerEl.appendChild(TARGET_IMG_INFO.imgPlayerImgViewEl = createEl('img'));
     }
-    const targetImgStyle = window.getComputedStyle(targetEl);
+    /*const targetImgStyle = window.getComputedStyle(targetEl);
     if (targetImgStyle) {
         DEFAULT_IMG_STYLES.transform = targetImgStyle.transform;
         DEFAULT_IMG_STYLES.filter = targetImgStyle.filter;
@@ -148,7 +148,7 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         // if (rotateDeg && rotateDeg.length > 1) {
         //     TARGET_IMG_INFO.rotate = parseInt(rotateDeg[1]);
         // }
-    }
+    }*/
     initDefaultData();
     // show the clicked image
     renderImgTitle(targetEl.alt)

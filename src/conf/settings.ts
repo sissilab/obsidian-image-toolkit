@@ -14,7 +14,7 @@ export interface ImageToolkitSettings {
 
 export const DEFAULT_SETTINGS: ImageToolkitSettings = {
     viewImageToggle: true,
-    viewImageInCPB: false,
+    viewImageInCPB: true,
     viewImageWithALink: false,
     imageMoveSpeed: 10,
     imgFullScreenMode: IMG_FULL_SCREEN_MODE.FIT
