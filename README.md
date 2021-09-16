@@ -29,3 +29,4 @@ When you click an image, it will be displayed in a popup layer and you can view,
 ## Others
 * It's just a simple verison, more new features will be in the future.
 * Welcome to come up with some suggestions about this plugin.
+* Due to lack of sufficient time, this plug-in hasn't been tested in some themes. So any comment and suggestion is welcome!
