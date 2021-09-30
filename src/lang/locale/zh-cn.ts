@@ -5,7 +5,13 @@ export default {
   // settings
   IMAGE_TOOLKIT_SETTINGS_TITLE: "Image Toolkit 插件设置",
 
+  VIEW_IMAGE_GLOBAL_NAME: '支持全局预览图片',
+  VIEW_IMAGE_GLOBAL_DESC: '开启后，在任何地方都可以点击图片会弹出预览界面，可对图片进行缩放、旋转、拖动、和反色',
+  VIEW_IMAGE_EDITOR_NAME: '支持在编辑区域预览图片',
+  VIEW_IMAGE_EDITOR_DESC: '开启后，支持在编辑区域，点击图片预览。',
+  // @Deprecated
   VIEW_IMAGE_TOGGLE_NAME: "点击图片预览",
+  // @Deprecated
   VIEW_IMAGE_TOGGLE_DESC: "开启后，点击图片会弹出预览界面，可对图片进行缩放、旋转、拖动。",
   // CPB = COMMUNITY_PLUGINS_BROWSER
   VIEW_IMAGE_IN_CPB_NAME: '支持在社区插件页面预览图片',

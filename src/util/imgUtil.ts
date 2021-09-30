@@ -1,4 +1,3 @@
-import { rejects } from 'assert';
 import { Notice } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import { IMG_INFO, OFFSET_SIZE } from 'src/ui/viewContainer';

@@ -5,7 +5,13 @@ export default {
   // settings
   IMAGE_TOOLKIT_SETTINGS_TITLE: "Settings for Image Toolkit.",
 
+  VIEW_IMAGE_GLOBAL_NAME: 'Enable clicking and viewing a picture globally',
+  VIEW_IMAGE_GLOBAL_DESC: 'You can zoom, rotate, drag, and invert it on the popup layer when clicking on a picture.',
+  VIEW_IMAGE_EDITOR_NAME: 'Enable clicking and viewing a picture in the Editor Areas',
+  VIEW_IMAGE_EDITOR_DESC: 'Turn on this option if you want to click and view a picture in the Editor Areas.',
+  // @Deprecated
   VIEW_IMAGE_TOGGLE_NAME: "Enable clicking and viewing a picture",
+  // @Deprecated
   VIEW_IMAGE_TOGGLE_DESC: "You can zoom, rotate and drag it on the popup layer when clicking on a picture.",
   // CPB = COMMUNITY_PLUGINS_BROWSER
   VIEW_IMAGE_IN_CPB_NAME: 'Enable clicking and viewing a picture in the Community Plugins browser', 

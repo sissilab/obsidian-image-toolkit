@@ -5,7 +5,9 @@ export default {
   // settings
   IMAGE_TOOLKIT_SETTINGS_TITLE: "image toolkit 設定",
 
+  // @Deprecated
   VIEW_IMAGE_TOGGLE_NAME: "啟用點擊圖片以檢視",
+  // @Deprecated
   VIEW_IMAGE_TOGGLE_DESC: "點擊圖片後，你可以對彈出視窗縮放、旋轉與拖曳",
   
   // toolbar icon title

@@ -8,12 +8,8 @@ body {
     z-index: var(--layer-image-toolkit-notice);
 }
 
-.view-content img {
-    cursor: zoom-in !important;
-}
-
-.community-plugin-details img {
-    cursor: zoom-in !important;
+img {
+    cursor: zoom-in;
 }
 
 .image-toolkit-view-container li::before {
@@ -98,6 +94,7 @@ body {
     transform: none;
     margin: 0 auto;
     padding: 0;
+    cursor: pointer;
 }
 
 .image-toolkit-view-container .img-footer {

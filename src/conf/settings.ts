@@ -1,9 +1,13 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
+import tr from 'src/lang/locale/tr';
 import type ImageToolkitPlugin from "src/main";
 import { IMG_FULL_SCREEN_MODE } from './constants';
 
 export interface ImageToolkitSettings {
+    viewImageGlobal: boolean,
+    viewImageEditor: boolean,
+    // @Deprecated
     viewImageToggle: boolean,
     viewImageInCPB: boolean,
     viewImageWithALink: boolean
@@ -13,6 +17,9 @@ export interface ImageToolkitSettings {
 }
 
 export const DEFAULT_SETTINGS: ImageToolkitSettings = {
+    viewImageGlobal: true,
+    viewImageEditor: true,
+    // @Deprecated
     viewImageToggle: true,
     viewImageInCPB: true,
     viewImageWithALink: false,
@@ -38,13 +45,24 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         containerEl.createEl('h2', { text: t("IMAGE_TOOLKIT_SETTINGS_TITLE") });
 
         new Setting(containerEl)
-            .setName(t("VIEW_IMAGE_TOGGLE_NAME"))
-            .setDesc(t("VIEW_IMAGE_TOGGLE_DESC"))
+            .setName(t("VIEW_IMAGE_GLOBAL_NAME"))
+            .setDesc(t("VIEW_IMAGE_GLOBAL_DESC"))
             .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.viewImageToggle)
+                .setValue(this.plugin.settings.viewImageGlobal)
                 .onChange(async (value) => {
-                    this.plugin.settings.viewImageToggle = value;
-                    this.plugin.toggleViewImage(value);
+                    this.plugin.settings.viewImageGlobal = value;
+                    this.plugin.toggleViewImage();
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName(t("VIEW_IMAGE_EDITOR_NAME"))
+            .setDesc(t("VIEW_IMAGE_EDITOR_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.viewImageEditor)
+                .onChange(async (value) => {
+                    this.plugin.settings.viewImageEditor = value;
+                    this.plugin.toggleViewImage();
                     await this.plugin.saveSettings();
                 }));
 
@@ -55,7 +73,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.viewImageInCPB)
                 .onChange(async (value) => {
                     this.plugin.settings.viewImageInCPB = value;
-                    this.plugin.toggleViewImageInCPB(value);
+                    this.plugin.toggleViewImage();
                     await this.plugin.saveSettings();
                 }));
 

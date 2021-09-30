@@ -138,9 +138,9 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         TARGET_IMG_INFO.imgPlayerEl.setAttribute('class', 'img-player');
         TARGET_IMG_INFO.imgPlayerEl.appendChild(TARGET_IMG_INFO.imgPlayerImgViewEl = createEl('img'));
     }
-    /*const targetImgStyle = window.getComputedStyle(targetEl);
+    const targetImgStyle = window.getComputedStyle(targetEl);
     if (targetImgStyle) {
-        DEFAULT_IMG_STYLES.transform = targetImgStyle.transform;
+        DEFAULT_IMG_STYLES.transform = 'none';
         DEFAULT_IMG_STYLES.filter = targetImgStyle.filter;
         // @ts-ignore
         DEFAULT_IMG_STYLES.mixBlendMode = targetImgStyle.mixBlendMode;
@@ -148,7 +148,7 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         // if (rotateDeg && rotateDeg.length > 1) {
         //     TARGET_IMG_INFO.rotate = parseInt(rotateDeg[1]);
         // }
-    }*/
+    }
     initDefaultData();
     // show the clicked image
     renderImgTitle(targetEl.alt)
@@ -277,14 +277,18 @@ function refreshImg(imgSrc?: string, imgAlt?: string) {
  */
 function showPlayerImg() {
     IMG_PLAYER = true;
-    TARGET_IMG_INFO.imgViewEl.style.setProperty('display', 'none', 'important');
-    TARGET_IMG_INFO.imgFooterEl.style.setProperty('display', 'none');
     TARGET_IMG_INFO.imgPlayerEl.style.setProperty('display', 'block');
+    TARGET_IMG_INFO.imgPlayerEl.addEventListener('click', closePlayerImg);
     TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('src', TARGET_IMG_INFO.imgViewEl.src);
     TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('alt', TARGET_IMG_INFO.imgViewEl.alt);
+
+    TARGET_IMG_INFO.imgViewEl.style.setProperty('display', 'none', 'important');
+    TARGET_IMG_INFO.imgFooterEl.style.setProperty('display', 'none');
+    
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
     let newWidth, newHeight;
+    let top = 0;
     if (IMG_FULL_SCREEN_MODE.STRETCH == DEFAULT_SETTINGS.imgFullScreenMode) {
         newWidth = windowWidth + 'px';
         newHeight = windowHeight + 'px';
@@ -292,30 +296,35 @@ function showPlayerImg() {
         newWidth = '100%';
         newHeight = '100%';
     } else {
-        if (windowWidth <= windowHeight) {
+        // fit
+        const widthRatio = windowWidth / TARGET_IMG_INFO.realWidth;
+        const heightRatio = windowHeight / TARGET_IMG_INFO.realHeight;
+        if (widthRatio <= heightRatio) {
             newWidth = windowWidth;
-            newHeight = newWidth * TARGET_IMG_INFO.realHeight / TARGET_IMG_INFO.realWidth;
+            newHeight = widthRatio * TARGET_IMG_INFO.realHeight;
         } else {
             newHeight = windowHeight;
-            newWidth = newHeight * TARGET_IMG_INFO.realWidth / TARGET_IMG_INFO.realHeight;
+            newWidth = heightRatio * TARGET_IMG_INFO.realWidth;
         }
+        top = (windowHeight - newHeight) / 2;
         newWidth = newWidth + 'px';
         newHeight = newHeight + 'px';
     }
-    
     TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('width', newWidth);
     TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('height', newHeight);
-    TARGET_IMG_INFO.imgPlayerEl.addEventListener('click', closePlayerImg);
+    //TARGET_IMG_INFO.imgPlayerEl.style.setProperty('margin-top', top + 'px');
 }
 
 function closePlayerImg() {
     IMG_PLAYER = false;
+    TARGET_IMG_INFO.imgPlayerEl.style.setProperty('display', 'none');
+    TARGET_IMG_INFO.imgPlayerEl.removeEventListener('click', closePlayerImg);
+
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('src', '');
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('alt', '');
+
     TARGET_IMG_INFO.imgViewEl.style.setProperty('display', 'block', 'important');
     TARGET_IMG_INFO.imgFooterEl.style.setProperty('display', 'block');
-    TARGET_IMG_INFO.imgPlayerEl.style.setProperty('display', 'none');
-    TARGET_IMG_INFO.imgPlayerImgViewEl.src = '';
-    TARGET_IMG_INFO.imgPlayerImgViewEl.alt = '';
-    TARGET_IMG_INFO.imgPlayerEl.removeEventListener('click', closePlayerImg);
 }
 
 function zoomAndRender(ratio: number, event?: WheelEvent): any {
