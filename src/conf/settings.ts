@@ -1,6 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
-import tr from 'src/lang/locale/tr';
 import type ImageToolkitPlugin from "src/main";
 import { IMG_FULL_SCREEN_MODE } from './constants';
 
