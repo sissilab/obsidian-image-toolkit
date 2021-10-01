@@ -277,18 +277,17 @@ function refreshImg(imgSrc?: string, imgAlt?: string) {
  */
 function showPlayerImg() {
     IMG_PLAYER = true;
-    TARGET_IMG_INFO.imgPlayerEl.style.setProperty('display', 'block');
-    TARGET_IMG_INFO.imgPlayerEl.addEventListener('click', closePlayerImg);
-    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('src', TARGET_IMG_INFO.imgViewEl.src);
-    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('alt', TARGET_IMG_INFO.imgViewEl.alt);
-
+    // hide 
     TARGET_IMG_INFO.imgViewEl.style.setProperty('display', 'none', 'important');
     TARGET_IMG_INFO.imgFooterEl.style.setProperty('display', 'none');
+    // show the img-player
+    TARGET_IMG_INFO.imgPlayerEl.style.setProperty('display', 'block');
+    TARGET_IMG_INFO.imgPlayerEl.addEventListener('click', closePlayerImg);
     
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
     let newWidth, newHeight;
-    let top = 0;
+    let top = 0, left = 0;
     if (IMG_FULL_SCREEN_MODE.STRETCH == DEFAULT_SETTINGS.imgFullScreenMode) {
         newWidth = windowWidth + 'px';
         newHeight = windowHeight + 'px';
@@ -307,12 +306,16 @@ function showPlayerImg() {
             newWidth = heightRatio * TARGET_IMG_INFO.realWidth;
         }
         top = (windowHeight - newHeight) / 2;
+        left = (windowWidth - newWidth) / 2;
         newWidth = newWidth + 'px';
         newHeight = newHeight + 'px';
     }
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('src', TARGET_IMG_INFO.imgViewEl.src);
+    TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('alt', TARGET_IMG_INFO.imgViewEl.alt);
     TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('width', newWidth);
     TARGET_IMG_INFO.imgPlayerImgViewEl.setAttribute('height', newHeight);
-    //TARGET_IMG_INFO.imgPlayerEl.style.setProperty('margin-top', top + 'px');
+    TARGET_IMG_INFO.imgPlayerImgViewEl.style.setProperty('margin-top', top + 'px');
+    //TARGET_IMG_INFO.imgPlayerImgViewEl.style.setProperty('margin-left', left + 'px');
 }
 
 function closePlayerImg() {

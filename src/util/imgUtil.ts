@@ -10,10 +10,8 @@ import { ZOOM_FACTOR } from '../conf/constants'
  * @returns 
  */
 export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO: IMG_INFO): object {
-    // 当前窗口宽高（可视宽高）
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
-    // 当前窗口缩放后的宽高
     const windowZoomWidth = windowWidth * ZOOM_FACTOR;
     const windowZoomHeight = windowHeight * ZOOM_FACTOR;
 
@@ -27,6 +25,7 @@ export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO:
         tempWidth = windowZoomWidth;
         tempHeight = tempWidth / realImg.width * realImg.height;
     }
+    tempHeight = tempWidth * realImg.height / realImg.width;
     let width = tempWidth + 'px';
     let height = tempHeight + 'px';
     // cache image info: curWidth, curHeight, realWidth, realHeight, left, top
