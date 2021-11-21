@@ -83,6 +83,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.viewImageWithALink)
                 .onChange(async (value) => {
                     this.plugin.settings.viewImageWithALink = value;
+                    this.plugin.toggleViewImage();
                     await this.plugin.saveSettings();
                 }));
 

@@ -18,6 +18,19 @@ export default class ImageToolkitPlugin extends Plugin {
 
 		this.toggleViewImage();
 
+		if ('Blue Topaz' === this.app.vault.getConfig('cssTheme')) {
+
+			document.on('mousedown', 'img', (event: MouseEvent) => {
+				console.log('mousedown...');
+				const target = (<HTMLImageElement>event.target);
+				// const targetImgStyle = window.getComputedStyle(target, ':active');
+				const targetImgStyle = window.getComputedStyle(target);
+				console.log('targetImgStyle', targetImgStyle.backgroundImage, targetImgStyle.width);
+
+				return false;
+			});
+		}
+
 		// this.registerDomEvent(document, 'click', this.clickImage);
 	}
 
@@ -40,13 +53,6 @@ export default class ImageToolkitPlugin extends Plugin {
 		if (TARGET_IMG_INFO.state || 'IMG' !== target.tagName) {
 			return;
 		}
-		if (!this.settings.viewImageWithALink) {
-			const targetParentEl = target.parentElement;
-			if (targetParentEl && 'A' == targetParentEl.tagName) {
-				//console.warn('The image with a link cannot be clicked to view!');
-				return;
-			}
-		}
 		renderViewContainer(target, this.app.workspace.containerEl);
 	}
 
@@ -54,18 +60,28 @@ export default class ImageToolkitPlugin extends Plugin {
 		const viewImageGlobal = this.settings.viewImageGlobal;
 		const viewImageEditor = this.settings.viewImageEditor;
 		const viewImageInCPB = this.settings.viewImageInCPB;
+		const viewImageWithALink = this.settings.viewImageWithALink;
 		let selector = ``;
 		if (IMAGE_SELECTOR) {
 			document.off('click', IMAGE_SELECTOR, this.clickImage);
+		}
+		if (!viewImageGlobal && !viewImageEditor && !viewImageInCPB && !viewImageWithALink) {
+			return;
 		}
 		if (viewImageGlobal) {
 			selector = `img`;
 			let notSelector = ``;
 			if (!viewImageEditor) {
+				// img:not(.CodeMirror-code img,.markdown-preview-section img,.view-content > .image-container img)
 				notSelector = VIEW_IMG_SELECTOR.EDITOR_AREAS;
 			}
 			if (!viewImageInCPB) {
-				notSelector += (!viewImageEditor ? `,` : ``) + VIEW_IMG_SELECTOR.CPB;
+				// img:not(.community-plugin-details img)
+				notSelector += (1 < notSelector.length ? `,` : ``) + VIEW_IMG_SELECTOR.CPB;
+			}
+			if (!viewImageWithALink) {
+				// img:not(a img)
+				notSelector += (1 < notSelector.length ? `,` : ``) + VIEW_IMG_SELECTOR.LINK;
 			}
 			if (notSelector) {
 				selector += `:not(` + notSelector + `)`;
@@ -75,10 +91,14 @@ export default class ImageToolkitPlugin extends Plugin {
 				selector = VIEW_IMG_SELECTOR.EDITOR_AREAS;
 			}
 			if (viewImageInCPB) {
-				selector += (selector ? `,` : ``) + VIEW_IMG_SELECTOR.CPB;
+				selector += (1 < selector.length ? `,` : ``) + VIEW_IMG_SELECTOR.CPB;
+			}
+			if (viewImageWithALink) {
+				selector += (1 < selector.length ? `,` : ``) + VIEW_IMG_SELECTOR.LINK;
 			}
 		}
 		if (selector) {
+			//console.log('selector: ', selector);
 			IMAGE_SELECTOR = selector;
 			document.on('click', IMAGE_SELECTOR, this.clickImage);
 		}

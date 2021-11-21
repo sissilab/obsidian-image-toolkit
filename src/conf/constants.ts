@@ -56,5 +56,6 @@ export const IMG_FULL_SCREEN_MODE = {
 
 export const VIEW_IMG_SELECTOR = {
     EDITOR_AREAS: `.CodeMirror-code img,.markdown-preview-section img,.view-content > .image-container img`,
-    CPB: `.community-plugin-details img`
+    CPB: `.community-plugin-details img`,
+    LINK: `a img`
 }
