@@ -4,6 +4,7 @@ import { TARGET_IMG_INFO, renderViewContainer, removeViewContainer } from './ui/
 import { VIEW_IMG_SELECTOR } from './conf/constants'
 
 let IMAGE_SELECTOR = ``;
+let CLICKED_IMG_INFO = { width: 0, height: 0, position: '' };
 export default class ImageToolkitPlugin extends Plugin {
 
 	settings: ImageToolkitSettings;
@@ -19,15 +20,24 @@ export default class ImageToolkitPlugin extends Plugin {
 		this.toggleViewImage();
 
 		if ('Blue Topaz' === this.app.vault.getConfig('cssTheme')) {
+			document.on('mouseover', 'img', (event: MouseEvent) => {
+				const targetEl = (<HTMLImageElement>event.target);
+				CLICKED_IMG_INFO.width = targetEl.width;
+				CLICKED_IMG_INFO.height = targetEl.height;
+				CLICKED_IMG_INFO.position = targetEl.style.position;
+				console.log('mouseover..',CLICKED_IMG_INFO);
 
+				
+			});
 			document.on('mousedown', 'img', (event: MouseEvent) => {
-				console.log('mousedown...');
-				const target = (<HTMLImageElement>event.target);
-				// const targetImgStyle = window.getComputedStyle(target, ':active');
-				const targetImgStyle = window.getComputedStyle(target);
-				console.log('targetImgStyle', targetImgStyle.backgroundImage, targetImgStyle.width);
-
-				return false;
+				const targetEl = (<HTMLImageElement>event.target);
+				console.log('mousedown...', CLICKED_IMG_INFO);
+				
+				targetEl.setAttribute('width', CLICKED_IMG_INFO.width+'px');
+				targetEl.setAttribute('height', CLICKED_IMG_INFO.height+'px');
+				targetEl.style.setProperty('position', CLICKED_IMG_INFO.position);
+				targetEl.style.setProperty('margin-top', '200px', 'important');
+				
 			});
 		}
 
