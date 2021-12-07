@@ -19,28 +19,6 @@ export default class ImageToolkitPlugin extends Plugin {
 
 		this.toggleViewImage();
 
-		if ('Blue Topaz' === this.app.vault.getConfig('cssTheme')) {
-			document.on('mouseover', 'img', (event: MouseEvent) => {
-				const targetEl = (<HTMLImageElement>event.target);
-				CLICKED_IMG_INFO.width = targetEl.width;
-				CLICKED_IMG_INFO.height = targetEl.height;
-				CLICKED_IMG_INFO.position = targetEl.style.position;
-				console.log('mouseover..',CLICKED_IMG_INFO);
-
-				
-			});
-			document.on('mousedown', 'img', (event: MouseEvent) => {
-				const targetEl = (<HTMLImageElement>event.target);
-				console.log('mousedown...', CLICKED_IMG_INFO);
-				
-				targetEl.setAttribute('width', CLICKED_IMG_INFO.width+'px');
-				targetEl.setAttribute('height', CLICKED_IMG_INFO.height+'px');
-				targetEl.style.setProperty('position', CLICKED_IMG_INFO.position);
-				targetEl.style.setProperty('margin-top', '200px', 'important');
-				
-			});
-		}
-
 		// this.registerDomEvent(document, 'click', this.clickImage);
 	}
 

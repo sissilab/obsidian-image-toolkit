@@ -10,7 +10,11 @@ let REAL_IMG_INTERVAL: NodeJS.Timeout;
 const DEFAULT_IMG_STYLES = {
     transform: 'none',
     filter: 'none',
-    mixBlendMode: 'normal'
+    mixBlendMode: 'normal',
+
+    borderWidth: '',
+    borderStyle: '',
+    borderColor	: ''
 }
 
 // let IMG_MOVE_OFFSET: number = 5;
@@ -22,6 +26,7 @@ let ARROW_PRESS_STATUS = {
 }
 export const TARGET_IMG_INFO: IMG_INFO = {
     state: false,
+    targetImg: null,
 
     viewContainerEl: null,
     imgViewEl: null,
@@ -50,6 +55,8 @@ export const TARGET_IMG_INFO: IMG_INFO = {
 export interface IMG_INFO {
     // true: the popup layer of viewing image is displayed
     state: boolean,
+    // the clicked image element
+    targetImg: HTMLImageElement,
 
     viewContainerEl: HTMLDivElement,
     imgViewEl: HTMLImageElement,
@@ -138,17 +145,24 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         TARGET_IMG_INFO.imgPlayerEl.setAttribute('class', 'img-player');
         TARGET_IMG_INFO.imgPlayerEl.appendChild(TARGET_IMG_INFO.imgPlayerImgViewEl = createEl('img'));
     }
+    TARGET_IMG_INFO.targetImg = targetEl;
+
     const targetImgStyle = window.getComputedStyle(targetEl);
     if (targetImgStyle) {
         DEFAULT_IMG_STYLES.transform = 'none';
         DEFAULT_IMG_STYLES.filter = targetImgStyle.filter;
         // @ts-ignore
         DEFAULT_IMG_STYLES.mixBlendMode = targetImgStyle.mixBlendMode;
+
+        DEFAULT_IMG_STYLES.borderWidth = targetImgStyle.borderWidth;
+        DEFAULT_IMG_STYLES.borderStyle = targetImgStyle.borderStyle;
+        DEFAULT_IMG_STYLES.borderColor = targetImgStyle.borderColor;
         // let rotateDeg = DEFAULT_IMG_STYLES.transform.match(/rotate\(([\-|\+]?\d+)deg\)/);
         // if (rotateDeg && rotateDeg.length > 1) {
         //     TARGET_IMG_INFO.rotate = parseInt(rotateDeg[1]);
         // }
     }
+
     initDefaultData();
     // show the clicked image
     renderImgTitle(targetEl.alt)
@@ -186,12 +200,22 @@ const closeViewContainer = (event?: MouseEvent): void => {
         }
     }
     if (TARGET_IMG_INFO.viewContainerEl) {
+        addBorderForTargetImg();
         TARGET_IMG_INFO.viewContainerEl.style.setProperty('display', 'none');
         TARGET_IMG_INFO.state = false;
         renderImgTitle('');
         renderImgView('', '');
         // remove all events
         addOrRemoveEvent(false);
+    }
+}
+
+function addBorderForTargetImg() {
+    if (TARGET_IMG_INFO.targetImg) {
+        const targetImgStyle = TARGET_IMG_INFO.targetImg.style;
+        targetImgStyle.setProperty('border-width', '3px');
+        targetImgStyle.setProperty('border-style', 'solid');
+        targetImgStyle.setProperty('border-color', 'red');
     }
 }
 
