@@ -45,7 +45,6 @@ export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO:
     return { width, height, top, left };
 }
 
-
 /**
  * zoom an image 
  * @param ratio 

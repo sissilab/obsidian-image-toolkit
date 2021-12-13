@@ -12,6 +12,7 @@ const DEFAULT_IMG_STYLES = {
     filter: 'none',
     mixBlendMode: 'normal',
 
+    // 
     borderWidth: '',
     borderStyle: '',
     borderColor	: ''
@@ -145,6 +146,8 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         TARGET_IMG_INFO.imgPlayerEl.setAttribute('class', 'img-player');
         TARGET_IMG_INFO.imgPlayerEl.appendChild(TARGET_IMG_INFO.imgPlayerImgViewEl = createEl('img'));
     }
+
+    restoreBorderForLastTargetImg();
     TARGET_IMG_INFO.targetImg = targetEl;
 
     const targetImgStyle = window.getComputedStyle(targetEl);
@@ -210,12 +213,21 @@ const closeViewContainer = (event?: MouseEvent): void => {
     }
 }
 
+function restoreBorderForLastTargetImg() {
+    if (TARGET_IMG_INFO.targetImg) {
+        const targetImgStyle = TARGET_IMG_INFO.targetImg.style;
+        targetImgStyle.setProperty('border-width', DEFAULT_IMG_STYLES.borderWidth);
+        targetImgStyle.setProperty('border-style', DEFAULT_IMG_STYLES.borderStyle);
+        targetImgStyle.setProperty('border-color', DEFAULT_IMG_STYLES.borderColor); 
+    }
+}
+
 function addBorderForTargetImg() {
     if (TARGET_IMG_INFO.targetImg) {
         const targetImgStyle = TARGET_IMG_INFO.targetImg.style;
         targetImgStyle.setProperty('border-width', '3px');
         targetImgStyle.setProperty('border-style', 'solid');
-        targetImgStyle.setProperty('border-color', 'red');
+        targetImgStyle.setProperty('border-color', 'blue');
     }
 }
 
