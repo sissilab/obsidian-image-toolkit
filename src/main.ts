@@ -4,7 +4,6 @@ import { TARGET_IMG_INFO, renderViewContainer, removeViewContainer } from './ui/
 import { VIEW_IMG_SELECTOR } from './conf/constants'
 
 let IMAGE_SELECTOR = ``;
-let CLICKED_IMG_INFO = { width: 0, height: 0, position: '' };
 export default class ImageToolkitPlugin extends Plugin {
 
 	settings: ImageToolkitSettings;

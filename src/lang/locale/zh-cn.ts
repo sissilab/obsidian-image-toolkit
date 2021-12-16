@@ -5,6 +5,7 @@ export default {
   // settings
   IMAGE_TOOLKIT_SETTINGS_TITLE: "Image Toolkit 插件设置",
 
+  VIEW_TRIGGER_SETTINGS: '预览触发配置：',
   VIEW_IMAGE_GLOBAL_NAME: '支持全局预览图片',
   VIEW_IMAGE_GLOBAL_DESC: '开启后，在任何地方都可以点击图片会弹出预览界面，可对图片进行缩放、旋转、拖动、和反色。',
   VIEW_IMAGE_EDITOR_NAME: '支持在编辑区域预览图片',
@@ -18,8 +19,10 @@ export default {
   VIEW_IMAGE_IN_CPB_DESC: '开启后，支持在社区插件页面，点击图片预览。',
   VIEW_IMAGE_WITH_A_LINK_NAME: '支持预览带链接的图片',
   VIEW_IMAGE_WITH_A_LINK_DESC: '开启后，支持点击带链接的图片（注意：点击该图片，会同时打开浏览器访问指定地址和弹出预览图片）',
-  IMAG_MOVE_SPEED_NAME: '图片移动速度设置',
-  IMAG_MOVE_SPEED_DESC: '当使用键盘（上、下、左、右）移动图片时，可对图片移动速度进行设置。',
+
+  VIEW_DETAILS_SETTINGS: '查看操作细节设置：',
+  IMAGE_MOVE_SPEED_NAME: '图片移动速度设置',
+  IMAGE_MOVE_SPEED_DESC: '当使用键盘（上、下、左、右）移动图片时，可对图片移动速度进行设置。',
   IMG_FULL_SCREEN_MODE_NAME: '全屏预览模式',
 
   FIT: '自适应',

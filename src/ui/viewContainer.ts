@@ -12,7 +12,6 @@ const DEFAULT_IMG_STYLES = {
     filter: 'none',
     mixBlendMode: 'normal',
 
-    // 
     borderWidth: '',
     borderStyle: '',
     borderColor	: ''
@@ -223,11 +222,11 @@ function restoreBorderForLastTargetImg() {
 }
 
 function addBorderForTargetImg() {
-    if (TARGET_IMG_INFO.targetImg) {
+    if (DEFAULT_SETTINGS.imageBorderToggle && TARGET_IMG_INFO.targetImg) {
         const targetImgStyle = TARGET_IMG_INFO.targetImg.style;
-        targetImgStyle.setProperty('border-width', '3px');
-        targetImgStyle.setProperty('border-style', 'solid');
-        targetImgStyle.setProperty('border-color', 'blue');
+        targetImgStyle.setProperty('border-width', DEFAULT_SETTINGS.imageBorderWidth);
+        targetImgStyle.setProperty('border-style', DEFAULT_SETTINGS.imageBorderStyle);
+        targetImgStyle.setProperty('border-color', DEFAULT_SETTINGS.imageBorderColor);
     }
 }
 

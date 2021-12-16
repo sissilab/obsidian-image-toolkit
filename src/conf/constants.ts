@@ -59,3 +59,29 @@ export const VIEW_IMG_SELECTOR = {
     CPB: `.community-plugin-details img`,
     LINK: `a img`
 }
+
+export const IMG_BORDER_WIDTH = {
+    THIN: 'thin',
+    MEDIUM: 'medium',
+    THICK: 'thick'
+}
+
+export const IMG_BORDER_STYLE = {
+    HIDDEN: 'hidden',
+    DOTTED: 'dotted',
+    DASHED: 'dashed',
+    SOLID: 'solid',
+    DOUBLE: 'double',
+    GROOVE: 'groove',
+    RIDGE: 'ridge',
+    INSET: 'inset',
+    OUTSET: 'outset'
+}
+
+export const IMG_BORDER_COLOR = {
+    RED: 'red',
+    BLUE: 'blue',
+    BLACK: 'black',
+    BROWN: 'brown',
+    
+}

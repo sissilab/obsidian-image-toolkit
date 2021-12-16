@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
-import { IMG_FULL_SCREEN_MODE } from './constants';
+import { IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE } from './constants';
 
 export interface ImageToolkitSettings {
     viewImageGlobal: boolean,
@@ -11,8 +11,12 @@ export interface ImageToolkitSettings {
     viewImageInCPB: boolean,
     viewImageWithALink: boolean
     imageMoveSpeed: number,
-    imgFullScreenMode: string
+    imgFullScreenMode: string,
     // imgActiveConflict: boolean,
+    imageBorderToggle: boolean,
+    imageBorderWidth: string,
+    imageBorderStyle: string,
+    imageBorderColor: string
 }
 
 export const DEFAULT_SETTINGS: ImageToolkitSettings = {
@@ -23,8 +27,12 @@ export const DEFAULT_SETTINGS: ImageToolkitSettings = {
     viewImageInCPB: true,
     viewImageWithALink: false,
     imageMoveSpeed: 10,
-    imgFullScreenMode: IMG_FULL_SCREEN_MODE.FIT
+    imgFullScreenMode: IMG_FULL_SCREEN_MODE.FIT,
     // imgActiveConflict: false
+    imageBorderToggle: false,
+    imageBorderWidth: IMG_BORDER_WIDTH.MEDIUM,
+    imageBorderStyle: IMG_BORDER_STYLE.SOLID,
+    imageBorderColor: IMG_BORDER_COLOR.RED
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -35,6 +43,10 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         this.plugin = plugin;
         DEFAULT_SETTINGS.imageMoveSpeed = this.plugin.settings.imageMoveSpeed;
         DEFAULT_SETTINGS.imgFullScreenMode = this.plugin.settings.imgFullScreenMode;
+        DEFAULT_SETTINGS.imageBorderToggle = this.plugin.settings.imageBorderToggle;
+        DEFAULT_SETTINGS.imageBorderWidth = this.plugin.settings.imageBorderWidth;
+        DEFAULT_SETTINGS.imageBorderStyle = this.plugin.settings.imageBorderStyle;
+        DEFAULT_SETTINGS.imageBorderColor = this.plugin.settings.imageBorderColor;
     }
 
     display(): void {
@@ -42,6 +54,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         containerEl.createEl('h2', { text: t("IMAGE_TOOLKIT_SETTINGS_TITLE") });
+
+        containerEl.createEl('h3', { text: t("VIEW_TRIGGER_SETTINGS") });
 
         new Setting(containerEl)
             .setName(t("VIEW_IMAGE_GLOBAL_NAME"))
@@ -87,11 +101,12 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        let scaleText: HTMLDivElement;
+        containerEl.createEl('h3', { text: t("VIEW_DETAILS_SETTINGS") });
 
+        let scaleText: HTMLDivElement;
         new Setting(containerEl)
-            .setName(t("IMAG_MOVE_SPEED_NAME"))
-            .setDesc(t("IMAG_MOVE_SPEED_DESC"))
+            .setName(t("IMAGE_MOVE_SPEED_NAME"))
+            .setDesc(t("IMAGE_MOVE_SPEED_DESC"))
             .addSlider(slider => slider
                 .setLimits(1, 30, 1)
                 .setValue(this.plugin.settings.imageMoveSpeed)
@@ -123,6 +138,65 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
+
+        containerEl.createEl('h3', { text: t("IMAGE_BORDER_SETTINGS") });
+        
+        new Setting(containerEl)
+            .setName(t("IMAGE_BORDER_TOGGLE_NAME"))
+            .setDesc(t("IMAGE_BORDER_TOGGLE_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.imageBorderToggle)
+                .onChange(async (value) => {
+                    this.plugin.settings.imageBorderToggle = value;
+                    DEFAULT_SETTINGS.imageBorderToggle = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName(t("IMAGE_BORDER_WIDTH_NAME"))
+            .addDropdown(async (dropdown) => {
+                for (const key in IMG_BORDER_WIDTH) {
+                    // @ts-ignore
+                    dropdown.addOption(IMG_BORDER_WIDTH[key], t(key));
+                }
+                dropdown.setValue(DEFAULT_SETTINGS.imageBorderWidth);
+                dropdown.onChange(async (option) => {
+                    this.plugin.settings.imageBorderWidth = option;
+                    DEFAULT_SETTINGS.imageBorderWidth = option;
+                    await this.plugin.saveSettings();
+                });
+            });
+
+        new Setting(containerEl)
+            .setName(t("IMAGE_BORDER_STYLE_NAME"))
+            .addDropdown(async (dropdown) => {
+                for (const key in IMG_BORDER_STYLE) {
+                    // @ts-ignore
+                    dropdown.addOption(IMG_BORDER_STYLE[key], t(key));
+                }
+                dropdown.setValue(DEFAULT_SETTINGS.imageBorderStyle);
+                dropdown.onChange(async (option) => {
+                    this.plugin.settings.imageBorderStyle = option;
+                    DEFAULT_SETTINGS.imageBorderStyle = option;
+                    await this.plugin.saveSettings();
+                });
+            });
+        
+        new Setting(containerEl)
+            .setName(t("IMAGE_BORDER_COLOR_NAME"))
+            .addDropdown(async (dropdown) => {
+                for (const key in IMG_BORDER_COLOR) {
+                    // @ts-ignore
+                    dropdown.addOption(IMG_BORDER_COLOR[key], t(key));
+                }
+                dropdown.setValue(DEFAULT_SETTINGS.imageBorderColor);
+                dropdown.onChange(async (option) => {
+                    this.plugin.settings.imageBorderColor = option;
+                    DEFAULT_SETTINGS.imageBorderColor = option;
+                    await this.plugin.saveSettings();
+                });
+            });
+
     }
 
 }
