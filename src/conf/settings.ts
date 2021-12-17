@@ -2,6 +2,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
 import { IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE } from './constants';
+import { ColorPicker } from 'src/lib/ColorPicker';
 
 export interface ImageToolkitSettings {
     viewImageGlobal: boolean,
@@ -140,7 +141,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             });
 
         containerEl.createEl('h3', { text: t("IMAGE_BORDER_SETTINGS") });
-        
+
         new Setting(containerEl)
             .setName(t("IMAGE_BORDER_TOGGLE_NAME"))
             .setDesc(t("IMAGE_BORDER_TOGGLE_DESC"))
@@ -181,7 +182,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
-        
+
         new Setting(containerEl)
             .setName(t("IMAGE_BORDER_COLOR_NAME"))
             .addDropdown(async (dropdown) => {
@@ -197,6 +198,24 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 });
             });
 
+        let textEl = new Setting(containerEl)
+            .setName(t("IMAGE_BORDER_COLOR_NAME"))
+            .addText(async (text) => {
+                console.log('textEl', text);
+                new ColorPicker(text.inputEl);
+            });
+        
+            // text.onChange((value: string) => {
+            //     console.log('color>>>', value, text);
+            //     text.inputEl.addClass('cp');
+            //     Colorpicker.create({
+            //         bindClass: 'cp',
+            //         // change: function(elem, hex){
+            //         //   // console.log(elem,hex)
+            //         //   elem.style.backgroundColor = hex;
+            //         // }
+            //     })
+            // } )
     }
 
 }
