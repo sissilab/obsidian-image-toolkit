@@ -17,10 +17,10 @@ export default {
   // CPB = COMMUNITY_PLUGINS_BROWSER
   VIEW_IMAGE_IN_CPB_NAME: 'Support in the Community Plugins browser', 
   VIEW_IMAGE_IN_CPB_DESC: 'Turn on this option if you want to click and view an image in the Community Plugins browser.', 
-  VIEW_IMAGE_WITH_A_LINK_NAME: 'Clicking and viewing an image with a link',
-  VIEW_IMAGE_WITH_A_LINK_DESC: 'Turn on this option if you want to click and view an image with a link. (NOTE: The browser will be opened to visit the link and the picture will be popped up for viewing at the same time when clicking the picture.)',
+  VIEW_IMAGE_WITH_A_LINK_NAME: 'Support an image with a link',
+  VIEW_IMAGE_WITH_A_LINK_DESC: 'Turn on this option if you want to click and view an image with a link. (NOTE: The browser will be opened to visit the link and the image will be popped up for viewing at the same time when clicking the image.)',
 
-  VIEW_DETAILS_SETTINGS: 'View Details Settings:',
+  VIEW_DETAILS_SETTINGS: 'View Detail Settings:',
   IMAGE_MOVE_SPEED_NAME: 'Setting the move speed of an image',
   IMAGE_MOVE_SPEED_DESC: 'When you move an image by keyboard (up, down, left, right), the move speed of an image can be set here if you want to move the picture faster or slower.',
   IMG_FULL_SCREEN_MODE_NAME: 'Full-screen previewing mode',
