@@ -53,11 +53,25 @@ export default {
   OUTSET: 'outset',
 
   // IMAGE_BORDER_COLOR_NAME
-  RED: 'red',
-  BLUE: 'blue',
   BLACK: 'black',
+  BLUE: 'blue',
+  DARK_GREEN: 'dark green',
+  GREEN: 'green',
+  LIME: 'lime',
+  STEEL_BLUE: 'steel blue',
+  INDIGO: 'indigo',
+  PURPLE: 'purple',
+  GRAY: 'gray',
+  DARK_RED: 'dark red',
+  LIGHT_GREEN: 'light green',
   BROWN: 'brown',
-
+  LIGHT_BLUE: 'light blue',
+  SILVER: 'silver',
+  RED: 'red',
+  PINK: 'pink',
+  ORANGE: 'orange',
+  GOLD: 'gold',
+  YELLOW: 'yellow',
 
   // toolbar icon title
   ZOOM_IN: "zoom in",

@@ -78,10 +78,25 @@ export const IMG_BORDER_STYLE = {
     OUTSET: 'outset'
 }
 
+// https://www.runoob.com/cssref/css-colorsfull.html
 export const IMG_BORDER_COLOR = {
-    RED: 'red',
-    BLUE: 'blue',
     BLACK: 'black',
+    BLUE: 'blue',
+    DARK_GREEN: 'darkgreen',
+    GREEN: 'green',
+    LIME: 'lime',
+    STEEL_BLUE: 'steelblue',
+    INDIGO: 'indigo',
+    PURPLE: 'purple',
+    GRAY: 'gray',
+    DARK_RED: 'darkred',
+    LIGHT_GREEN: 'lightgreen',
     BROWN: 'brown',
-    
+    LIGHT_BLUE: 'lightblue',
+    SILVER: 'silver',
+    RED: 'red',
+    PINK: 'pink',
+    ORANGE: 'orange',
+    GOLD: 'gold',
+    YELLOW: 'yellow'
 }
