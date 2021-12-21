@@ -5,44 +5,43 @@ export default {
   // settings
   IMAGE_TOOLKIT_SETTINGS_TITLE: "Image Toolkit Settings",
 
+  // >>>View Trigger Settings:
   VIEW_TRIGGER_SETTINGS: 'View Trigger Settings:',
-  VIEW_IMAGE_GLOBAL_NAME: 'Clicking and viewing an image globally',
-  VIEW_IMAGE_GLOBAL_DESC: 'You can zoom, rotate, drag, and invert it on the popup layer when clicking on an image.',
-  VIEW_IMAGE_EDITOR_NAME: 'Support in the Editor Areas',
-  VIEW_IMAGE_EDITOR_DESC: 'Turn on this option if you want to click and view an image in the Editor Areas.',
-  // @Deprecated
-  VIEW_IMAGE_TOGGLE_NAME: "Clicking and viewing an image",
-  // @Deprecated
-  VIEW_IMAGE_TOGGLE_DESC: "You can zoom, rotate and drag it on the popup layer when clicking on an image.",
+  VIEW_IMAGE_GLOBAL_NAME: 'Click and view an image globally',
+  VIEW_IMAGE_GLOBAL_DESC: 'You can zoom, rotate, drag, and invert it on the popup layer when clicking an image.',
+  VIEW_IMAGE_EDITOR_NAME: 'Click and view an image in the Editor Area',
+  VIEW_IMAGE_EDITOR_DESC: 'Turn on this option if you want to click and view an image in the Editor Area.',
   // CPB = COMMUNITY_PLUGINS_BROWSER
-  VIEW_IMAGE_IN_CPB_NAME: 'Support in the Community Plugins browser', 
+  VIEW_IMAGE_IN_CPB_NAME: 'Click and view an image in the Community Plugins browser', 
   VIEW_IMAGE_IN_CPB_DESC: 'Turn on this option if you want to click and view an image in the Community Plugins browser.', 
-  VIEW_IMAGE_WITH_A_LINK_NAME: 'Support an image with a link',
-  VIEW_IMAGE_WITH_A_LINK_DESC: 'Turn on this option if you want to click and view an image with a link. (NOTE: The browser will be opened to visit the link and the image will be popped up for viewing at the same time when clicking the image.)',
+  VIEW_IMAGE_WITH_A_LINK_NAME: 'Click and view an image with a link',
+  VIEW_IMAGE_WITH_A_LINK_DESC: 'Turn on this option if you want to click and view an image with a link. (NOTE: The browser will be opened for you to visit the link and the image will be popped up for being viewed at the same time when you click the image.)',
 
+  // >>>View Detail Settings:
   VIEW_DETAILS_SETTINGS: 'View Detail Settings:',
-  IMAGE_MOVE_SPEED_NAME: 'Setting the move speed of an image',
-  IMAGE_MOVE_SPEED_DESC: 'When you move an image by keyboard (up, down, left, right), the move speed of an image can be set here if you want to move the picture faster or slower.',
-  IMG_FULL_SCREEN_MODE_NAME: 'Full-screen previewing mode',
-
+  IMAGE_MOVE_SPEED_NAME: 'Set the moving speed of the image',
+  IMAGE_MOVE_SPEED_DESC: 'When you move an image on the popup layer by keyboard (up, down, left, right), the moving speed of the image can be set here.',
+  IMG_FULL_SCREEN_MODE_NAME: 'Full-screen preview mode',
+  // preview mode options:
   FIT: 'Fit',
   FILL: 'Fill',
   STRETCH: 'Stretch',
 
+  // >>>Image Border Settings:
   IMAGE_BORDER_SETTINGS: 'Image Border Settings:',
-  IMAGE_BORDER_TOGGLE_NAME: "Turn on/off displaying the image's border",
-  IMAGE_BORDER_TOGGLE_DESC: "The clicked image's border can be displayed after exiting preview and closing the popup layer.",
-  IMAGE_BORDER_WIDTH_NAME: "Setting the image's border width",
-  IMAGE_BORDER_STYLE_NAME: "Setting the image's border style",
-  IMAGE_BORDER_COLOR_NAME: "Setting the image's border color",
+  IMAGE_BORDER_TOGGLE_NAME: "Display the image's border",
+  IMAGE_BORDER_TOGGLE_DESC: "The clicked image's border can be displayed after you exit previewing and close the popup layer.",
+  IMAGE_BORDER_WIDTH_NAME: "Set the image's border width",
+  IMAGE_BORDER_STYLE_NAME: "Set the image's border style",
+  IMAGE_BORDER_COLOR_NAME: "Set the image's border color",
 
-  // IMG_BORDER_WIDTH
+  // IMG_BORDER_WIDTH options:
   THIN: 'thin',
   MEDIUM: 'medium',
   THICK: 'thick',
 
-  // IMG_BORDER_STYLE
-  HIDDEN: 'hidden',
+  // IMG_BORDER_STYLE options:
+  //HIDDEN: 'hidden',
   DOTTED: 'dotted',
   DASHED: 'dashed',
   SOLID: 'solid',
@@ -52,7 +51,7 @@ export default {
   INSET: 'inset',
   OUTSET: 'outset',
 
-  // IMAGE_BORDER_COLOR_NAME
+  // IMAGE_BORDER_COLOR_NAME options:
   BLACK: 'black',
   BLUE: 'blue',
   DARK_GREEN: 'dark green',
@@ -85,6 +84,7 @@ export default {
   INVERT_COLOR: 'invert color',
   COPY: 'copy',
 
+  // tip:
   COPY_IMAGE_SUCCESS: 'Copy the image successfully!',
   COPY_IMAGE_ERROR: 'Error Copying the image!'
 

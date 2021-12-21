@@ -52,7 +52,7 @@ export default class ImageToolkitPlugin extends Plugin {
 		if (IMAGE_SELECTOR) {
 			document.off('click', IMAGE_SELECTOR, this.clickImage);
 		}
-		if (!viewImageGlobal && !viewImageEditor && !viewImageInCPB && !viewImageWithALink) {
+		if (!viewImageGlobal || (!viewImageEditor && !viewImageInCPB && !viewImageWithALink)) {
 			return;
 		}
 		if (viewImageGlobal) {

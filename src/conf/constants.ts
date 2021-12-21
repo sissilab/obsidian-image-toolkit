@@ -67,7 +67,7 @@ export const IMG_BORDER_WIDTH = {
 }
 
 export const IMG_BORDER_STYLE = {
-    HIDDEN: 'hidden',
+    // HIDDEN: 'hidden',
     DOTTED: 'dotted',
     DASHED: 'dashed',
     SOLID: 'solid',

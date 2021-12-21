@@ -12,7 +12,7 @@
 ## About the Plugin
 When you click an image, it will be displayed in a popup layer and you can view, drag, zoom, rotate, invert the image.
 
-![view_image.png](example/view_image.gif)
+![view_image.png](https://raw.githubusercontent.com/sissilab/obsidian-image-toolkit/master/example/view_image.gif)
 
 ## Features
 - Zoom in or out the image by mouse wheel.

@@ -12,7 +12,7 @@
 ## 关于插件
 当你点击一个图片时，该图片将被会弹出，此时您可以预览查看、拖拽、缩放、旋转、反色图片。
 
-![view_image.png](example/view_image.gif)
+![view_image.png](https://raw.githubusercontent.com/sissilab/obsidian-image-toolkit/master/example/view_image.gif)
 
 ## 特性
 - 通过鼠标滚轮来放大或缩小图片。
