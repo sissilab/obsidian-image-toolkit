@@ -21,6 +21,8 @@ export default {
   VIEW_DETAILS_SETTINGS: '查看操作细节设置：',
   IMAGE_MOVE_SPEED_NAME: '图片移动速度设置',
   IMAGE_MOVE_SPEED_DESC: '当使用键盘（上、下、左、右）移动图片时，可对图片移动速度进行设置。',
+  IMAGE_TIP_TOGGLE_NAME: "展示缩放比例提示",
+  IMAGE_TIP_TOGGLE_DESC: "开启后，当你缩放图片时会展示当前缩放的比例。",
   IMG_FULL_SCREEN_MODE_NAME: '全屏预览模式',
   // 全屏预览模式 下拉：
   FIT: '自适应',

@@ -266,11 +266,16 @@ export function renderImgTip() {
         if (TARGET_IMG_INFO.imgTipTimeout) {
             clearTimeout(TARGET_IMG_INFO.imgTipTimeout);
         }
-        TARGET_IMG_INFO.imgTipEl.hidden = false;
-        TARGET_IMG_INFO.imgTipEl.setText(parseInt(TARGET_IMG_INFO.curWidth * 100 / TARGET_IMG_INFO.realWidth + '') + '%');
-        TARGET_IMG_INFO.imgTipTimeout = setTimeout(() => {
+        if (DEFAULT_SETTINGS.imgTipToggle) {
+            TARGET_IMG_INFO.imgTipEl.hidden = false;
+            TARGET_IMG_INFO.imgTipEl.setText(parseInt(TARGET_IMG_INFO.curWidth * 100 / TARGET_IMG_INFO.realWidth + '') + '%');
+            TARGET_IMG_INFO.imgTipTimeout = setTimeout(() => {
+                TARGET_IMG_INFO.imgTipEl.hidden = true;
+            }, 1000);
+        } else {
             TARGET_IMG_INFO.imgTipEl.hidden = true;
-        }, 1000);
+            TARGET_IMG_INFO.imgTipTimeout = null;
+        }
     }
 }
 

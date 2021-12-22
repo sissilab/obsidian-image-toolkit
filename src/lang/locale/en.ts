@@ -21,6 +21,8 @@ export default {
   VIEW_DETAILS_SETTINGS: 'View Detail Settings:',
   IMAGE_MOVE_SPEED_NAME: 'Set the moving speed of the image',
   IMAGE_MOVE_SPEED_DESC: 'When you move an image on the popup layer by keyboard (up, down, left, right), the moving speed of the image can be set here.',
+  IMAGE_TIP_TOGGLE_NAME: "Display the image's zoom number",
+  IMAGE_TIP_TOGGLE_DESC: "Turn on this option if you want to display the zoom number when you zoom the image.",
   IMG_FULL_SCREEN_MODE_NAME: 'Full-screen preview mode',
   // preview mode options:
   FIT: 'Fit',

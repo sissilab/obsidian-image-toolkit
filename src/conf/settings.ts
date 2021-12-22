@@ -10,9 +10,12 @@ export interface ImageToolkitSettings {
     viewImageToggle: boolean,
     viewImageInCPB: boolean,
     viewImageWithALink: boolean
+
     imageMoveSpeed: number,
+    imgTipToggle: boolean,
     imgFullScreenMode: string,
     // imgActiveConflict: boolean,
+
     imageBorderToggle: boolean,
     imageBorderWidth: string,
     imageBorderStyle: string,
@@ -26,9 +29,12 @@ export const DEFAULT_SETTINGS: ImageToolkitSettings = {
     viewImageToggle: true,
     viewImageInCPB: true,
     viewImageWithALink: false,
+    
     imageMoveSpeed: 10,
+    imgTipToggle: true,
     imgFullScreenMode: IMG_FULL_SCREEN_MODE.FIT,
     // imgActiveConflict: false
+
     imageBorderToggle: false,
     imageBorderWidth: IMG_BORDER_WIDTH.MEDIUM,
     imageBorderStyle: IMG_BORDER_STYLE.SOLID,
@@ -101,6 +107,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
+        // >>> VIEW_DETAILS_SETTINGS start
         containerEl.createEl('h3', { text: t("VIEW_DETAILS_SETTINGS") });
 
         let scaleText: HTMLDivElement;
@@ -122,7 +129,17 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 el.style.textAlign = "right";
                 el.innerText = " " + this.plugin.settings.imageMoveSpeed.toString();
             });
-
+        
+        new Setting(containerEl)
+            .setName(t("IMAGE_TIP_TOGGLE_NAME"))
+            .setDesc(t("IMAGE_TIP_TOGGLE_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.imgTipToggle)
+                .onChange(async (value) => {
+                    this.plugin.settings.imgTipToggle = value;
+                    DEFAULT_SETTINGS.imgTipToggle = value;
+                    await this.plugin.saveSettings();
+                }));
 
         new Setting(containerEl)
             .setName(t("IMG_FULL_SCREEN_MODE_NAME"))
@@ -138,7 +155,9 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
+        // >>> VIEW_DETAILS_SETTINGS end
 
+        // >>>IMAGE_BORDER_SETTINGS start
         containerEl.createEl('h3', { text: t("IMAGE_BORDER_SETTINGS") });
 
         new Setting(containerEl)
@@ -196,6 +215,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
+        // >>>IMAGE_BORDER_SETTINGS end
+
     }
 
 }
