@@ -48,6 +48,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         super(app, plugin);
         this.plugin = plugin;
         DEFAULT_SETTINGS.imageMoveSpeed = this.plugin.settings.imageMoveSpeed;
+        DEFAULT_SETTINGS.imgTipToggle = this.plugin.settings.imgTipToggle;
         DEFAULT_SETTINGS.imgFullScreenMode = this.plugin.settings.imgFullScreenMode;
         DEFAULT_SETTINGS.imageBorderToggle = this.plugin.settings.imageBorderToggle;
         DEFAULT_SETTINGS.imageBorderWidth = this.plugin.settings.imageBorderWidth;
