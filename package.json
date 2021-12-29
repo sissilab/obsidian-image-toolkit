@@ -1,6 +1,6 @@
 {
   "name": "obsidian-image-toolkit",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "This plugin provides some image viewing toolkit.",
   "main": "src/main.js",
   "scripts": {
