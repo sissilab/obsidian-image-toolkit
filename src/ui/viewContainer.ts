@@ -2,6 +2,9 @@ import { t } from 'src/lang/helpers';
 import { IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from '../conf/constants';
 import { calculateImgZoomSize, zoom, invertImgColor, copyImage, transform } from '../util/imgUtil';
 import { DEFAULT_SETTINGS } from 'src/conf/settings';
+import ImageToolkitPlugin from 'src/main';
+import { MarkdownView } from 'obsidian';
+import { GalleryImg, md5Img, parseActiveViewData } from 'src/util/markdowParse';
 
 let DRAGGING = false;
 let IMG_PLAYER = false;
@@ -14,7 +17,7 @@ const DEFAULT_IMG_STYLES = {
 
     borderWidth: '',
     borderStyle: '',
-    borderColor	: ''
+    borderColor: ''
 }
 
 // let IMG_MOVE_OFFSET: number = 5;
@@ -36,6 +39,8 @@ export const TARGET_IMG_INFO: IMG_INFO = {
     imgFooterEl: null,
     imgPlayerEl: null,
     imgPlayerImgViewEl: null,
+    galleryNavbar: null,
+    galleryList: null,
 
     curWidth: 0,
     curHeight: 0,
@@ -66,6 +71,8 @@ export interface IMG_INFO {
     imgFooterEl: HTMLElement,
     imgPlayerEl: HTMLDivElement,
     imgPlayerImgViewEl: HTMLImageElement,
+    galleryNavbar: HTMLDivElement,
+    galleryList: HTMLElement,
 
     curWidth: number,
     curHeight: number,
@@ -87,19 +94,20 @@ export interface OFFSET_SIZE {
     offsetY: number
 }
 
-export function renderViewContainer(targetEl: HTMLImageElement, containerEl: HTMLElement) {
-    initViewContainer(targetEl, containerEl);
+export function renderViewContainer(targetEl: HTMLImageElement, plugin: ImageToolkitPlugin) {
+    initViewContainer(targetEl, plugin.app.workspace.containerEl, plugin);
     openViewContainer();
     refreshImg(targetEl.src, targetEl.alt);
 }
 
-export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLElement) {
+export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLElement, plugin: ImageToolkitPlugin) {
     if (null == TARGET_IMG_INFO.viewContainerEl || !TARGET_IMG_INFO.viewContainerEl) {
         // console.log('initViewContainer....', containerEl);
         // <div class="image-toolkit-view-container">
         TARGET_IMG_INFO.viewContainerEl = createDiv();
         TARGET_IMG_INFO.viewContainerEl.setAttribute('class', 'image-toolkit-view-container');
         containerEl.appendChild(TARGET_IMG_INFO.viewContainerEl);
+
         // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
         const imgContainerDiv = createDiv();
         imgContainerDiv.setAttribute('class', 'img-container');
@@ -109,16 +117,19 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         TARGET_IMG_INFO.imgViewEl.setAttribute('alt', '');
         imgContainerDiv.appendChild(TARGET_IMG_INFO.imgViewEl);
         TARGET_IMG_INFO.viewContainerEl.appendChild(imgContainerDiv); // img-container
+
         // <div class="img-close"></div>
         // const imgCloseDiv = createDiv();
         // imgCloseDiv.innerHTML = CLOSE_ICON.svg;
         // imgCloseDiv.setAttribute('class', 'img-close');
         // TARGET_IMG_INFO.viewContainerEl.appendChild(imgCloseDiv); // img-close
+
         // <div class="img-tip"></div>
         TARGET_IMG_INFO.imgTipEl = createDiv();
         TARGET_IMG_INFO.imgTipEl.setAttribute('class', 'img-tip');
         TARGET_IMG_INFO.imgTipEl.hidden = true;
         TARGET_IMG_INFO.viewContainerEl.appendChild(TARGET_IMG_INFO.imgTipEl); // img-tip
+
         // <div class="img-footer"> ... <div>
         TARGET_IMG_INFO.viewContainerEl.appendChild(TARGET_IMG_INFO.imgFooterEl = createDiv()); // img-footer
         TARGET_IMG_INFO.imgFooterEl.setAttribute('class', 'img-footer');
@@ -140,6 +151,7 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         }
         // add event: for img-toolbar ul
         imgToolbarUl.addEventListener('click', clickToolbarUl);
+
         // <div class="img-player"> <img src=''> </div>
         TARGET_IMG_INFO.viewContainerEl.appendChild(TARGET_IMG_INFO.imgPlayerEl = createDiv()); // img-player
         TARGET_IMG_INFO.imgPlayerEl.setAttribute('class', 'img-player');
@@ -147,7 +159,9 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
     }
 
     restoreBorderForLastTargetImg();
+    TARGET_IMG_INFO.targetImg?.removeAttribute('data-oit-target');
     TARGET_IMG_INFO.targetImg = targetEl;
+    TARGET_IMG_INFO.targetImg.setAttribute('data-oit-target', '1');
 
     const targetImgStyle = window.getComputedStyle(targetEl);
     if (targetImgStyle) {
@@ -164,10 +178,11 @@ export function initViewContainer(targetEl: HTMLImageElement, containerEl: HTMLE
         //     TARGET_IMG_INFO.rotate = parseInt(rotateDeg[1]);
         // }
     }
+    // <div class="gallery-navbar"> <ul class="img-toolbar"> <li> <img src='' alt=''> </li> <li...> <ul> </div>
+    renderGalleryImg(plugin);
 
     initDefaultData();
-    // show the clicked image
-    renderImgTitle(targetEl.alt)
+
     // add all events
     addOrRemoveEvent(true);
 }
@@ -217,7 +232,7 @@ function restoreBorderForLastTargetImg() {
         const targetImgStyle = TARGET_IMG_INFO.targetImg.style;
         targetImgStyle.setProperty('border-width', DEFAULT_IMG_STYLES.borderWidth);
         targetImgStyle.setProperty('border-style', DEFAULT_IMG_STYLES.borderStyle);
-        targetImgStyle.setProperty('border-color', DEFAULT_IMG_STYLES.borderColor); 
+        targetImgStyle.setProperty('border-color', DEFAULT_IMG_STYLES.borderColor);
     }
 }
 
@@ -293,6 +308,7 @@ function setImgViewPosition(imgZoomSize: any, rotate?: number) {
 function refreshImg(imgSrc?: string, imgAlt?: string) {
     const src = imgSrc ? imgSrc : TARGET_IMG_INFO.imgViewEl.src;
     const alt = imgAlt ? imgAlt : TARGET_IMG_INFO.imgViewEl.alt;
+    renderImgTitle(alt)
     if (src) {
         let realImg = new Image();
         realImg.src = src;
@@ -323,7 +339,7 @@ function showPlayerImg() {
     // show the img-player
     TARGET_IMG_INFO.imgPlayerEl.style.setProperty('display', 'block');
     TARGET_IMG_INFO.imgPlayerEl.addEventListener('click', closePlayerImg);
-    
+
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
     let newWidth, newHeight;
@@ -565,4 +581,190 @@ function addOrRemoveEvent(flag: boolean) {
     }
 }
 
+/*====== gallery-navbar start ======*/
+let galleryIsMousingDown: boolean = false;
+let galleryMouseDownClientX: number = 0;
+let galleryTranslateX: number = 0;
+
+function renderGalleryImg(plugin: ImageToolkitPlugin) {
+    // get all of images on the current editor
+    const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
+    if (!activeView || 'preview' != activeView.getMode() || 0 < document.getElementsByClassName('modal-container').length) {
+        if (TARGET_IMG_INFO.galleryNavbar) TARGET_IMG_INFO.galleryNavbar.hidden = true;
+        if (TARGET_IMG_INFO.galleryList) TARGET_IMG_INFO.galleryList.innerHTML = '';
+        return;
+    }
+
+    // <div class="gallery-navbar">
+    if (!TARGET_IMG_INFO.galleryNavbar) {
+        TARGET_IMG_INFO.imgFooterEl.append(TARGET_IMG_INFO.galleryNavbar = createDiv());
+        TARGET_IMG_INFO.galleryNavbar.setAttribute('class', 'gallery-navbar');
+
+        TARGET_IMG_INFO.galleryNavbar.onmousedown = mouseDownGallery;
+        TARGET_IMG_INFO.galleryNavbar.onmousemove = mouseMoveGallery;
+        TARGET_IMG_INFO.galleryNavbar.onmouseup = mouseUpGallery;
+        TARGET_IMG_INFO.galleryNavbar.onmouseleave = mouseLeaveGallery;
+    }
+    if (!TARGET_IMG_INFO.galleryList) {
+        TARGET_IMG_INFO.galleryNavbar.append(TARGET_IMG_INFO.galleryList = createEl('ul')); // <ul class="img-toolbar">
+        TARGET_IMG_INFO.galleryList.setAttribute('class', 'gallery-list');
+        // TARGET_IMG_INFO.galleryList.onclick = clickGalleryImg;
+    }
+    if (TARGET_IMG_INFO.galleryNavbar) TARGET_IMG_INFO.galleryNavbar.hidden = false;
+    galleryMouseDownClientX = 0;
+    galleryTranslateX = 0;
+    TARGET_IMG_INFO.galleryList.style.transform = 'translateX(0px)';
+    // remove all childs of gallery-list
+    TARGET_IMG_INFO.galleryList.innerHTML = '';
+
+    // const cm = activeView.sourceMode?.cmEditor;
+    // const imgList: Array<GalleryImg> = parseMarkDown(plugin, cm, activeView.file.path);
+    const imgList: Array<GalleryImg> = parseActiveViewData(plugin, activeView.data?.split('\n'), activeView.file.path);
+    const imgContextHash: string[] = getTargetImgContextHash(activeView.contentEl, plugin.IMAGE_SELECTOR);
+    let liEl: HTMLLIElement, imgEl, liElActive: HTMLLIElement;
+    let targetImageIdx = -1;
+    let isAddGalleryActive: boolean = false;
+    let prevHash: string, nextHash: string;
+    for (let i = 0, len = imgList.length; i < len; i++) {
+        const img = imgList[i];
+        // <li> <img src='' alt=''> </li>
+        TARGET_IMG_INFO.galleryList.append(liEl = createEl('li'));
+        liEl.append(imgEl = createEl('img'));
+        imgEl.setAttr('alt', img.alt);
+        imgEl.setAttr('src', img.src);
+        // find the target image (which image is just clicked)
+        if (!imgContextHash || isAddGalleryActive) continue;
+        if (imgContextHash[1] == img.hash) {
+            if (0 > targetImageIdx) {
+                targetImageIdx = i;
+                liElActive = liEl;
+            }
+            if (0 == i) {
+                prevHash = null;
+                nextHash = 1 < len ? imgList[i + 1].hash : null;
+            } else if (len - 1 == i) {
+                prevHash = imgList[i - 1].hash;
+                nextHash = null;
+            } else {
+                prevHash = imgList[i - 1].hash;
+                nextHash = imgList[i + 1].hash;
+            }
+            if (imgContextHash[0] == prevHash && imgContextHash[2] == nextHash) {
+                isAddGalleryActive = true;
+                liElActive = liEl;
+            }
+        }
+    }
+    if (0 <= targetImageIdx) {
+        liElActive?.addClass('gallery-active');
+
+        galleryTranslateX = (document.documentElement.clientWidth || document.body.clientWidth) / 2.5 - targetImageIdx * 52;
+        TARGET_IMG_INFO.galleryList.style.transform = 'translateX(' + galleryTranslateX + 'px)';
+    }
+}
+
+function getTargetImgContextHash(contentEl: HTMLElement, imageSelector: string): string[] {
+    let imgEl: HTMLImageElement;
+    let targetImgHash: string = null;
+    let targetIdx = -1;
+    const imgs: NodeListOf<HTMLImageElement> = contentEl.querySelectorAll(imageSelector);
+    // console.log('IMAGE_SELECTOR>>', imageSelector, imgs);
+    const len = imgs.length;
+    for (let i = 0; i < len; i++) {
+        if (imgEl = imgs[i]) {
+            if ('1' == imgEl.getAttribute('data-oit-target')) {
+                targetIdx = i;
+                targetImgHash = md5Img(imgEl.alt, imgEl.src);
+                break;
+            }
+        }
+    }
+    if (0 > targetIdx) targetImgHash = md5Img(TARGET_IMG_INFO.targetImg.alt, TARGET_IMG_INFO.targetImg.src);
+    let prevHash: string, nextHash: string;
+    if (0 == targetIdx) {
+        prevHash = null;
+        nextHash = 1 < len ? md5Img(imgs[1].alt, imgs[1].src) : null;
+    } else if (len - 1 == targetIdx) {
+        prevHash = md5Img(imgs[targetIdx - 1].alt, imgs[targetIdx - 1].src);
+        nextHash = null;
+    } else {
+        prevHash = md5Img(imgs[targetIdx - 1].alt, imgs[targetIdx - 1].src);
+        nextHash = md5Img(imgs[targetIdx + 1].alt, imgs[targetIdx + 1].src);
+    }
+    return [prevHash, targetImgHash, nextHash];
+}
+
+const clickGalleryImg = (event: MouseEvent) => {
+    const target = (<HTMLImageElement>event.target);
+    // console.log('clickGalleryImg>>>', target, target.tagName, target.parentElement, target.parentElement.tagName, target.src, target.alt);
+    if (!target || 'IMG' !== target.tagName) return;
+
+    DEFAULT_IMG_STYLES.transform = 'none';
+    DEFAULT_IMG_STYLES.filter = target.style.filter;
+    DEFAULT_IMG_STYLES.mixBlendMode = target.style.mixBlendMode;
+    DEFAULT_IMG_STYLES.borderWidth = target.style.borderWidth;
+    DEFAULT_IMG_STYLES.borderStyle = target.style.borderStyle;
+    DEFAULT_IMG_STYLES.borderColor = target.style.borderColor;
+
+    // renderImgView(target.src, target.alt);
+    refreshImg(target.src, target.alt ? target.alt : ' ');
+
+    // remove the li's class gallery-active
+    if (TARGET_IMG_INFO.galleryList) {
+        const liElList: HTMLCollectionOf<HTMLLIElement> = TARGET_IMG_INFO.galleryList.getElementsByTagName('li');
+        for (let i = 0, len = liElList.length; i < len; i++) {
+            const liEl = liElList[i];
+            if (liEl.hasClass('gallery-active')) {
+                liEl.removeClass('gallery-active');
+            }
+        }
+    }
+
+    const parentliEl = target.parentElement;
+    if (parentliEl && 'LI' === parentliEl.tagName) {
+        parentliEl.addClass('gallery-active');
+    }
+}
+
+const mouseDownGallery = (event: MouseEvent) => {
+    // console.log('mouse Down Gallery>>>');
+    event.preventDefault();
+    event.stopPropagation();
+    galleryIsMousingDown = true;
+    galleryMouseDownClientX = event.clientX;
+}
+
+const mouseMoveGallery = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!galleryIsMousingDown) return;
+    let moveDistance = event.clientX - galleryMouseDownClientX;
+    if (4 > Math.abs(moveDistance)) return;
+    galleryMouseDownClientX = event.clientX;
+    galleryTranslateX += moveDistance;
+
+    const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
+    const imgLiWidth = (TARGET_IMG_INFO.galleryList.childElementCount - 1) * 52;
+    // console.log('move...', 'windowWidth=' + windowWidth, 'galleryTranslateX=' + galleryTranslateX, 'li count=' + TARGET_IMG_INFO.galleryList.childElementCount);
+    if (galleryTranslateX + 50 >= windowWidth) galleryTranslateX = windowWidth - 50;
+    if (0 > galleryTranslateX + imgLiWidth) galleryTranslateX = -imgLiWidth;
+
+    TARGET_IMG_INFO.galleryList.style.transform = 'translateX(' + galleryTranslateX + 'px)';
+}
+
+const mouseUpGallery = (event: MouseEvent) => {
+    // console.log('mouse Up Gallery>>>', event.target);
+    event.preventDefault();
+    event.stopPropagation();
+    galleryIsMousingDown = false;
+    clickGalleryImg(event);
+}
+
+const mouseLeaveGallery = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    galleryIsMousingDown = false;
+}
+
+/*====== gallery-navbar end ======*/
 

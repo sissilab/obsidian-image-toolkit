@@ -3,10 +3,11 @@ import { ImageToolkitSettingTab, ImageToolkitSettings, DEFAULT_SETTINGS } from '
 import { TARGET_IMG_INFO, renderViewContainer, removeViewContainer } from './ui/viewContainer'
 import { VIEW_IMG_SELECTOR } from './conf/constants'
 
-let IMAGE_SELECTOR = ``;
+//let IMAGE_SELECTOR = ``;
 export default class ImageToolkitPlugin extends Plugin {
 
 	settings: ImageToolkitSettings;
+	IMAGE_SELECTOR: string = ``;
 
 	async onload() {
 		console.log('loading obsidian-image-toolkit plugin...');
@@ -17,8 +18,6 @@ export default class ImageToolkitPlugin extends Plugin {
 		this.addSettingTab(new ImageToolkitSettingTab(this.app, this));
 
 		this.toggleViewImage();
-
-		// this.registerDomEvent(document, 'click', this.clickImage);
 	}
 
 	onunload() {
@@ -34,13 +33,12 @@ export default class ImageToolkitPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-
 	public clickImage = (event: MouseEvent) => {
 		const target = (<HTMLImageElement>event.target);
 		if (TARGET_IMG_INFO.state || 'IMG' !== target.tagName) {
 			return;
 		}
-		renderViewContainer(target, this.app.workspace.containerEl);
+		renderViewContainer(target, this);
 	}
 
 	public toggleViewImage = () => {
@@ -49,8 +47,8 @@ export default class ImageToolkitPlugin extends Plugin {
 		const viewImageInCPB = this.settings.viewImageInCPB;
 		const viewImageWithALink = this.settings.viewImageWithALink;
 		let selector = ``;
-		if (IMAGE_SELECTOR) {
-			document.off('click', IMAGE_SELECTOR, this.clickImage);
+		if (this.IMAGE_SELECTOR) {
+			document.off('click', this.IMAGE_SELECTOR, this.clickImage);
 		}
 		if (!viewImageGlobal || (!viewImageEditor && !viewImageInCPB && !viewImageWithALink)) {
 			return;
@@ -85,9 +83,9 @@ export default class ImageToolkitPlugin extends Plugin {
 			}
 		}
 		if (selector) {
-			//console.log('selector: ', selector);
-			IMAGE_SELECTOR = selector;
-			document.on('click', IMAGE_SELECTOR, this.clickImage);
+			// console.log('selector: ', selector);
+			this.IMAGE_SELECTOR = selector;
+			document.on('click', this.IMAGE_SELECTOR, this.clickImage);
 		}
 	};
 }

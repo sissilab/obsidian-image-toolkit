@@ -17,8 +17,8 @@ export default {
   VIEW_IMAGE_WITH_A_LINK_NAME: '支持预览带链接的图片',
   VIEW_IMAGE_WITH_A_LINK_DESC: '开启后，支持点击带链接的图片（注意：点击该图片，会同时打开浏览器访问指定地址和弹出预览图片）',
 
-  // >>>查看操作细节设置：
-  VIEW_DETAILS_SETTINGS: '查看操作细节设置：',
+  // >>>查看细节设置：
+  VIEW_DETAILS_SETTINGS: '查看细节设置：',
   IMAGE_MOVE_SPEED_NAME: '图片移动速度设置',
   IMAGE_MOVE_SPEED_DESC: '当使用键盘（上、下、左、右）移动图片时，可对图片移动速度进行设置。',
   IMAGE_TIP_TOGGLE_NAME: "展示缩放比例提示",
