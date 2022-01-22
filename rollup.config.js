@@ -31,16 +31,10 @@ export default {
     }),
     commonjs(),
     copy({
-      targets: [{
-          src: 'main.js',
-          dest: TEST_VAULT
-        },
-        {
-          src: ['manifest.json', 'styles.css'],
-          dest: TEST_VAULT
-        }
-      ],
-      flatten: true
+      targets: [
+        { src: 'main.js', dest: TEST_VAULT },
+        { src: ['manifest.json', 'styles.css'], dest: TEST_VAULT } 
+      ], flatten: true
     }),
   ]
 };
