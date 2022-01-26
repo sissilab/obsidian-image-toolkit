@@ -268,6 +268,7 @@ img {
 }
 
 .image-toolkit-view-container .img-footer .gallery-navbar .gallery-list>li {
+    width: 50px;
     opacity: .3;
     color: transparent;
 }

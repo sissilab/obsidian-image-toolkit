@@ -1,6 +1,7 @@
 import { Notice } from 'obsidian';
 import { t } from 'src/lang/helpers';
-import { IMG_INFO, OFFSET_SIZE } from 'src/ui/viewContainer';
+import { ImgInfoIto } from 'src/to/ImgInfoIto';
+import { IMG_INFO, OFFSET_SIZE } from 'src/ui/view-container';
 import { ZOOM_FACTOR } from '../conf/constants'
 
 
@@ -9,7 +10,7 @@ import { ZOOM_FACTOR } from '../conf/constants'
  * @param imgSrc 
  * @returns 
  */
-export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO: IMG_INFO): object {
+export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfoIto): object => {
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
     const windowZoomWidth = windowWidth * ZOOM_FACTOR;
@@ -29,14 +30,14 @@ export function calculateImgZoomSize(realImg: HTMLImageElement, TARGET_IMG_INFO:
     let width = tempWidth + 'px';
     let height = tempHeight + 'px';
     // cache image info: curWidth, curHeight, realWidth, realHeight, left, top
-    TARGET_IMG_INFO.left = (windowWidth - tempWidth) / 2;
-    TARGET_IMG_INFO.top = (windowHeight - tempHeight) / 2;
-    TARGET_IMG_INFO.curWidth = tempWidth;
-    TARGET_IMG_INFO.curHeight = tempHeight;
-    TARGET_IMG_INFO.realWidth = realImg.width;
-    TARGET_IMG_INFO.realHeight = realImg.height;
-    const left = TARGET_IMG_INFO.left + 'px';
-    const top = TARGET_IMG_INFO.top + 'px';
+    imgInfo.left = (windowWidth - tempWidth) / 2;
+    imgInfo.top = (windowHeight - tempHeight) / 2;
+    imgInfo.curWidth = tempWidth;
+    imgInfo.curHeight = tempHeight;
+    imgInfo.realWidth = realImg.width;
+    imgInfo.realHeight = realImg.height;
+    const left = imgInfo.left + 'px';
+    const top = imgInfo.top + 'px';
 
     /* console.log('calculateImgZoomSize', 'realImg: ' + realImg.width + ',' + realImg.height,
         'tempSize: ' + tempWidth + ',' + tempHeight,

@@ -1,13 +1,15 @@
 import { Plugin } from 'obsidian';
-import { ImageToolkitSettingTab, ImageToolkitSettings, DEFAULT_SETTINGS } from './conf/settings'
-import { TARGET_IMG_INFO, renderViewContainer, removeViewContainer } from './ui/viewContainer'
+import { ImageToolkitSettingTab, IMG_GLOBAL_SETTINGS } from './conf/settings'
+import { removeViewContainer } from './ui/viewContainer'
 import { VIEW_IMG_SELECTOR } from './conf/constants'
+import { ContainerView } from './ui/container-view';
+import { ImgSettingIto } from './to/ImgSettingIto';
 
-//let IMAGE_SELECTOR = ``;
 export default class ImageToolkitPlugin extends Plugin {
 
-	settings: ImageToolkitSettings;
-	IMAGE_SELECTOR: string = ``;
+	private settings: ImgSettingIto;
+	private containerView: ContainerView;
+	public imgSelector: string = ``;
 
 	async onload() {
 		console.log('loading obsidian-image-toolkit plugin...');
@@ -17,16 +19,18 @@ export default class ImageToolkitPlugin extends Plugin {
 		// plugin settings
 		this.addSettingTab(new ImageToolkitSettingTab(this.app, this));
 
+		this.containerView = new ContainerView(this);
+
 		this.toggleViewImage();
 	}
 
 	onunload() {
 		console.log('unloading obsidian-image-toolkit plugin');
-		removeViewContainer();
+		this.containerView.removeOitContainerView();
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign({}, IMG_GLOBAL_SETTINGS, await this.loadData());
 	}
 
 	async saveSettings() {
@@ -34,11 +38,9 @@ export default class ImageToolkitPlugin extends Plugin {
 	}
 
 	public clickImage = (event: MouseEvent) => {
-		const target = (<HTMLImageElement>event.target);
-		if (TARGET_IMG_INFO.state || 'IMG' !== target.tagName) {
-			return;
-		}
-		renderViewContainer(target, this);
+		const targetEl = (<HTMLImageElement>event.target);
+		if ('IMG' !== targetEl.tagName) return;
+		this.containerView.renderContainerView(targetEl);
 	}
 
 	public toggleViewImage = () => {
@@ -47,8 +49,8 @@ export default class ImageToolkitPlugin extends Plugin {
 		const viewImageInCPB = this.settings.viewImageInCPB;
 		const viewImageWithALink = this.settings.viewImageWithALink;
 		let selector = ``;
-		if (this.IMAGE_SELECTOR) {
-			document.off('click', this.IMAGE_SELECTOR, this.clickImage);
+		if (this.imgSelector) {
+			document.off('click', this.imgSelector, this.clickImage);
 		}
 		if (!viewImageGlobal || (!viewImageEditor && !viewImageInCPB && !viewImageWithALink)) {
 			return;
@@ -84,8 +86,8 @@ export default class ImageToolkitPlugin extends Plugin {
 		}
 		if (selector) {
 			// console.log('selector: ', selector);
-			this.IMAGE_SELECTOR = selector;
-			document.on('click', this.IMAGE_SELECTOR, this.clickImage);
+			this.imgSelector = selector;
+			document.on('click', this.imgSelector, this.clickImage);
 		}
-	};
+	}
 }
