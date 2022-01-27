@@ -12,6 +12,10 @@ img {
     /* cursor: zoom-in; */
 }
 
+.cursor-zoom-in {
+    cursor: zoom-in;
+}
+
 .oit-container-view li::before {
     margin-left: 0;
 }

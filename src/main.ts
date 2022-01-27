@@ -39,10 +39,16 @@ export default class ImageToolkitPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	public clickImage = (event: MouseEvent) => {
+	private clickImage = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
 		if ('IMG' !== targetEl.tagName) return;
 		this.containerView.renderContainerView(targetEl);
+	}
+
+	private mouseoverImg = (event: MouseEvent) => {
+		console.log('mouseover....');
+		const targetEl = (<HTMLImageElement>event.target);
+		targetEl.style.cursor = 'zoom-in';
 	}
 
 	public toggleViewImage = () => {
@@ -87,7 +93,7 @@ export default class ImageToolkitPlugin extends Plugin {
 			}
 		}
 		if (selector) {
-			// console.log('selector: ', selector);
+			console.log('selector: ', selector);
 			this.imgSelector = selector;
 			document.on('click', this.imgSelector, this.clickImage);
 		}
