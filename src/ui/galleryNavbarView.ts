@@ -1,7 +1,7 @@
 import { MarkdownView } from "obsidian";
 import ImageToolkitPlugin from "src/main";
 import { GalleryImg, md5Img, parseActiveViewData } from "src/util/markdowParse";
-import { ContainerView } from "./container-view";
+import { ContainerView } from "./containerView";
 
 
 let galleryNavbarEl: HTMLDivElement = null;

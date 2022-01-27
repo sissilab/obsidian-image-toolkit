@@ -3,9 +3,10 @@ import { IMG_GLOBAL_SETTINGS } from 'src/conf/settings';
 import { t } from 'src/lang/helpers';
 import ImageToolkitPlugin from 'src/main';
 import { ImgInfoIto } from 'src/to/ImgInfoIto';
+import { ImgStatusIto } from 'src/to/ImgStatusIto';
 import { OffsetSizeIto } from 'src/to/OffsetSizeIto';
 import { calculateImgZoomSize, copyImage, invertImgColor, transform, zoom } from 'src/util/imgUtil';
-import { renderGalleryImg } from './gallery-navbar-view';
+import { renderGalleryImg } from './galleryNavbarView';
 
 export class ContainerView {
 
@@ -45,7 +46,8 @@ export class ContainerView {
         fullScreen: false
     }
 
-    private imgStatus = {
+    private imgStatus: ImgStatusIto = {
+        // whether the image is clicked and displayed on the popup layer
         popup: false,
 
         dragging: false,
@@ -75,7 +77,7 @@ export class ContainerView {
         this.initContainerView(targetEl, this.plugin.app.workspace.containerEl);
         this.openOitContainerView();
         // <div class="gallery-navbar"> <ul class="img-toolbar"> <li> <img src='' alt=''> </li> <li...> <ul> </div>
-        this.imgInfo.imgFooterEl.append(renderGalleryImg(this, this.plugin));
+        // this.imgInfo.imgFooterEl.append(renderGalleryImg(this, this.plugin));
         this.refreshImg(targetEl.src, targetEl.alt);
     }
 
@@ -96,7 +98,7 @@ export class ContainerView {
             // <div class="img-tip"></div>
             this.imgInfo.oitContainerViewEl.appendChild(this.imgInfo.imgTipEl = createDiv()); // img-tip
             this.imgInfo.imgTipEl.addClass('img-tip');
-            this.imgInfo.imgTipEl.hidden = true;
+            this.imgInfo.imgTipEl.hidden = true; // hide 'img-tip'
 
             // <div class="img-footer"> ... <div>
             this.imgInfo.oitContainerViewEl.appendChild(this.imgInfo.imgFooterEl = createDiv()); // img-footer
@@ -105,19 +107,19 @@ export class ContainerView {
             this.imgInfo.imgFooterEl.appendChild(this.imgInfo.imgTitleEl = createDiv()); // img-title
             this.imgInfo.imgTitleEl.addClass('img-title');
             // <ul class="img-toolbar">
-            const imgToolbarUl = createEl('ul'); // img-toolbar
-            imgToolbarUl.addClass('img-toolbar');
-            this.imgInfo.imgFooterEl.appendChild(imgToolbarUl);
+            const imgToolbarUlEL = createEl('ul'); // img-toolbar
+            imgToolbarUlEL.addClass('img-toolbar');
+            this.imgInfo.imgFooterEl.appendChild(imgToolbarUlEL);
             let toolbarLi: HTMLLIElement;
             for (const toolbar of IMG_TOOLBAR_ICONS) {
-                imgToolbarUl.appendChild(toolbarLi = createEl('li'));
+                imgToolbarUlEL.appendChild(toolbarLi = createEl('li'));
                 toolbarLi.addClass(toolbar.class);
                 toolbarLi.setAttribute('alt', toolbar.key);
                 // @ts-ignore
                 toolbarLi.setAttribute('title', t(toolbar.title));
             }
             // add event: for img-toolbar ul
-            imgToolbarUl.addEventListener('click', this.clickImgToolbar);
+            imgToolbarUlEL.addEventListener('click', this.clickImgToolbar);
 
             // <div class="img-player"> <img src=''> </div>
             this.imgInfo.oitContainerViewEl.appendChild(this.imgInfo.imgPlayerEl = createDiv()); // img-player for full screen mode
@@ -126,7 +128,7 @@ export class ContainerView {
         }
         this.setTargetImg(targetEl);
         this.initDefaultData(window.getComputedStyle(targetEl));
-        this.addOrRemoveEvents(true); // add all events
+        this.addOrRemoveEvents(true); // add events
     }
 
     private setTargetImg = (targetEl: HTMLImageElement) => {
@@ -164,11 +166,11 @@ export class ContainerView {
 
     private openOitContainerView = () => {
         if (!this.imgInfo.oitContainerViewEl) {
-            console.error('obsidian-image-toolkit: oit-container-view has not been initialized.');
+            console.error('obsidian-image-toolkit: oit-container-view has not been initialized!');
             return;
         }
         this.imgStatus.popup = true;
-        this.imgInfo.oitContainerViewEl.style.setProperty('display', 'block');
+        this.imgInfo.oitContainerViewEl.style.setProperty('display', 'block'); // display 'oit-container-view'
     }
 
     private closeViewContainer = (event?: MouseEvent): void => {
@@ -178,10 +180,10 @@ export class ContainerView {
         }
         if (this.imgInfo.oitContainerViewEl) {
             this.addBorderForTargetImg();
-            this.imgInfo.oitContainerViewEl.style.setProperty('display', 'none');
+            this.imgInfo.oitContainerViewEl.style.setProperty('display', 'none'); // hide 'oit-container-view'
             this.renderImgTitle('');
             this.renderImgView('', '');
-            // remove all events
+            // remove events
             this.addOrRemoveEvents(false);
             this.imgStatus.popup = false;
         }
@@ -208,7 +210,7 @@ export class ContainerView {
     public refreshImg = (imgSrc?: string, imgAlt?: string) => {
         const src = imgSrc ? imgSrc : this.imgInfo.imgViewEl.src;
         const alt = imgAlt ? imgAlt : this.imgInfo.imgViewEl.alt;
-        this.renderImgTitle(alt)
+        this.renderImgTitle(alt);
         if (src) {
             let realImg = new Image();
             realImg.src = src;
@@ -216,8 +218,7 @@ export class ContainerView {
                 if (img.width > 0 || img.height > 0) {
                     clearInterval(this.realImgInterval);
                     this.realImgInterval = null;
-                    let imgZoomSize = calculateImgZoomSize(img, this.imgInfo);
-                    this.setImgViewPosition(imgZoomSize, 0);
+                    this.setImgViewPosition(calculateImgZoomSize(img, this.imgInfo), 0);
                     this.renderImgView(src, alt);
                     this.renderImgTip();
                     this.imgInfo.imgViewEl.style.setProperty('transform', this.defaultImgStyles.transform);
@@ -244,30 +245,30 @@ export class ContainerView {
                 clearTimeout(this.imgInfo.imgTipTimeout);
             }
             if (IMG_GLOBAL_SETTINGS.imgTipToggle) {
-                this.imgInfo.imgTipEl.hidden = false;
+                this.imgInfo.imgTipEl.hidden = false; // display 'img-tip'
                 this.imgInfo.imgTipEl.setText(parseInt(this.imgInfo.curWidth * 100 / this.imgInfo.realWidth + '') + '%');
                 this.imgInfo.imgTipTimeout = setTimeout(() => {
                     this.imgInfo.imgTipEl.hidden = true;
                 }, 1000);
             } else {
-                this.imgInfo.imgTipEl.hidden = true;
+                this.imgInfo.imgTipEl.hidden = true; // hide 'img-tip'
                 this.imgInfo.imgTipTimeout = null;
             }
         }
     }
 
-    private setImgViewPosition = (imgZoomSize: any, rotate?: number) => {
+    private setImgViewPosition = (imgZoomSize: ImgInfoIto, rotate?: number) => {
         if (imgZoomSize) {
-            this.imgInfo.imgViewEl.setAttribute('width', imgZoomSize.width);
-            this.imgInfo.imgViewEl.style.setProperty('margin-top', imgZoomSize.top, 'important');
-            this.imgInfo.imgViewEl.style.setProperty('margin-left', imgZoomSize.left, 'important');
+            this.imgInfo.imgViewEl.setAttribute('width', imgZoomSize.curWidth + 'px');
+            this.imgInfo.imgViewEl.style.setProperty('margin-top', imgZoomSize.top + 'px', 'important');
+            this.imgInfo.imgViewEl.style.setProperty('margin-left', imgZoomSize.left + 'px', 'important');
         }
         const rotateDeg = rotate ? rotate : 0;
         this.imgInfo.imgViewEl.style.transform = 'rotate(' + rotateDeg + 'deg)';
         this.imgInfo.rotate = rotateDeg;
     }
 
-    private zoomAndRender = (ratio: number, event?: WheelEvent): any => {
+    private zoomAndRender = (ratio: number, event?: WheelEvent) => {
         let offsetSize: OffsetSizeIto = { offsetX: 0, offsetY: 0 };
         if (event) {
             offsetSize.offsetX = event.offsetX;
@@ -276,9 +277,9 @@ export class ContainerView {
             offsetSize.offsetX = this.imgInfo.curWidth / 2;
             offsetSize.offsetY = this.imgInfo.curHeight / 2;
         }
-        const zoomData = zoom(ratio, this.imgInfo, offsetSize);
+        const zoomData: ImgInfoIto = zoom(ratio, this.imgInfo, offsetSize);
         this.renderImgTip();
-        this.imgInfo.imgViewEl.setAttribute('width', zoomData.newWidth) + 'px';
+        this.imgInfo.imgViewEl.setAttribute('width', zoomData.curWidth + 'px');
         this.imgInfo.imgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
         this.imgInfo.imgViewEl.style.setProperty('margin-left', zoomData.left + 'px', 'important');
     }
@@ -288,11 +289,10 @@ export class ContainerView {
      */
     private showPlayerImg = () => {
         this.imgInfo.fullScreen = true;
-        // hide 
-        this.imgInfo.imgViewEl.style.setProperty('display', 'none', 'important');
-        this.imgInfo.imgFooterEl.style.setProperty('display', 'none');
+        this.imgInfo.imgViewEl.style.setProperty('display', 'none', 'important'); // hide imgViewEl
+        this.imgInfo.imgFooterEl.style.setProperty('display', 'none'); // hide 'img-footer'
         // show the img-player
-        this.imgInfo.imgPlayerEl.style.setProperty('display', 'block');
+        this.imgInfo.imgPlayerEl.style.setProperty('display', 'block'); // display 'img-player'
         this.imgInfo.imgPlayerEl.addEventListener('click', this.closePlayerImg);
 
         const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
@@ -331,7 +331,7 @@ export class ContainerView {
 
     private closePlayerImg = () => {
         this.imgInfo.fullScreen = false;
-        this.imgInfo.imgPlayerEl.style.setProperty('display', 'none');
+        this.imgInfo.imgPlayerEl.style.setProperty('display', 'none'); // hide 'img-player'
         this.imgInfo.imgPlayerEl.removeEventListener('click', this.closePlayerImg);
 
         this.imgInfo.imgPlayerImgViewEl.setAttribute('src', '');
@@ -344,16 +344,16 @@ export class ContainerView {
     private addOrRemoveEvents = (flag: boolean) => {
         if (flag) {
             // close the popup layer (image-toolkit-view-container) via clicking pressing Esc
-            document.addEventListener('keyup', this.triggerkeyup);
-            document.addEventListener('keydown', this.triggerkeydown);
+            document.addEventListener('keyup', this.triggerKeyup);
+            document.addEventListener('keydown', this.triggerKeydown);
             this.imgInfo.oitContainerViewEl.addEventListener('click', this.closeViewContainer);
             // drag the image via mouse
-            this.imgInfo.imgViewEl.onmousedown = this.mousedownImgView;
+            this.imgInfo.imgViewEl.addEventListener('mousedown', this.mousedownImgView);
             // zoom the image via mouse wheel
             this.imgInfo.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer);
         } else {
-            document.removeEventListener('keyup', this.triggerkeyup);
-            document.removeEventListener('keydown', this.triggerkeydown);
+            document.removeEventListener('keyup', this.triggerKeyup);
+            document.removeEventListener('keydown', this.triggerKeydown);
             this.imgInfo.oitContainerViewEl.removeEventListener('click', this.closeViewContainer);
             this.imgInfo.imgViewEl.removeEventListener('mousedown', this.mousedownImgView);
             this.imgInfo.oitContainerViewEl.removeEventListener('mousewheel', this.mousewheelViewContainer);
@@ -364,21 +364,21 @@ export class ContainerView {
         }
     }
 
-    private restoreBorderForLastTargetImg = () => {
-        const targetImgStyle = this.targetImgEl?.style;
-        if (targetImgStyle) {
-            targetImgStyle.setProperty('border-width', this.defaultImgStyles.borderWidth);
-            targetImgStyle.setProperty('border-style', this.defaultImgStyles.borderStyle);
-            targetImgStyle.setProperty('border-color', this.defaultImgStyles.borderColor);
-        }
-    }
-
     private addBorderForTargetImg = () => {
         if (IMG_GLOBAL_SETTINGS.imageBorderToggle && this.targetImgEl) {
             const targetImgStyle = this.targetImgEl.style;
             targetImgStyle.setProperty('border-width', IMG_GLOBAL_SETTINGS.imageBorderWidth);
             targetImgStyle.setProperty('border-style', IMG_GLOBAL_SETTINGS.imageBorderStyle);
             targetImgStyle.setProperty('border-color', IMG_GLOBAL_SETTINGS.imageBorderColor);
+        }
+    }
+
+    private restoreBorderForLastTargetImg = () => {
+        const targetImgStyle = this.targetImgEl?.style;
+        if (targetImgStyle) {
+            targetImgStyle.setProperty('border-width', this.defaultImgStyles.borderWidth);
+            targetImgStyle.setProperty('border-style', this.defaultImgStyles.borderStyle);
+            targetImgStyle.setProperty('border-color', this.defaultImgStyles.borderColor);
         }
     }
 
@@ -425,7 +425,7 @@ export class ContainerView {
         }
     }
 
-    private triggerkeyup = (event: KeyboardEvent) => {
+    private triggerKeyup = (event: KeyboardEvent) => {
         //console.log('keyup', event, event.code);
         event.preventDefault();
         event.stopPropagation();
@@ -450,7 +450,7 @@ export class ContainerView {
         }
     }
 
-    private triggerkeydown = (event: KeyboardEvent) => {
+    private triggerKeydown = (event: KeyboardEvent) => {
         // console.log('keyup', event, event.code);
         event.preventDefault();
         event.stopPropagation();
@@ -505,9 +505,7 @@ export class ContainerView {
     }
 
     private mousemoveImgView = (event: MouseEvent, offsetSize?: OffsetSizeIto) => {
-        if (!this.imgStatus.dragging && !offsetSize) {
-            return;
-        }
+        if (!this.imgStatus.dragging && !offsetSize) return;
         if (event) {
             this.imgInfo.left = event.clientX + this.imgInfo.moveX;
             this.imgInfo.top = event.clientY + this.imgInfo.moveY;
@@ -535,8 +533,6 @@ export class ContainerView {
         event.preventDefault();
         event.stopPropagation();
         // @ts-ignore
-        zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);
+        this.zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);
     }
-
-
 }

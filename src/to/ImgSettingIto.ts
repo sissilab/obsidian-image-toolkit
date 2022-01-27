@@ -5,8 +5,6 @@
 export interface ImgSettingIto {
     viewImageGlobal: boolean;
     viewImageEditor: boolean;
-    // @Deprecated
-    viewImageToggle: boolean;
     viewImageInCPB: boolean;
     viewImageWithALink: boolean;
 

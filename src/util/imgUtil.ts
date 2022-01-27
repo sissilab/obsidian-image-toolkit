@@ -1,16 +1,11 @@
 import { Notice } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import { ImgInfoIto } from 'src/to/ImgInfoIto';
-import { IMG_INFO, OFFSET_SIZE } from 'src/ui/view-container';
+import { OffsetSizeIto } from 'src/to/OffsetSizeIto';
 import { ZOOM_FACTOR } from '../conf/constants'
 
 
-/**
- * calculate zoom size of the target image  
- * @param imgSrc 
- * @returns 
- */
-export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfoIto): object => {
+export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfoIto): ImgInfoIto => {
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
     const windowZoomWidth = windowWidth * ZOOM_FACTOR;
@@ -27,8 +22,6 @@ export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfo
         tempHeight = tempWidth / realImg.width * realImg.height;
     }
     tempHeight = tempWidth * realImg.height / realImg.width;
-    let width = tempWidth + 'px';
-    let height = tempHeight + 'px';
     // cache image info: curWidth, curHeight, realWidth, realHeight, left, top
     imgInfo.left = (windowWidth - tempWidth) / 2;
     imgInfo.top = (windowHeight - tempHeight) / 2;
@@ -36,14 +29,12 @@ export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfo
     imgInfo.curHeight = tempHeight;
     imgInfo.realWidth = realImg.width;
     imgInfo.realHeight = realImg.height;
-    const left = imgInfo.left + 'px';
-    const top = imgInfo.top + 'px';
 
     /* console.log('calculateImgZoomSize', 'realImg: ' + realImg.width + ',' + realImg.height,
         'tempSize: ' + tempWidth + ',' + tempHeight,
         'windowZoomSize: ' + windowZoomWidth + ',' + windowZoomHeight,
         'windowSize: ' + windowWidth + ',' + windowHeight); */
-    return { width, height, top, left };
+    return imgInfo;
 }
 
 /**
@@ -52,37 +43,38 @@ export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfo
  * @param imgInfo 
  * @returns 
  */
-export const zoom = (ratio: number, TARGET_IMG_INFO: IMG_INFO, offsetSize?: OFFSET_SIZE): any => {
+export const zoom = (ratio: number, targetImgInfo: ImgInfoIto, offsetSize?: OffsetSizeIto): ImgInfoIto => {
     const zoomInFlag = ratio > 0;
     ratio = zoomInFlag ? 1 + ratio : 1 / (1 - ratio);
-    const curWidth = TARGET_IMG_INFO.curWidth;
+    const curWidth = targetImgInfo.curWidth;
     // const curHeight = TARGET_IMG_INFO.curHeight;
-    let zoomRatio = curWidth * ratio / TARGET_IMG_INFO.realWidth;
-    const newWidth = TARGET_IMG_INFO.realWidth * zoomRatio;
-    const newHeight = TARGET_IMG_INFO.realHeight * zoomRatio;
-    const left = TARGET_IMG_INFO.left + (offsetSize.offsetX - offsetSize.offsetX * ratio);
-    const top = TARGET_IMG_INFO.top + (offsetSize.offsetY - offsetSize.offsetY * ratio);
+    let zoomRatio = curWidth * ratio / targetImgInfo.realWidth;
+    const newWidth = targetImgInfo.realWidth * zoomRatio;
+    const newHeight = targetImgInfo.realHeight * zoomRatio;
+    const left = targetImgInfo.left + (offsetSize.offsetX - offsetSize.offsetX * ratio);
+    const top = targetImgInfo.top + (offsetSize.offsetY - offsetSize.offsetY * ratio);
     // cache image info: curWidth, curHeight, left, top
-    TARGET_IMG_INFO.curWidth = newWidth;
-    TARGET_IMG_INFO.curHeight = newHeight;
-    TARGET_IMG_INFO.left = left;
-    TARGET_IMG_INFO.top = top;
-    return { newWidth, left, top };
+    targetImgInfo.curWidth = newWidth;
+    targetImgInfo.curHeight = newHeight;
+    targetImgInfo.left = left;
+    targetImgInfo.top = top;
+    // return { newWidth, left, top };
+    return targetImgInfo;
 }
 
-export const transform = (TARGET_IMG_INFO: IMG_INFO) => {
-    let transform = 'rotate(' + TARGET_IMG_INFO.rotate + 'deg)';
-    if (TARGET_IMG_INFO.scaleX) {
+export const transform = (targetImgInfo: ImgInfoIto) => {
+    let transform = 'rotate(' + targetImgInfo.rotate + 'deg)';
+    if (targetImgInfo.scaleX) {
         transform += ' scaleX(-1)'
     }
-    if (TARGET_IMG_INFO.scaleY) {
+    if (targetImgInfo.scaleY) {
         transform += ' scaleY(-1)'
     }
-    TARGET_IMG_INFO.imgViewEl.style.setProperty('transform', transform);
+    targetImgInfo.imgViewEl.style.setProperty('transform', transform);
 }
 
-export const rotate = (degree: number, TARGET_IMG_INFO: IMG_INFO) => {
-    TARGET_IMG_INFO.imgViewEl.style.setProperty('transform', 'rotate(' + (TARGET_IMG_INFO.rotate += degree) + 'deg)');
+export const rotate = (degree: number, targetImgInfo: ImgInfoIto) => {
+    targetImgInfo.imgViewEl.style.setProperty('transform', 'rotate(' + (targetImgInfo.rotate += degree) + 'deg)');
 }
 
 export const invertImgColor = (imgEle: HTMLImageElement, open: boolean) => {

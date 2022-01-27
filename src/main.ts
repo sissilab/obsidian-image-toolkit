@@ -1,14 +1,15 @@
 import { Plugin } from 'obsidian';
 import { ImageToolkitSettingTab, IMG_GLOBAL_SETTINGS } from './conf/settings'
-import { removeViewContainer } from './ui/viewContainer'
 import { VIEW_IMG_SELECTOR } from './conf/constants'
-import { ContainerView } from './ui/container-view';
+import { ContainerView } from './ui/containerView';
 import { ImgSettingIto } from './to/ImgSettingIto';
 
 export default class ImageToolkitPlugin extends Plugin {
 
-	private settings: ImgSettingIto;
+	public settings: ImgSettingIto;
+
 	private containerView: ContainerView;
+
 	public imgSelector: string = ``;
 
 	async onload() {
@@ -25,8 +26,9 @@ export default class ImageToolkitPlugin extends Plugin {
 	}
 
 	onunload() {
-		console.log('unloading obsidian-image-toolkit plugin');
+		console.log('unloading obsidian-image-toolkit plugin...');
 		this.containerView.removeOitContainerView();
+		this.containerView = null;
 	}
 
 	async loadSettings() {
