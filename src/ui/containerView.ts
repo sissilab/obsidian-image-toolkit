@@ -121,10 +121,11 @@ export class ContainerView {
             // add event: for img-toolbar ul
             imgToolbarUlEL.addEventListener('click', this.clickImgToolbar);
 
-            // <div class="img-player"> <img src=''> </div>
+            // <div class="img-player"> <img class='img-fullscreen' src=''> </div>
             this.imgInfo.oitContainerViewEl.appendChild(this.imgInfo.imgPlayerEl = createDiv()); // img-player for full screen mode
             this.imgInfo.imgPlayerEl.addClass('img-player');
             this.imgInfo.imgPlayerEl.appendChild(this.imgInfo.imgPlayerImgViewEl = createEl('img'));
+            this.imgInfo.imgPlayerImgViewEl.addClass('img-fullscreen');
         }
         this.setTargetImg(targetEl);
         this.initDefaultData(window.getComputedStyle(targetEl));
