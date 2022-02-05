@@ -8,24 +8,9 @@ body {
     z-index: var(--layer-image-toolkit-notice);
 }
 
-img {
-    /* cursor: zoom-in; */
-}
-
-.cursor-zoom-in {
-    cursor: zoom-in;
-}
-
 .oit-container-view li::before {
     margin-left: 0;
 }
-
-/* .view-content img:active {
-    position: inherit !important;
-    width: auto !important;
-    height: auto !important;
-    transform: none !important;
-} */
 
 .image-toolkit-img-invert {
     filter: invert(1) hue-rotate(180deg);
@@ -282,4 +267,5 @@ img {
     width: 50px;
     height: 60px;
 }
+
 /*====== gallery-navbar end ======*/

@@ -6,11 +6,12 @@ import { ImgInfoIto } from 'src/to/ImgInfoIto';
 import { ImgStatusIto } from 'src/to/ImgStatusIto';
 import { OffsetSizeIto } from 'src/to/OffsetSizeIto';
 import { calculateImgZoomSize, copyImage, invertImgColor, transform, zoom } from 'src/util/imgUtil';
-import { renderGalleryImg } from './galleryNavbarView';
+import { GalleryNavbarView } from './galleryNavbarView';
 
 export class ContainerView {
 
     private readonly plugin: ImageToolkitPlugin;
+    private galleryNavbarView: GalleryNavbarView;
 
     // the clicked original image element
     public targetImgEl: HTMLImageElement;
@@ -76,8 +77,7 @@ export class ContainerView {
         if (this.imgStatus.popup) return;
         this.initContainerView(targetEl, this.plugin.app.workspace.containerEl);
         this.openOitContainerView();
-        // <div class="gallery-navbar"> <ul class="img-toolbar"> <li> <img src='' alt=''> </li> <li...> <ul> </div>
-        // this.imgInfo.imgFooterEl.append(renderGalleryImg(this, this.plugin));
+        this.renderGalleryNavbar();
         this.refreshImg(targetEl.src, targetEl.alt);
     }
 
@@ -188,6 +188,9 @@ export class ContainerView {
             this.addOrRemoveEvents(false);
             this.imgStatus.popup = false;
         }
+        if (this.galleryNavbarView) {
+            this.galleryNavbarView.closeGalleryNavbar();
+        }
     }
 
     public removeOitContainerView = () => {
@@ -206,6 +209,15 @@ export class ContainerView {
         this.imgInfo.moveX = 0;
         this.imgInfo.moveY = 0;
         this.imgInfo.rotate = 0;
+    }
+
+    private renderGalleryNavbar = () => {
+        // <div class="gallery-navbar"> <ul class="gallery-list"> <li> <img src='' alt=''> </li> <li...> <ul> </div>
+        if (!this.plugin.settings.galleryNavbarState) return;
+        if (!this.galleryNavbarView) {
+            this.galleryNavbarView = new GalleryNavbarView(this, this.plugin);
+        }
+        this.galleryNavbarView.renderGalleryImg(this.imgInfo.imgFooterEl);
     }
 
     public refreshImg = (imgSrc?: string, imgAlt?: string) => {

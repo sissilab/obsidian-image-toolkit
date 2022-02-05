@@ -1,4 +1,5 @@
 import { Md5 } from 'md5-typescript';
+import { IMG_GLOBAL_SETTINGS } from 'src/conf/settings';
 import ImageToolkitPlugin from 'src/main';
 
 export class GalleryImg {
@@ -44,7 +45,7 @@ export const parseActiveViewData = (plugin: ImageToolkitPlugin, lines: string[],
     if (!lines || 0 >= lines.length) return imgList;
     let lineText;
     let isCodeArea: boolean = false;
-    let nonCodeAreaTextArr: Array<string>;
+    let textArr: Array<string>;
     let img: GalleryImg;
     for (let i = 0, len = lines.length; i <= len; i++) {
         if (!(lineText = lines[i])) continue;
@@ -52,22 +53,35 @@ export const parseActiveViewData = (plugin: ImageToolkitPlugin, lines: string[],
         if (lineText.startsWith('```')) { isCodeArea = !isCodeArea; continue; }
         if (isCodeArea) continue;
 
-        if (nonCodeAreaTextArr = getNonCodeAreaText(lineText)) {
-            for (const txt of nonCodeAreaTextArr) {
-                if (img = parseAndExtractImg(txt, plugin, filePath)) imgList.push(img);
+        if (textArr = getLineText(lineText)) {
+            for (const text of textArr) {
+                if (img = parseAndExtractImg(text, plugin, filePath)) imgList.push(img);
             }
-        } else {
-            if (img = parseAndExtractImg(lineText, plugin, filePath)) imgList.push(img);
         }
     }
     // console.log('parseMarkDown >>> imgList', imgList);
     return imgList;
 }
 
+const getLineText = (lineText: string): Array<string> => {
+    let nonCodeAreaTextArr: Array<string> = getNonCodeAreaText(lineText);
+    if (!nonCodeAreaTextArr) {
+        nonCodeAreaTextArr = new Array<string>();
+        nonCodeAreaTextArr.push(lineText);
+    }
+    if (IMG_GLOBAL_SETTINGS.galleryNavbarState) return nonCodeAreaTextArr;
+    let textArr = new Array<string>();
+    for (const txt of nonCodeAreaTextArr) {
+        getNoMatchImgLinkText(txt, textArr);
+    }
+    return textArr;
+}
+
 const getNonCodeAreaText = (lineText: string): Array<string> => {
     const idx1 = lineText.indexOf('`');
     if (0 > idx1) return null;
     const idx2 = lineText.lastIndexOf('`');
+    if (idx1 === idx2) return null;
     let textArr: Array<string> = new Array<string>();
     if (idx1 > 0) textArr.push(lineText.substring(0, idx1));
     if (lineText.length - 1 > idx2) textArr.push(lineText.substring(idx2 + 1));
@@ -75,12 +89,18 @@ const getNonCodeAreaText = (lineText: string): Array<string> => {
 }
 
 
+const IMAGE_LINK_REGEX1 = /\[\s*?(!\[(.*?)\]\((.*?)\))\s*?\]\(.*?\)/; // 1-link: [ ![alt1|alt2|...|altn|width](src) ](https://...)
 const IMAGE_REGEX1 = /!\[(.*?)\]\((.*?)\)/; // 1: ![alt1|alt2|...|altn|width](src)
+
+const IMAGE_LINK_REGEX2 = /\[\s*?(!\[\[(.*?[jpe?g|png|gif|svg|bmp].*?)\]\])\s*?\]\(.*?\)/i; // 2-link: [ ![[src|alt1|alt2|width]] ](https://...)
 const IMAGE_REGEX2 = /!\[\[(.*?[jpe?g|png|gif|svg|bmp].*?)\]\]/i; // 2: ![[src|alt1|alt2|width]]
+
 const SRC_LINK_REGEX = /[a-z][a-z0-9+\-.]+:\/.*/i; // match link: http://, file://, app:// 
 const SRC_IMG_REGREX = /.*?\.jpe?g|png|gif|svg|bmp/i; // match image ext: .jpg/.jpeg/.png/.gif/.svg/.bmp
-const IMG_TAG_SRC_REGEX = /<img.*?src=[\'"](.*?)[\'"].*?\/?>/i;
-const IMG_TAG_ALT_REGEX = /<img.*?alt=[\'"](.*?)[\'"].*?\/?>/i;
+
+const IMG_TAG_LINK_SRC_REGEX = /<a.*?(<img.*?src=[\'"](.*?)[\'"].*?\/?>).*?\/a>/i; // 3-a-img-src: <a> <img ... src=''/> </a>
+const IMG_TAG_SRC_REGEX = /<img.*?src=[\'"](.*?)[\'"].*?\/?>/i; // 3-img-src: <img ... src='' />
+const IMG_TAG_ALT_REGEX = /<img.*?alt=[\'"](.*?)[\'"].*?\/?>/i; // 3-img-alt: <img ... alt='' />
 const FULL_PATH_REGEX = /^[a-z]\:.*?[jpe?g|png|gif|svg|bmp]/i;
 
 const extractImg = (lineText: string): GalleryImg => {
@@ -160,4 +180,29 @@ const parseAndExtractImg = (lineText: string, plugin: ImageToolkitPlugin, filePa
 
 export const md5Img = (alt: string, src: string) => {
     return Md5.init((alt ? alt : '') + '_' + src);
+}
+
+const getNoMatchImgLinkText = (lineText: string, textArr: Array<string>) => {
+    const match = matchImgLink(lineText);
+    if (!match) {
+        textArr.push(lineText);
+        return;
+    }
+    if (0 < match.index) {
+        textArr.push(lineText.substring(0, match.index));
+    }
+    const matchLen = match.index + 1 + match[0].length;
+    if (lineText.length - 5 <= matchLen) return;
+    getNoMatchImgLinkText(lineText.substring(matchLen - 1), textArr);
+}
+
+const matchImgLink = (lineText: string): RegExpMatchArray => {
+    let match: RegExpMatchArray;
+    // 1-link: [ ![alt1|alt2|...|altn|width](src) ](https://...)
+    if (match = lineText.match(IMAGE_LINK_REGEX1)) return match;
+    // 2-link: [ ![[src|alt1|alt2|width]] ](https://...)
+    if (match = lineText.match(IMAGE_LINK_REGEX2)) return match;
+    // 3-a-img-src: <a> <img ... src=''/> </a>
+    if (match = lineText.match(IMG_TAG_LINK_SRC_REGEX)) return match;
+    return null;
 }

@@ -23,8 +23,6 @@ export default class ImageToolkitPlugin extends Plugin {
 		this.containerView = new ContainerView(this);
 
 		this.toggleViewImage();
-
-		// document.on('mouseover', 'img', this.mouseoverImg);
 	}
 
 	onunload() {
@@ -44,52 +42,22 @@ export default class ImageToolkitPlugin extends Plugin {
 	private clickImage = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
 		if ('IMG' !== targetEl.tagName) return;
+		if (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement.tagName) return;
 		this.containerView.renderContainerView(targetEl);
+	}
+
+	private isBlockZoomInCursor(targetEl: HTMLImageElement) {
+		return 'IMG' !== targetEl.tagName
+			|| 'img-view' === targetEl.className
+			|| 'img-fullscreen' === targetEl.className
+			|| 'gallery-img' === targetEl.className
+			|| (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement.tagName);
 	}
 
 	private mouseoverImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if ('IMG' !== targetEl.tagName || 'img-view' === targetEl.className || 'img-fullscreen' === targetEl.className) return;
-		// console.log('mouseover....', targetEl.parentElement.tagName, targetEl.offsetParent);
-		// const viewImageGlobal = this.settings.viewImageGlobal;
-		// const viewImageEditor = this.settings.viewImageEditor;
-		// const viewImageInCPB = this.settings.viewImageInCPB;
-		// const viewImageWithALink = this.settings.viewImageWithALink;
-		// if (!viewImageGlobal || (!viewImageEditor && !viewImageInCPB && !viewImageWithALink)) {
-		// 	return;
-		// }
-		/**
-		 * OZ (editing): CodeMirror-linewidget oz-image-widget
-		 * reading: markdown-preview-view is-readable-line-width
-		 * image (open): <div class="workspace-leaf-content" data-type="image">; image-container (parent's class)
-		 * 
-		 * Community plugins: <div class="community-plugin-readme markdown-preview-view">
-		 */
-		// let cursor: boolean = null;
-		// let parentEl: HTMLElement, offsetParentEl: HTMLElement;
-		// if (!(parentEl = targetEl.parentElement)) return;
-		// if ('A' === parentEl.tagName) {
-		// 	cursor = viewImageWithALink;
-		// }
-		// if (null === cursor) {
-		// 	if (!(offsetParentEl = <HTMLElement>targetEl.offsetParent)) return;
-		// 	if (offsetParentEl.hasClass('community-plugin-readme')) {
-		// 		cursor = viewImageInCPB;
-		// 	} else if (offsetParentEl.hasClass('oz-image-widget')
-		// 		|| offsetParentEl.hasClass('markdown-preview-view')
-		// 		|| ('image' === offsetParentEl.getAttribute('data-type') && parentEl.hasClass('image-container'))) {
-		// 		cursor = viewImageEditor;
-		// 	}
-		// }
+		if (this.isBlockZoomInCursor(targetEl)) return;
 		const defaultCursor = targetEl.getAttribute('data-oit-default-cursor');
-		// if (cursor || null === cursor) {
-		// 	if (null === defaultCursor) {
-		// 		targetEl.setAttribute('data-oit-default-cursor', targetEl.style.cursor || '');
-		// 	}
-		// 	targetEl.style.cursor = 'zoom-in';
-		// } else {
-		// 	targetEl.style.cursor = defaultCursor;
-		// }
 		if (null === defaultCursor) {
 			targetEl.setAttribute('data-oit-default-cursor', targetEl.style.cursor || '');
 		}
@@ -98,7 +66,7 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private mouseoutImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if ('IMG' !== targetEl.tagName || 'img-view' === targetEl.className || 'img-fullscreen' === targetEl.className) return;
+		if (this.isBlockZoomInCursor(targetEl)) return;
 		// console.log('mouseoutImg....', targetEl.parentElement.tagName, targetEl.offsetParent);
 		targetEl.style.cursor = targetEl.getAttribute('data-oit-default-cursor');
 	}

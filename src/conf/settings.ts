@@ -8,7 +8,7 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     viewImageGlobal: true,
     viewImageEditor: true,
     viewImageInCPB: true,
-    viewImageWithALink: false,
+    viewImageWithALink: true,
 
     imageMoveSpeed: 10,
     imgTipToggle: true,
@@ -17,7 +17,9 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     imageBorderToggle: false,
     imageBorderWidth: IMG_BORDER_WIDTH.MEDIUM,
     imageBorderStyle: IMG_BORDER_STYLE.SOLID,
-    imageBorderColor: IMG_BORDER_COLOR.RED
+    imageBorderColor: IMG_BORDER_COLOR.RED,
+
+    galleryNavbarState: true,
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -30,6 +32,11 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
     constructor(app: App, plugin: ImageToolkitPlugin) {
         super(app, plugin);
         this.plugin = plugin;
+        IMG_GLOBAL_SETTINGS.viewImageGlobal = this.plugin.settings.viewImageGlobal;
+        IMG_GLOBAL_SETTINGS.viewImageEditor = this.plugin.settings.viewImageEditor;
+        IMG_GLOBAL_SETTINGS.viewImageInCPB = this.plugin.settings.viewImageInCPB;
+        IMG_GLOBAL_SETTINGS.viewImageWithALink = this.plugin.settings.viewImageWithALink;
+
         IMG_GLOBAL_SETTINGS.imageMoveSpeed = this.plugin.settings.imageMoveSpeed;
         IMG_GLOBAL_SETTINGS.imgTipToggle = this.plugin.settings.imgTipToggle;
         IMG_GLOBAL_SETTINGS.imgFullScreenMode = this.plugin.settings.imgFullScreenMode;
