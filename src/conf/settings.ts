@@ -32,6 +32,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
     constructor(app: App, plugin: ImageToolkitPlugin) {
         super(app, plugin);
         this.plugin = plugin;
+        
         IMG_GLOBAL_SETTINGS.viewImageGlobal = this.plugin.settings.viewImageGlobal;
         IMG_GLOBAL_SETTINGS.viewImageEditor = this.plugin.settings.viewImageEditor;
         IMG_GLOBAL_SETTINGS.viewImageInCPB = this.plugin.settings.viewImageInCPB;

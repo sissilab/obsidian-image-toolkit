@@ -1,6 +1,9 @@
-import { MarkdownView } from "obsidian";
+import { Md5 } from "md5-typescript";
+import { MarkdownView, TFile } from "obsidian";
 import ImageToolkitPlugin from "src/main";
-import { GalleryImg, md5Img, parseActiveViewData } from "src/util/markdowParse";
+import { GalleryImgCacheCto } from "src/to/GalleryImgCacheCto";
+import { GalleryImgCto } from "src/to/GalleryImgCto";
+import { md5Img, parseActiveViewData } from "src/util/markdowParse";
 import { ContainerView } from "./containerView";
 
 export class GalleryNavbarView {
@@ -14,13 +17,16 @@ export class GalleryNavbarView {
     private galleryMouseDownClientX: number = 0;
     private galleryTranslateX: number = 0;
 
+    private static GALLERY_IMG_CACHE = new Map();
+
+    private readonly CACHE_LIMIT: number = 10;
+
     constructor(containerView: ContainerView, plugin: ImageToolkitPlugin) {
         this.containerView = containerView;
         this.plugin = plugin;
     }
 
     public renderGalleryImg = async (imgFooterEl: HTMLElement) => {
-        debugger
         // get all of images on the current editor
         const activeView = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
         if (!activeView || 'preview' != activeView.getMode() || 0 < document.getElementsByClassName('modal-container').length) {
@@ -32,17 +38,26 @@ export class GalleryNavbarView {
         // <div class="gallery-navbar"> <ul class="gallery-list"> <li> <img src='' alt=''> </li> <li...> <ul> </div>
         this.initGalleryNavbar(imgFooterEl);
 
-        // const cm = activeView.sourceMode?.cmEditor;
-        // const imgList: Array<GalleryImg> = parseMarkDown(plugin, cm, activeView.file.path);
-        const imgList: Array<GalleryImg> = parseActiveViewData(this.plugin, activeView.data?.split('\n'), activeView.file.path);
+        const activeFile: TFile = activeView.file;
+        let galleryImg: GalleryImgCacheCto = this.getGalleryImgCache(activeFile);
+        let hitCache: boolean = true;
+        if (!galleryImg) {
+            hitCache = false;
+            galleryImg = parseActiveViewData(this.plugin, activeView.data?.split('\n'), activeFile);
+            this.setGalleryImgCache(galleryImg);
+        }
+        console.log('oit-gallery-navbar: ' + (hitCache ? 'hit cache' : 'miss cache') + '!', galleryImg);
+
+        const imgList: Array<GalleryImgCto> = galleryImg.galleryImgList;
         const imgContextHash: string[] = this.getTargetImgContextHash(this.containerView.targetImgEl, activeView.containerEl, this.plugin.imgSelector);
-        const viewImageWithALink: boolean = this.plugin.settings.viewImageWithALink;
         let liEl: HTMLLIElement, imgEl, liElActive: HTMLLIElement;
         let targetImageIdx = -1;
         let isAddGalleryActive: boolean = false;
         let prevHash: string, nextHash: string;
+        const viewImageWithALink: boolean = this.plugin.settings.viewImageWithALink;
         for (let i = 0, len = imgList.length; i < len; i++) {
             const img = imgList[i];
+            if (!viewImageWithALink && img.link) continue;
             // <li> <img class='gallery-img' src='' alt=''> </li>
             this.galleryListEl.append(liEl = createEl('li'));
             liEl.append(imgEl = createEl('img'));
@@ -209,5 +224,48 @@ export class GalleryNavbarView {
         event.preventDefault();
         event.stopPropagation();
         this.galleryIsMousingDown = false;
+    }
+
+    private getGalleryImgCache = (file: TFile): GalleryImgCacheCto => {
+        if (!file) return null;
+        const md5File = this.md5File(file.path, file.stat.ctime);
+        if (!md5File) return null;
+        const galleryImgCache: GalleryImgCacheCto = GalleryNavbarView.GALLERY_IMG_CACHE.get(md5File);
+        if (galleryImgCache && file.stat.mtime !== galleryImgCache.file.mtime) {
+            GalleryNavbarView.GALLERY_IMG_CACHE.delete(md5File);
+            return null;
+        }
+        return galleryImgCache;
+    }
+
+    private setGalleryImgCache = (galleryImg: GalleryImgCacheCto) => {
+        const md5File = this.md5File(galleryImg.file.path, galleryImg.file.ctime);
+        if (!md5File) return;
+        this.trimGalleryImgCache();
+        GalleryNavbarView.GALLERY_IMG_CACHE.set(md5File, galleryImg);
+    }
+
+    private trimGalleryImgCache = () => {
+        if (GalleryNavbarView.GALLERY_IMG_CACHE.size < this.CACHE_LIMIT) return;
+        let earliestMtime: number, earliestKey: string;
+        GalleryNavbarView.GALLERY_IMG_CACHE.forEach((value: GalleryImgCacheCto, key: string) => {
+            if (!earliestMtime) {
+                earliestMtime = value.mtime;
+                earliestKey = key;
+            } else {
+                if (earliestMtime > value.mtime) {
+                    earliestMtime = value.mtime;
+                    earliestKey = key;
+                }
+            }
+        });
+        if (earliestKey) {
+            GalleryNavbarView.GALLERY_IMG_CACHE.delete(earliestKey);
+        }
+    }
+
+    private md5File = (path: string, ctime: number) => {
+        if (!path || !ctime) return;
+        return Md5.init(path + '_' + ctime);
     }
 }
