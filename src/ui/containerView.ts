@@ -188,7 +188,7 @@ export class ContainerView {
             this.addOrRemoveEvents(false);
             this.imgStatus.popup = false;
         }
-        if (this.galleryNavbarView) {
+        if (IMG_GLOBAL_SETTINGS.galleryNavbarToggle && this.galleryNavbarView) {
             this.galleryNavbarView.closeGalleryNavbar();
         }
     }
@@ -213,7 +213,7 @@ export class ContainerView {
 
     private renderGalleryNavbar = () => {
         // <div class="gallery-navbar"> <ul class="gallery-list"> <li> <img src='' alt=''> </li> <li...> <ul> </div>
-        if (!this.plugin.settings.galleryNavbarState) return;
+        if (!this.plugin.settings.galleryNavbarToggle) return;
         if (!this.galleryNavbarView) {
             this.galleryNavbarView = new GalleryNavbarView(this, this.plugin);
         }

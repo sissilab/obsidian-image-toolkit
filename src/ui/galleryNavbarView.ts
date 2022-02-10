@@ -10,16 +10,21 @@ export class GalleryNavbarView {
     private readonly plugin: ImageToolkitPlugin;
     private readonly containerView: ContainerView;
 
+    // whether to display gallery navbar
+    private state: boolean = false;
+
     private galleryNavbarEl: HTMLDivElement = null;
     private galleryListEl: HTMLElement = null;
 
     private galleryIsMousingDown: boolean = false;
     private galleryMouseDownClientX: number = 0;
     private galleryTranslateX: number = 0;
+    private mouseDownTime: number;
 
     private static GALLERY_IMG_CACHE = new Map();
 
     private readonly CACHE_LIMIT: number = 10;
+    private readonly CLICK_TIME: number = 150;
 
     constructor(containerView: ContainerView, plugin: ImageToolkitPlugin) {
         this.containerView = containerView;
@@ -27,10 +32,14 @@ export class GalleryNavbarView {
     }
 
     public renderGalleryImg = async (imgFooterEl: HTMLElement) => {
+        if (this.state) return;
         // get all of images on the current editor
         const activeView = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
-        if (!activeView || 'preview' != activeView.getMode() || 0 < document.getElementsByClassName('modal-container').length) {
-            // only support preview mode; 
+        if (!activeView
+            // preivew: only support read view
+            || 'preview' != activeView.getMode()
+            // modal-container: community plugin, flashcards (Space Repetition)
+            || 0 < document.getElementsByClassName('modal-container').length) {
             if (this.galleryNavbarEl) this.galleryNavbarEl.hidden = true;
             if (this.galleryListEl) this.galleryListEl.innerHTML = '';
             return;
@@ -46,7 +55,7 @@ export class GalleryNavbarView {
             galleryImg = parseActiveViewData(this.plugin, activeView.data?.split('\n'), activeFile);
             this.setGalleryImgCache(galleryImg);
         }
-        console.log('oit-gallery-navbar: ' + (hitCache ? 'hit cache' : 'miss cache') + '!', galleryImg);
+        // console.log('oit-gallery-navbar: ' + (hitCache ? 'hit cache' : 'miss cache') + '!', galleryImg);
 
         const imgList: Array<GalleryImgCto> = galleryImg.galleryImgList;
         const imgContextHash: string[] = this.getTargetImgContextHash(this.containerView.targetImgEl, activeView.containerEl, this.plugin.imgSelector);
@@ -121,10 +130,13 @@ export class GalleryNavbarView {
         }
         this.initDefaultData();
         this.galleryNavbarEl.hidden = false; // display 'gallery-navbar'
+        this.state = true;
     }
 
     public closeGalleryNavbar = () => {
+        if (!this.state) return;
         this.galleryNavbarEl.hidden = true; // hide 'gallery-navbar'
+        this.state = false;
         this.initDefaultData();
     }
 
@@ -185,15 +197,16 @@ export class GalleryNavbarView {
     }
 
     private mouseDownGallery = (event: MouseEvent) => {
-        console.log('mouse Down Gallery...');
+        // console.log('mouse Down Gallery...');
         event.preventDefault();
         event.stopPropagation();
+        this.mouseDownTime = new Date().getTime();
         this.galleryIsMousingDown = true;
         this.galleryMouseDownClientX = event.clientX;
     }
 
     private mouseMoveGallery = (event: MouseEvent) => {
-        console.log('mouse Move Gallery...');
+        // console.log('mouse Move Gallery...');
         event.preventDefault();
         event.stopPropagation();
         if (!this.galleryIsMousingDown) return;
@@ -212,18 +225,22 @@ export class GalleryNavbarView {
     }
 
     private mouseUpGallery = (event: MouseEvent) => {
-        console.log('mouse Up Gallery>>>', event.target);
+        // console.log('mouse Up Gallery>>>', event.target);
         event.preventDefault();
         event.stopPropagation();
         this.galleryIsMousingDown = false;
-        this.clickGalleryImg(event);
+        if (!this.mouseDownTime || this.CLICK_TIME > new Date().getTime() - this.mouseDownTime) {
+            this.clickGalleryImg(event);
+        }
+        this.mouseDownTime = null;
     }
 
     private mouseLeaveGallery = (event: MouseEvent) => {
-        console.log('mouse Leave Gallery>>>', event.target);
+        // console.log('mouse Leave Gallery>>>', event.target);
         event.preventDefault();
         event.stopPropagation();
         this.galleryIsMousingDown = false;
+        this.mouseDownTime = null;
     }
 
     private getGalleryImgCache = (file: TFile): GalleryImgCacheCto => {

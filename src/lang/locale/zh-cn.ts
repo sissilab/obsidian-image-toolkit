@@ -74,6 +74,11 @@ export default {
   GOLD: '金色',
   YELLOW: '黄色',
 
+  // >>>Gallery Navbar Settings:
+  GALLERY_NAVBAR_SETTINGS: '图片导航设置 (体验版):',
+  GALLERY_NAVBAR_TOGGLE_NAME: "展示图片导航 (仅支持阅读模式)",
+  GALLERY_NAVBAR_TOGGLE_DESC: "当前文档的所有图片会展示在弹出层的底部，可随意切换展示不同图片。",
+
   // toolbar icon title
   ZOOM_IN: "放大",
   ZOOM_OUT: "缩小",

@@ -41,8 +41,8 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private clickImage = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if ('IMG' !== targetEl.tagName) return;
-		if (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement.tagName) return;
+		if (!targetEl || 'IMG' !== targetEl.tagName) return;
+		if (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName) return;
 		this.containerView.renderContainerView(targetEl);
 	}
 
@@ -51,12 +51,12 @@ export default class ImageToolkitPlugin extends Plugin {
 			|| 'img-view' === targetEl.className
 			|| 'img-fullscreen' === targetEl.className
 			|| 'gallery-img' === targetEl.className
-			|| (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement.tagName);
+			|| (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName);
 	}
 
 	private mouseoverImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if (this.isBlockZoomInCursor(targetEl)) return;
+		if (!targetEl || this.isBlockZoomInCursor(targetEl)) return;
 		const defaultCursor = targetEl.getAttribute('data-oit-default-cursor');
 		if (null === defaultCursor) {
 			targetEl.setAttribute('data-oit-default-cursor', targetEl.style.cursor || '');
@@ -66,7 +66,7 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private mouseoutImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if (this.isBlockZoomInCursor(targetEl)) return;
+		if (!targetEl || this.isBlockZoomInCursor(targetEl)) return;
 		// console.log('mouseoutImg....', targetEl.parentElement.tagName, targetEl.offsetParent);
 		targetEl.style.cursor = targetEl.getAttribute('data-oit-default-cursor');
 	}

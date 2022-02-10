@@ -19,7 +19,7 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     imageBorderStyle: IMG_BORDER_STYLE.SOLID,
     imageBorderColor: IMG_BORDER_COLOR.RED,
 
-    galleryNavbarState: true,
+    galleryNavbarToggle: false,
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -32,7 +32,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
     constructor(app: App, plugin: ImageToolkitPlugin) {
         super(app, plugin);
         this.plugin = plugin;
-        
+
         IMG_GLOBAL_SETTINGS.viewImageGlobal = this.plugin.settings.viewImageGlobal;
         IMG_GLOBAL_SETTINGS.viewImageEditor = this.plugin.settings.viewImageEditor;
         IMG_GLOBAL_SETTINGS.viewImageInCPB = this.plugin.settings.viewImageInCPB;
@@ -45,6 +45,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         IMG_GLOBAL_SETTINGS.imageBorderWidth = this.plugin.settings.imageBorderWidth;
         IMG_GLOBAL_SETTINGS.imageBorderStyle = this.plugin.settings.imageBorderStyle;
         IMG_GLOBAL_SETTINGS.imageBorderColor = this.plugin.settings.imageBorderColor;
+
+        IMG_GLOBAL_SETTINGS.galleryNavbarToggle = this.plugin.settings.galleryNavbarToggle;
     }
 
     display(): void {
@@ -216,6 +218,22 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 });
             });
         // >>>IMAGE_BORDER_SETTINGS end
+
+        // >>>GALLERY_NAVBAR_SETTINGS start
+        containerEl.createEl('h3', { text: t("GALLERY_NAVBAR_SETTINGS") });
+
+        new Setting(containerEl)
+            .setName(t("GALLERY_NAVBAR_TOGGLE_NAME"))
+            .setDesc(t("GALLERY_NAVBAR_TOGGLE_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.galleryNavbarToggle)
+                .onChange(async (value) => {
+                    this.plugin.settings.galleryNavbarToggle = value;
+                    IMG_GLOBAL_SETTINGS.galleryNavbarToggle = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        // >>>GALLERY_NAVBAR_SETTINGS end
 
     }
 

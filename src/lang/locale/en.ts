@@ -74,6 +74,11 @@ export default {
   GOLD: 'gold',
   YELLOW: 'yellow',
 
+  // >>>Gallery Navbar Settings:
+  GALLERY_NAVBAR_SETTINGS: 'Gallery Navbar Settings (Experimental):',
+  GALLERY_NAVBAR_TOGGLE_NAME: "Display gallery navbar (Only support reading view)",
+  GALLERY_NAVBAR_TOGGLE_DESC: "All of the images in the current pane view can be displayed at the bottom of the popup layer.",
+
   // toolbar icon title
   ZOOM_IN: "zoom in",
   ZOOM_OUT: "zoom out",
