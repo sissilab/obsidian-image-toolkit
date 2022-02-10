@@ -7,7 +7,7 @@ import { ZOOM_FACTOR } from '../conf/constants'
 
 export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfoIto): ImgInfoIto => {
     const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
-    const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+    const windowHeight = (document.documentElement.clientHeight || document.body.clientHeight) - 100;
     const windowZoomWidth = windowWidth * ZOOM_FACTOR;
     const windowZoomHeight = windowHeight * ZOOM_FACTOR;
 
