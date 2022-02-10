@@ -29,6 +29,9 @@ export default class ImageToolkitPlugin extends Plugin {
 		console.log('unloading obsidian-image-toolkit plugin...');
 		this.containerView.removeOitContainerView();
 		this.containerView = null;
+		document.off('click', this.imgSelector, this.clickImage);
+		document.off('mouseover', this.imgSelector, this.mouseoverImg);
+		document.off('mouseout', this.imgSelector, this.mouseoutImg);
 	}
 
 	async loadSettings() {
@@ -41,7 +44,9 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private clickImage = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if (!targetEl || 'IMG' !== targetEl.tagName) return;
+		if (!targetEl || 'IMG' !== targetEl.tagName
+			|| 'Memos' === this.app.workspace?.activeLeaf?.getDisplayText())
+			return;
 		if (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName) return;
 		this.containerView.renderContainerView(targetEl);
 	}
@@ -51,7 +56,8 @@ export default class ImageToolkitPlugin extends Plugin {
 			|| 'img-view' === targetEl.className
 			|| 'img-fullscreen' === targetEl.className
 			|| 'gallery-img' === targetEl.className
-			|| (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName);
+			|| (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName)
+			|| ('Memos' === this.app.workspace?.activeLeaf?.getDisplayText());
 	}
 
 	private mouseoverImg = (event: MouseEvent) => {
