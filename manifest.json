@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-image-toolkit",
 	"name": "Image Toolkit",
-	"version": "0.6.0",
+	"version": "1.0.0",
 	"minAppVersion": "0.1.0-beta",
 	"description": "This plugin provides some image viewing toolkit.",
 	"author": "sissilab",

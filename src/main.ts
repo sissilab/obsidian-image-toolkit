@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { Plugin, WorkspaceLeaf } from 'obsidian';
 import { ImageToolkitSettingTab, IMG_GLOBAL_SETTINGS } from './conf/settings'
 import { VIEW_IMG_SELECTOR } from './conf/constants'
 import { ContainerView } from './ui/containerView';
@@ -29,6 +29,9 @@ export default class ImageToolkitPlugin extends Plugin {
 		console.log('unloading obsidian-image-toolkit plugin...');
 		this.containerView.removeOitContainerView();
 		this.containerView = null;
+		document.off('click', this.imgSelector, this.clickImage);
+		document.off('mouseover', this.imgSelector, this.mouseoverImg);
+		document.off('mouseout', this.imgSelector, this.mouseoutImg);
 	}
 
 	async loadSettings() {
@@ -41,7 +44,10 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private clickImage = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if (!targetEl || 'IMG' !== targetEl.tagName) return;
+		if (!targetEl || 'IMG' !== targetEl.tagName
+			// block Memos
+			|| 'memos_view' === this.app.workspace?.activeLeaf?.getViewState()?.type)
+			return;
 		if (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName) return;
 		this.containerView.renderContainerView(targetEl);
 	}
@@ -51,12 +57,39 @@ export default class ImageToolkitPlugin extends Plugin {
 			|| 'img-view' === targetEl.className
 			|| 'img-fullscreen' === targetEl.className
 			|| 'gallery-img' === targetEl.className
-			|| (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName);
+			|| (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName)
+			|| targetEl.parentElement?.hasClass('image-embed') // block preview-image-dialog on Memos
+			|| targetEl.parentElement?.hasClass('close-btn') // block preview-image-dialog on Memos
+			|| targetEl.offsetParent?.hasClass('about-site-dialog') // block preview-image-dialog on Memos
+			;
 	}
 
 	private mouseoverImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
 		if (!targetEl || this.isBlockZoomInCursor(targetEl)) return;
+		targetEl.addClass('oit-target-cursor');
+
+		console.log('mouseoverImg......');
+		let isExistTargetCursor: boolean = false;
+		this.app.workspace.iterateAllLeaves((leave: WorkspaceLeaf) => {
+			console.log('leave: ', 'type=' + leave.getViewState().type, leave.view.containerEl);
+			const type = leave.getViewState().type;
+			if (('markdown' === type || 'image' === type) && leave.view.containerEl.hasClass('oit-target-cursor')) {
+				isExistTargetCursor = true;
+				return;
+			}
+		});
+		console.log('return.....');
+
+		// block Memos
+		const memosLeaves = this.app.workspace.getLeavesOfType('memos_view');
+		if (memosLeaves && 0 < memosLeaves.length) {
+			for (const memos of memosLeaves) {
+				const targetCursorEls: HTMLCollectionOf<Element> = memos.view.containerEl.getElementsByClassName('oit-target-cursor');
+				if (targetCursorEls && 0 < targetCursorEls.length) return;
+			}
+		}
+
 		const defaultCursor = targetEl.getAttribute('data-oit-default-cursor');
 		if (null === defaultCursor) {
 			targetEl.setAttribute('data-oit-default-cursor', targetEl.style.cursor || '');
@@ -66,8 +99,9 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private mouseoutImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
+		// console.log('mouseoutImg....', targetEl, targetEl.parentElement);
 		if (!targetEl || this.isBlockZoomInCursor(targetEl)) return;
-		// console.log('mouseoutImg....', targetEl.parentElement.tagName, targetEl.offsetParent);
+		targetEl.removeClass('oit-target-cursor');
 		targetEl.style.cursor = targetEl.getAttribute('data-oit-default-cursor');
 	}
 
