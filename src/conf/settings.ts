@@ -5,10 +5,11 @@ import { ImgSettingIto } from 'src/to/ImgSettingIto';
 import { IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE } from './constants';
 
 export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
-    viewImageGlobal: true,
+    // viewImageGlobal: true,
     viewImageEditor: true,
     viewImageInCPB: true,
     viewImageWithALink: true,
+    viewImageOther: true,
 
     imageMoveSpeed: 10,
     imgTipToggle: true,
@@ -25,18 +26,15 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
 export class ImageToolkitSettingTab extends PluginSettingTab {
     private plugin: ImageToolkitPlugin;
 
-    private viewImageEditorSetting: Setting;
-    private viewImageInCPBSetting: Setting;
-    private viewImageWithALinkSetting: Setting;
-
     constructor(app: App, plugin: ImageToolkitPlugin) {
         super(app, plugin);
         this.plugin = plugin;
 
-        IMG_GLOBAL_SETTINGS.viewImageGlobal = this.plugin.settings.viewImageGlobal;
+        // IMG_GLOBAL_SETTINGS.viewImageGlobal = this.plugin.settings.viewImageGlobal;
         IMG_GLOBAL_SETTINGS.viewImageEditor = this.plugin.settings.viewImageEditor;
         IMG_GLOBAL_SETTINGS.viewImageInCPB = this.plugin.settings.viewImageInCPB;
         IMG_GLOBAL_SETTINGS.viewImageWithALink = this.plugin.settings.viewImageWithALink;
+        IMG_GLOBAL_SETTINGS.viewImageOther = this.plugin.settings.viewImageOther;
 
         IMG_GLOBAL_SETTINGS.imageMoveSpeed = this.plugin.settings.imageMoveSpeed;
         IMG_GLOBAL_SETTINGS.imgTipToggle = this.plugin.settings.imgTipToggle;
@@ -57,7 +55,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
 
         containerEl.createEl('h3', { text: t("VIEW_TRIGGER_SETTINGS") });
 
-        new Setting(containerEl)
+        /* new Setting(containerEl)
             .setName(t("VIEW_IMAGE_GLOBAL_NAME"))
             .setDesc(t("VIEW_IMAGE_GLOBAL_DESC"))
             .addToggle(toggle => toggle
@@ -74,9 +72,9 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     }
                     this.plugin.toggleViewImage();
                     await this.plugin.saveSettings();
-                }));
+                })); */
 
-        this.viewImageEditorSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(t("VIEW_IMAGE_EDITOR_NAME"))
             .setDesc(t("VIEW_IMAGE_EDITOR_DESC"))
             .addToggle(toggle => toggle
@@ -87,7 +85,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        this.viewImageInCPBSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(t("VIEW_IMAGE_IN_CPB_NAME"))
             .setDesc(t("VIEW_IMAGE_IN_CPB_DESC"))
             .addToggle(toggle => toggle
@@ -98,13 +96,24 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        this.viewImageWithALinkSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(t("VIEW_IMAGE_WITH_A_LINK_NAME"))
             .setDesc(t("VIEW_IMAGE_WITH_A_LINK_DESC"))
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.viewImageWithALink)
                 .onChange(async (value) => {
                     this.plugin.settings.viewImageWithALink = value;
+                    this.plugin.toggleViewImage();
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName(t("VIEW_IMAGE_OTHER_NAME"))
+            .setDesc(t("VIEW_IMAGE_OTHER_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.viewImageOther)
+                .onChange(async (value) => {
+                    this.plugin.settings.viewImageOther = value;
                     this.plugin.toggleViewImage();
                     await this.plugin.saveSettings();
                 }));

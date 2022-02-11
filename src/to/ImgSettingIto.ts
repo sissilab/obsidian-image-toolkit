@@ -3,10 +3,11 @@
  * typescript object of interface for defining image's settings
  */
 export interface ImgSettingIto {
-    viewImageGlobal: boolean;
+    // viewImageGlobal: boolean; // @Deprecated
     viewImageEditor: boolean;
     viewImageInCPB: boolean;
     viewImageWithALink: boolean;
+    viewImageOther: boolean;
 
     imageMoveSpeed: number;
     imgTipToggle: boolean;

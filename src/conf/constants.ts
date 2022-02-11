@@ -55,9 +55,14 @@ export const IMG_FULL_SCREEN_MODE = {
 }
 
 export const VIEW_IMG_SELECTOR = {
-    EDITOR_AREAS: `.view-content img`,
-    CPB: `.community-plugin-details img`,
-    LINK: `a img`
+    EDITOR_AREAS: `.workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img`,
+    EDITOR_AREAS_NO_LINK: `.workspace-leaf-content[data-type='markdown'] img:not(a img),.workspace-leaf-content[data-type='image'] img:not(a img)`,
+    
+    CPB: `.community-plugin-readme img`,
+    CPB_NO_LINK: `.community-plugin-readme img:not(a img)`,
+
+    OTHER: `#sr-flashcard-view img`,
+    OTHER_NO_LINK: `#sr-flashcard-view img:not(a img)`,
 }
 
 export const IMG_BORDER_WIDTH = {

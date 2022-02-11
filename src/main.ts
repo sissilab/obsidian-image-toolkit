@@ -44,52 +44,15 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private clickImage = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if (!targetEl || 'IMG' !== targetEl.tagName
-			// block Memos
-			|| 'memos_view' === this.app.workspace?.activeLeaf?.getViewState()?.type)
-			return;
-		if (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName) return;
+		if (!targetEl || 'IMG' !== targetEl.tagName) return;
 		this.containerView.renderContainerView(targetEl);
-	}
-
-	private isBlockZoomInCursor(targetEl: HTMLImageElement) {
-		return 'IMG' !== targetEl.tagName
-			|| 'img-view' === targetEl.className
-			|| 'img-fullscreen' === targetEl.className
-			|| 'gallery-img' === targetEl.className
-			|| (!this.settings.viewImageWithALink && 'A' === targetEl.parentElement?.tagName)
-			|| targetEl.parentElement?.hasClass('image-embed') // block preview-image-dialog on Memos
-			|| targetEl.parentElement?.hasClass('close-btn') // block preview-image-dialog on Memos
-			|| targetEl.offsetParent?.hasClass('about-site-dialog') // block preview-image-dialog on Memos
-			;
 	}
 
 	private mouseoverImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if (!targetEl || this.isBlockZoomInCursor(targetEl)) return;
-		targetEl.addClass('oit-target-cursor');
-
-		console.log('mouseoverImg......');
-		let isExistTargetCursor: boolean = false;
-		this.app.workspace.iterateAllLeaves((leave: WorkspaceLeaf) => {
-			console.log('leave: ', 'type=' + leave.getViewState().type, leave.view.containerEl);
-			const type = leave.getViewState().type;
-			if (('markdown' === type || 'image' === type) && leave.view.containerEl.hasClass('oit-target-cursor')) {
-				isExistTargetCursor = true;
-				return;
-			}
-		});
-		console.log('return.....');
-
-		// block Memos
-		const memosLeaves = this.app.workspace.getLeavesOfType('memos_view');
-		if (memosLeaves && 0 < memosLeaves.length) {
-			for (const memos of memosLeaves) {
-				const targetCursorEls: HTMLCollectionOf<Element> = memos.view.containerEl.getElementsByClassName('oit-target-cursor');
-				if (targetCursorEls && 0 < targetCursorEls.length) return;
-			}
-		}
-
+		if (!targetEl) return;
+		// targetEl.addClass('oit-target-cursor');
+		// console.log('mouseoverImg......');
 		const defaultCursor = targetEl.getAttribute('data-oit-default-cursor');
 		if (null === defaultCursor) {
 			targetEl.setAttribute('data-oit-default-cursor', targetEl.style.cursor || '');
@@ -100,57 +63,36 @@ export default class ImageToolkitPlugin extends Plugin {
 	private mouseoutImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
 		// console.log('mouseoutImg....', targetEl, targetEl.parentElement);
-		if (!targetEl || this.isBlockZoomInCursor(targetEl)) return;
-		targetEl.removeClass('oit-target-cursor');
+		if (!targetEl /* || this.isBlockZoomInCursor(targetEl) */) return;
+		// targetEl.removeClass('oit-target-cursor');
 		targetEl.style.cursor = targetEl.getAttribute('data-oit-default-cursor');
 	}
 
 	public toggleViewImage = () => {
-		const viewImageGlobal = this.settings.viewImageGlobal;
-		const viewImageEditor = this.settings.viewImageEditor;
-		const viewImageInCPB = this.settings.viewImageInCPB;
-		const viewImageWithALink = this.settings.viewImageWithALink;
-		let selector = ``;
+		const viewImageEditor = this.settings.viewImageEditor; // .workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img
+		const viewImageInCPB = this.settings.viewImageInCPB; // .community-plugin-readme img
+		const viewImageWithALink = this.settings.viewImageWithALink; // false: ... img:not(a img)
+		const viewImageOther = this.settings.viewImageOther; // #sr-flashcard-view img
+
 		if (this.imgSelector) {
 			document.off('click', this.imgSelector, this.clickImage);
 			document.off('mouseover', this.imgSelector, this.mouseoverImg);
 			document.off('mouseout', this.imgSelector, this.mouseoutImg);
 		}
-		if (!viewImageGlobal && !viewImageEditor && !viewImageInCPB && !viewImageWithALink) {
+		if (!viewImageOther && !viewImageEditor && !viewImageInCPB && !viewImageWithALink) {
 			return;
 		}
-		if (viewImageGlobal) {
-			selector = `img`;
-			let notSelector = ``;
-			if (!viewImageEditor) {
-				// img:not(.CodeMirror-code img,.markdown-preview-section img,.view-content > .image-container img)
-				notSelector = VIEW_IMG_SELECTOR.EDITOR_AREAS;
-			}
-			if (!viewImageInCPB) {
-				// img:not(.community-plugin-details img)
-				notSelector += (1 < notSelector.length ? `,` : ``) + VIEW_IMG_SELECTOR.CPB;
-			}
-			if (!viewImageWithALink) {
-				// img:not(a img)
-				notSelector += (1 < notSelector.length ? `,` : ``) + VIEW_IMG_SELECTOR.LINK;
-			}
-			if (notSelector) {
-				selector += `:not(` + notSelector + `)`;
-			}
-			if (viewImageWithALink && !viewImageEditor) {
-				selector += `,a img`;
-			}
-		} else {
-			if (viewImageEditor) {
-				selector = VIEW_IMG_SELECTOR.EDITOR_AREAS;
-			}
-			if (viewImageInCPB) {
-				selector += (1 < selector.length ? `,` : ``) + VIEW_IMG_SELECTOR.CPB;
-			}
-			if (viewImageWithALink) {
-				selector += (1 < selector.length ? `,` : ``) + VIEW_IMG_SELECTOR.LINK;
-			}
+		let selector = ``;
+		if (viewImageEditor) {
+			selector += (viewImageWithALink ? VIEW_IMG_SELECTOR.EDITOR_AREAS : VIEW_IMG_SELECTOR.EDITOR_AREAS_NO_LINK);
 		}
+		if (viewImageInCPB) {
+			selector += (1 < selector.length ? `,` : ``) + (viewImageWithALink ? VIEW_IMG_SELECTOR.CPB : VIEW_IMG_SELECTOR.CPB_NO_LINK);
+		}
+		if (viewImageOther) {
+			selector += (1 < selector.length ? `,` : ``) + (viewImageWithALink ? VIEW_IMG_SELECTOR.OTHER : VIEW_IMG_SELECTOR.OTHER_NO_LINK);
+		}
+
 		if (selector) {
 			// console.log('selector: ', selector);
 			this.imgSelector = selector;
@@ -159,4 +101,5 @@ export default class ImageToolkitPlugin extends Plugin {
 			document.on('mouseout', this.imgSelector, this.mouseoutImg);
 		}
 	}
+
 }

@@ -7,8 +7,8 @@ export default {
 
   // >>>View Trigger Settings:
   VIEW_TRIGGER_SETTINGS: 'View Trigger Settings:',
-  VIEW_IMAGE_GLOBAL_NAME: 'Click and view an image globally',
-  VIEW_IMAGE_GLOBAL_DESC: 'You can zoom, rotate, drag, and invert it on the popup layer when clicking an image.',
+  VIEW_IMAGE_GLOBAL_NAME: 'Click and view an image globally', // @Deprecated
+  VIEW_IMAGE_GLOBAL_DESC: 'You can zoom, rotate, drag, and invert it on the popup layer when clicking an image.', // @Deprecated
   VIEW_IMAGE_EDITOR_NAME: 'Click and view an image in the Editor Area',
   VIEW_IMAGE_EDITOR_DESC: 'Turn on this option if you want to click and view an image in the Editor Area.',
   // CPB = COMMUNITY_PLUGINS_BROWSER
@@ -16,6 +16,8 @@ export default {
   VIEW_IMAGE_IN_CPB_DESC: 'Turn on this option if you want to click and view an image in the Community Plugins browser.', 
   VIEW_IMAGE_WITH_A_LINK_NAME: 'Click and view an image with a link',
   VIEW_IMAGE_WITH_A_LINK_DESC: 'Turn on this option if you want to click and view an image with a link. (NOTE: The browser will be opened for you to visit the link and the image will be popped up for being viewed at the same time when you click the image.)',
+  VIEW_IMAGE_OTHER_NAME: 'Click and view in the other areas except the above',
+  VIEW_IMAGE_OTHER_DESC: 'Except for the above mentioned, it also supports other areas, e.g. flashcards.',
 
   // >>>View Detail Settings:
   VIEW_DETAILS_SETTINGS: 'View Detail Settings:',

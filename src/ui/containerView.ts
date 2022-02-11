@@ -363,7 +363,7 @@ export class ContainerView {
             // drag the image via mouse
             this.imgInfo.imgViewEl.addEventListener('mousedown', this.mousedownImgView);
             // zoom the image via mouse wheel
-            this.imgInfo.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer);
+            this.imgInfo.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer, { passive: true });
         } else {
             document.removeEventListener('keyup', this.triggerKeyup);
             document.removeEventListener('keydown', this.triggerKeydown);
@@ -543,7 +543,7 @@ export class ContainerView {
     }
 
     private mousewheelViewContainer = (event: WheelEvent) => {
-        event.preventDefault();
+        // event.preventDefault();
         event.stopPropagation();
         // @ts-ignore
         this.zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);

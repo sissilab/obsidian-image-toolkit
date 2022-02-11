@@ -115,9 +115,9 @@ body {
 .oit-container-view .img-footer .img-title:hover {
     /* opacity: 1; */
     color: #fff;
-    font-size: 13px;
+    font-size: 15px;
     background-color: rgb(0, 0, 0, .3);
-    border-radius: 2px;
+    border-radius: 12px;
     /* filter: alpha(opacity=100) */
 }
 
@@ -240,6 +240,10 @@ body {
     height: 60px;
     margin-top: 20px;
     background-color: rgba(0, 0, 0, .1);
+}
+
+.oit-container-view .img-footer .gallery-navbar:hover {
+    background-color: rgba(0, 0, 0, .3);
 }
 
 .oit-container-view .img-footer .gallery-navbar .gallery-list {
