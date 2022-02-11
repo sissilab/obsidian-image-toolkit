@@ -32,12 +32,13 @@ export class GalleryNavbarView {
     }
 
     public renderGalleryImg = async (imgFooterEl: HTMLElement) => {
+        console.log('renderGalleryImg>>>', GalleryNavbarView.GALLERY_IMG_CACHE);
+        
         if (this.state) return;
         // get all of images on the current editor
         const activeView = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
         if (!activeView
-            // preivew: only support read view
-            || 'preview' != activeView.getMode()
+            || 'markdown' !== activeView.getViewType()
             // modal-container: community plugin, flashcards (Space Repetition)
             || 0 < document.getElementsByClassName('modal-container').length) {
             if (this.galleryNavbarEl) this.galleryNavbarEl.hidden = true;
