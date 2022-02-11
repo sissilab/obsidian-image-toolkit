@@ -16,6 +16,8 @@ export default {
   VIEW_IMAGE_IN_CPB_DESC: '开启后，支持在社区插件页面，点击图片预览。',
   VIEW_IMAGE_WITH_A_LINK_NAME: '支持预览带链接的图片',
   VIEW_IMAGE_WITH_A_LINK_DESC: '开启后，支持点击带链接的图片（注意：点击该图片，会同时打开浏览器访问指定地址和弹出预览图片）',
+  VIEW_IMAGE_OTHER_NAME: '支持除上述其他地方来预览图片',
+  VIEW_IMAGE_OTHER_DESC: '除上述支持范围外，还支持一些其他区域，如flashcards。',
 
   // >>>查看细节设置：
   VIEW_DETAILS_SETTINGS: '查看细节设置：',

@@ -50,8 +50,7 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private mouseoverImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		if (!targetEl) return;
-		// targetEl.addClass('oit-target-cursor');
+		if (!targetEl || 'IMG' !== targetEl.tagName) return;
 		// console.log('mouseoverImg......');
 		const defaultCursor = targetEl.getAttribute('data-oit-default-cursor');
 		if (null === defaultCursor) {
@@ -62,9 +61,8 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	private mouseoutImg = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
-		// console.log('mouseoutImg....', targetEl, targetEl.parentElement);
-		if (!targetEl /* || this.isBlockZoomInCursor(targetEl) */) return;
-		// targetEl.removeClass('oit-target-cursor');
+		// console.log('mouseoutImg....');
+		if (!targetEl || 'IMG' !== targetEl.tagName) return;
 		targetEl.style.cursor = targetEl.getAttribute('data-oit-default-cursor');
 	}
 
