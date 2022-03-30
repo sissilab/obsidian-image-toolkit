@@ -75,6 +75,8 @@ const IMG_TAG_SRC_REGEX = /<img.*?src=[\'"](.*?)[\'"].*?\/?>/i; // 3-img-src: <i
 const IMG_TAG_ALT_REGEX = /<img.*?alt=[\'"](.*?)[\'"].*?\/?>/i; // 3-img-alt: <img ... alt='' />
 const FULL_PATH_REGEX = /^[a-z]\:.*?[jpe?g|png|gif|svg|bmp]/i;
 
+const BLOCKQUOTE_PREFIX = `#^`;
+
 const IMG_MATCH_MIN_LEN: number = 7;
 
 const extractImage = (text: string, imgList: Array<GalleryImgCto>) => {
@@ -114,6 +116,7 @@ const matchImage1 = (text: string): GalleryImgCto => {
                 if (0 <= alt.indexOf('[') && 0 <= alt.indexOf(']')) return;
             }
             src = match[2];
+            if (src && src.startsWith(BLOCKQUOTE_PREFIX)) return;
         }
     }
     if (!match) return null;
@@ -160,6 +163,7 @@ const matchImage2 = (text: string): GalleryImgCto => {
     } else {
         match = text.match(IMAGE_REGEX2); // 2: ![[src|alt1|alt2|width]]
         content = match ? match[1] : null;
+        if (content && content.startsWith(BLOCKQUOTE_PREFIX)) return;
     }
     if (!match) return null;
     const img: GalleryImgCto = new GalleryImgCto();
