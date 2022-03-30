@@ -2,9 +2,13 @@
 export const ZOOM_FACTOR = 0.8;
 
 export const IMG_TOOLBAR_ICONS = [{
+    key: 'zoom_to_100',
+    title: "ZOOM_TO_100",
+    class: 'toolbar_zoom_to_100'
+}, {
     key: 'zoom_in',
     title: "ZOOM_IN",
-    class: 'toolbar_zoom_im'
+    class: 'toolbar_zoom_in'
 }, {
     key: 'zoom_out',
     title: "ZOOM_OUT",

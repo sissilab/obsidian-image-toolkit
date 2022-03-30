@@ -82,6 +82,7 @@ export default {
   GALLERY_NAVBAR_TOGGLE_DESC: "All of the images in the current pane view can be displayed at the bottom of the popup layer.",
 
   // toolbar icon title
+  ZOOM_TO_100: "zoom to actual size",
   ZOOM_IN: "zoom in",
   ZOOM_OUT: "zoom out",
   FULL_SCREEN: 'full screen',

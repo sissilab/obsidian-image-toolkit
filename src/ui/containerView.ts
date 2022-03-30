@@ -281,7 +281,7 @@ export class ContainerView {
         this.imgInfo.rotate = rotateDeg;
     }
 
-    private zoomAndRender = (ratio: number, event?: WheelEvent) => {
+    private zoomAndRender = (ratio: number, event?: WheelEvent, actualSize?: boolean) => {
         let offsetSize: OffsetSizeIto = { offsetX: 0, offsetY: 0 };
         if (event) {
             offsetSize.offsetX = event.offsetX;
@@ -290,7 +290,7 @@ export class ContainerView {
             offsetSize.offsetX = this.imgInfo.curWidth / 2;
             offsetSize.offsetY = this.imgInfo.curHeight / 2;
         }
-        const zoomData: ImgInfoIto = zoom(ratio, this.imgInfo, offsetSize);
+        const zoomData: ImgInfoIto = zoom(ratio, this.imgInfo, offsetSize, actualSize);
         this.renderImgTip();
         this.imgInfo.imgViewEl.setAttribute('width', zoomData.curWidth + 'px');
         this.imgInfo.imgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
@@ -398,7 +398,10 @@ export class ContainerView {
     private clickImgToolbar = (event: MouseEvent): void => {
         const targetElClass = (<HTMLElement>event.target).className;
         switch (targetElClass) {
-            case 'toolbar_zoom_im':
+            case 'toolbar_zoom_to_100':
+                this.zoomAndRender(null, null, true);
+                break;
+            case 'toolbar_zoom_in':
                 this.zoomAndRender(0.1);
                 break;
             case 'toolbar_zoom_out':

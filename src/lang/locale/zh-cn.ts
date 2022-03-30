@@ -82,6 +82,7 @@ export default {
   GALLERY_NAVBAR_TOGGLE_DESC: "当前文档的所有图片会展示在弹出层的底部，可随意切换展示不同图片。",
 
   // toolbar icon title
+  ZOOM_TO_100: "缩放至实际大小",
   ZOOM_IN: "放大",
   ZOOM_OUT: "缩小",
   FULL_SCREEN: "全屏",

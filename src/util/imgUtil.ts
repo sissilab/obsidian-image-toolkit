@@ -40,19 +40,32 @@ export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfo
 /**
  * zoom an image 
  * @param ratio 
- * @param imgInfo 
+ * @param targetImgInfo 
+ * @param offsetSize
+ * @param actualSize
  * @returns 
  */
-export const zoom = (ratio: number, targetImgInfo: ImgInfoIto, offsetSize?: OffsetSizeIto): ImgInfoIto => {
-    const zoomInFlag = ratio > 0;
-    ratio = zoomInFlag ? 1 + ratio : 1 / (1 - ratio);
-    const curWidth = targetImgInfo.curWidth;
-    // const curHeight = TARGET_IMG_INFO.curHeight;
-    let zoomRatio = curWidth * ratio / targetImgInfo.realWidth;
+export const zoom = (ratio: number, targetImgInfo: ImgInfoIto, offsetSize?: OffsetSizeIto, actualSize?: boolean): ImgInfoIto => {
+    let zoomRatio: number;
+    if (!actualSize) {
+        const zoomInFlag = ratio > 0;
+        ratio = zoomInFlag ? 1 + ratio : 1 / (1 - ratio);
+        zoomRatio = targetImgInfo.curWidth * ratio / targetImgInfo.realWidth;
+    }
+
+    // Snap to 100% zoom when we pass over it
+    const curRatio = targetImgInfo.curWidth / targetImgInfo.realWidth;
+    if (actualSize || (curRatio < 1 && zoomRatio > 1) || (curRatio > 1 && zoomRatio < 1)) {
+        // set zoom ratio to 100%
+        zoomRatio = 1;
+        // reduce snap offset ratio accordingly
+        ratio = 1 / curRatio;
+    }
+
     const newWidth = targetImgInfo.realWidth * zoomRatio;
     const newHeight = targetImgInfo.realHeight * zoomRatio;
-    const left = targetImgInfo.left + (offsetSize.offsetX - offsetSize.offsetX * ratio);
-    const top = targetImgInfo.top + (offsetSize.offsetY - offsetSize.offsetY * ratio);
+    const left = targetImgInfo.left + offsetSize.offsetX * (1 - ratio);
+    const top = targetImgInfo.top + offsetSize.offsetY * (1 - ratio);
     // cache image info: curWidth, curHeight, left, top
     targetImgInfo.curWidth = newWidth;
     targetImgInfo.curHeight = newHeight;
