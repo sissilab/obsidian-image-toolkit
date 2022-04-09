@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { ImageToolkitSettingTab, IMG_GLOBAL_SETTINGS } from './conf/settings'
 import { VIEW_IMG_SELECTOR } from './conf/constants'
 import { ContainerView } from './ui/containerView';
@@ -8,7 +8,7 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	public settings: ImgSettingIto;
 
-	private containerView: ContainerView;
+	public containerView: ContainerView;
 
 	public imgSelector: string = ``;
 

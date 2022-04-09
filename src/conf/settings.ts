@@ -2,7 +2,8 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
 import { ImgSettingIto } from 'src/to/ImgSettingIto';
-import { IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE } from './constants';
+import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE } from './constants';
+import Pickr from '@simonwep/pickr';
 
 export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     // viewImageGlobal: true,
@@ -21,6 +22,10 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     imageBorderColor: IMG_BORDER_COLOR.RED,
 
     galleryNavbarToggle: false,
+    galleryNavbarDefaultColor: GALLERY_NAVBAR_DEFAULT_COLOR,
+    galleryNavbarHoverColor: GALLERY_NAVBAR_HOVER_COLOR,
+    galleryImgBorderActive: false,
+    galleryImgBorderActiveColor: GALLERY_IMG_BORDER_ACTIVE_COLOR
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -226,6 +231,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
+
         // >>>IMAGE_BORDER_SETTINGS end
 
         // >>>GALLERY_NAVBAR_SETTINGS start
@@ -242,8 +248,97 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        // >>>GALLERY_NAVBAR_SETTINGS end
+        this.createPickrSetting(containerEl, 'GALLERY_NAVBAR_DEFAULT_COLOR_NAME', GALLERY_NAVBAR_DEFAULT_COLOR);
+        this.createPickrSetting(containerEl, 'GALLERY_NAVBAR_HOVER_COLOR_NAME', GALLERY_NAVBAR_HOVER_COLOR);
 
+        new Setting(containerEl)
+            .setName(t("GALLERY_IMG_BORDER_TOGGLE_NAME"))
+            .setDesc(t("GALLERY_IMG_BORDER_TOGGLE_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.galleryImgBorderActive)
+                .onChange(async (value) => {
+                    this.plugin.settings.galleryImgBorderActive = value;
+                    // IMG_GLOBAL_SETTINGS.galleryImgBorderActive = value;
+                    await this.plugin.saveSettings();
+                }));
+        this.createPickrSetting(containerEl, 'GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME', GALLERY_IMG_BORDER_ACTIVE_COLOR);
+        // >>>GALLERY_NAVBAR_SETTINGS end
+    }
+
+    createPickrSetting(containerEl: HTMLElement, name: string, defaultColor: string): void {
+        let pickrDefault: string;
+        if ('GALLERY_NAVBAR_DEFAULT_COLOR_NAME' === name) {
+            pickrDefault = this.plugin.settings.galleryNavbarDefaultColor;
+        } else if ('GALLERY_NAVBAR_HOVER_COLOR_NAME' === name) {
+            pickrDefault = this.plugin.settings.galleryNavbarHoverColor;
+        } else if ('GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME' === name) {
+            pickrDefault = this.plugin.settings.galleryImgBorderActiveColor;
+        } else {
+            pickrDefault = defaultColor;
+        }
+
+        let pickr: Pickr;
+        new Setting(containerEl)
+            // @ts-ignore
+            .setName(t(name))
+            .then((setting) => {
+                pickr = Pickr.create({
+                    el: setting.controlEl.createDiv({ cls: "picker" }),
+                    theme: 'nano',
+                    position: "left-middle",
+                    lockOpacity: false, // If true, the user won't be able to adjust any opacity. 
+                    default: pickrDefault, // Default color
+                    swatches: [], // Optional color swatches
+                    components: {
+                        preview: true,
+                        hue: true,
+                        opacity: true,
+                        interaction: {
+                            hex: true,
+                            rgba: true,
+                            hsla: false,
+                            input: true,
+                            cancel: true,
+                            save: true,
+                        },
+                    }
+                })
+                    .on('show', (color: Pickr.HSVaColor, instance: Pickr) => { // Pickr got opened
+                        const { result } = (pickr.getRoot() as any).interaction;
+                        requestAnimationFrame(() =>
+                            requestAnimationFrame(() => result.select())
+                        );
+                    })
+                    .on('save', (color: Pickr.HSVaColor, instance: Pickr) => { // User clicked the save / clear button
+                        if (!color) return;
+                        instance.hide();
+                        const savedColor = color.toHEXA().toString();
+                        instance.addSwatch(savedColor);
+                        this.setAndSavePickrSetting(name, savedColor);
+                    })
+                    .on('cancel', (instance: Pickr) => { // User clicked the cancel button
+                        instance.hide();
+                    })
+            })
+            .addExtraButton((btn) => {
+                btn.setIcon("reset")
+                    .onClick(() => {
+                        pickr.setColor(defaultColor);
+                        this.setAndSavePickrSetting(name, defaultColor);
+                    })
+                    .setTooltip('restore default color');
+            });
+    }
+
+    setAndSavePickrSetting(name: string, savedColor: string): void {
+        if ('GALLERY_NAVBAR_DEFAULT_COLOR_NAME' === name) {
+            this.plugin.settings.galleryNavbarDefaultColor = savedColor;
+        } else if ('GALLERY_NAVBAR_HOVER_COLOR_NAME' === name) {
+            this.plugin.settings.galleryNavbarHoverColor = savedColor;
+        } else if ('GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME' === name) {
+            this.plugin.settings.galleryImgBorderActiveColor = savedColor;
+        }
+        this.plugin.saveSettings();
     }
 
 }

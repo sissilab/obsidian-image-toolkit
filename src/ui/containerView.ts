@@ -551,4 +551,5 @@ export class ContainerView {
         // @ts-ignore
         this.zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);
     }
+
 }

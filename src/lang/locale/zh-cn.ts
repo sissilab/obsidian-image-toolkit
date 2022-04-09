@@ -78,8 +78,13 @@ export default {
 
   // >>>Gallery Navbar Settings:
   GALLERY_NAVBAR_SETTINGS: '图片导航设置 (体验版):',
-  GALLERY_NAVBAR_TOGGLE_NAME: "展示图片导航 (仅支持阅读模式)",
+  GALLERY_NAVBAR_TOGGLE_NAME: "展示图片导航",
   GALLERY_NAVBAR_TOGGLE_DESC: "当前文档的所有图片会展示在弹出层的底部，可随意切换展示不同图片。",
+  GALLERY_NAVBAR_DEFAULT_COLOR_NAME: "设置图片导航底栏背景色（默认展示）",
+  GALLERY_NAVBAR_HOVER_COLOR_NAME: "设置图片导航底栏背景色（鼠标悬浮时）",
+  GALLERY_IMG_BORDER_TOGGLE_NAME: "展示图片导航上被选中的图片",
+  GALLERY_IMG_BORDER_TOGGLE_DESC: "当你选中正查看某一图片，对应图片导航底栏上将突出显示该缩略图片的边框。",
+  GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME: '设置被选中图片的边框色',
 
   // toolbar icon title
   ZOOM_TO_100: "缩放至实际大小",

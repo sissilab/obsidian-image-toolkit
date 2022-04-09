@@ -19,4 +19,9 @@ export interface ImgSettingIto {
     imageBorderColor: string;
 
     galleryNavbarToggle: boolean;
+    galleryNavbarDefaultColor: string;
+    galleryNavbarHoverColor: string;
+    galleryImgBorderActive: boolean;
+    galleryImgBorderActiveColor: string;
+
 }

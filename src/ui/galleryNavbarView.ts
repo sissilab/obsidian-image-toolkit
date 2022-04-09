@@ -3,11 +3,13 @@ import { MarkdownView, TFile } from "obsidian";
 import ImageToolkitPlugin from "src/main";
 import { GalleryImgCacheCto } from "src/to/GalleryImgCacheCto";
 import { GalleryImgCto } from "src/to/GalleryImgCto";
+import { ImgSettingIto } from "src/to/ImgSettingIto";
 import { md5Img, parseActiveViewData } from "src/util/markdowParse";
 import { ContainerView } from "./containerView";
 
 export class GalleryNavbarView {
     private readonly plugin: ImageToolkitPlugin;
+    private readonly settings: ImgSettingIto;
     private readonly containerView: ContainerView;
 
     // whether to display gallery navbar
@@ -29,6 +31,7 @@ export class GalleryNavbarView {
     constructor(containerView: ContainerView, plugin: ImageToolkitPlugin) {
         this.containerView = containerView;
         this.plugin = plugin;
+        this.settings = plugin.settings;
     }
 
     public renderGalleryImg = async (imgFooterEl: HTMLElement) => {
@@ -48,9 +51,9 @@ export class GalleryNavbarView {
 
         const activeFile: TFile = activeView.file;
         let galleryImg: GalleryImgCacheCto = this.getGalleryImgCache(activeFile);
-        let hitCache: boolean = true;
+        // let hitCache: boolean = true;
         if (!galleryImg) {
-            hitCache = false;
+            // hitCache = false;
             galleryImg = parseActiveViewData(this.plugin, activeView.data?.split('\n'), activeFile);
             this.setGalleryImgCache(galleryImg);
         }
@@ -96,7 +99,13 @@ export class GalleryNavbarView {
             }
         }
         if (0 <= targetImageIdx) {
-            liElActive?.addClass('gallery-active');
+            if (liElActive) {
+                liElActive.addClass('gallery-active');
+                if (this.settings.galleryImgBorderActive) {
+                    liElActive.addClass('img-border-active');
+                    liElActive.style.setProperty('border-color', this.settings.galleryImgBorderActiveColor);
+                }
+            }
 
             this.galleryTranslateX = (document.documentElement.clientWidth || document.body.clientWidth) / 2.5 - targetImageIdx * 52;
             this.galleryListEl.style.transform = 'translateX(' + this.galleryTranslateX + 'px)';
@@ -117,12 +126,19 @@ export class GalleryNavbarView {
             // imgInfo.imgFooterEl.append(galleryNavbarEl = createDiv());
             imgFooterEl.append(this.galleryNavbarEl = createDiv());
             this.galleryNavbarEl.addClass('gallery-navbar');
+            this.galleryNavbarEl.onmouseover = () => {
+                this.galleryNavbarEl.style.setProperty('background-color', this.settings.galleryNavbarHoverColor);
+            }
+            this.galleryNavbarEl.onmouseout = () => {
+                this.galleryNavbarEl.style.setProperty('background-color', this.settings.galleryNavbarDefaultColor);
+            }
             // add events
             this.galleryNavbarEl.addEventListener('mousedown', this.mouseDownGallery);
             this.galleryNavbarEl.addEventListener('mousemove', this.mouseMoveGallery);
             this.galleryNavbarEl.addEventListener('mouseup', this.mouseUpGallery);
             this.galleryNavbarEl.addEventListener('mouseleave', this.mouseLeaveGallery);
         }
+        this.galleryNavbarEl.style.setProperty('background-color', this.settings.galleryNavbarDefaultColor);
         if (!this.galleryListEl) {
             this.galleryNavbarEl.append(this.galleryListEl = createEl('ul')); // <ul class="gallery-list">
             this.galleryListEl.addClass('gallery-list');
@@ -177,21 +193,30 @@ export class GalleryNavbarView {
         this.containerView.initDefaultData(targetEl.style);
         this.containerView.refreshImg(targetEl.src, targetEl.alt ? targetEl.alt : ' ');
 
-        // remove the li's class gallery-active
         if (this.galleryListEl) {
+            // remove the li's class gallery-active
             const liElList: HTMLCollectionOf<HTMLLIElement> = this.galleryListEl.getElementsByTagName('li');
             let liEl: HTMLLIElement;
             for (let i = 0, len = liElList.length; i < len; i++) {
-                if ((liEl = liElList[i]) && liEl.hasClass('gallery-active')) {
-                    liEl.removeClass('gallery-active');
+                if ((liEl = liElList[i])) {
+                    if (liEl.hasClass('gallery-active')) liEl.removeClass('gallery-active');
+                    if (liEl.hasClass('img-border-active')) {
+                        liEl.removeClass('img-border-active');
+                        liEl.style.removeProperty('border-color');
+                    }
                 }
             }
         }
 
+        // targetEl.addClass('img-view-active');
         // add class 'gallery-active' for the current clicked image in the gallery-navbar
         const parentliEl = targetEl.parentElement;
         if (parentliEl && 'LI' === parentliEl.tagName) {
             parentliEl.addClass('gallery-active');
+            if (this.settings.galleryImgBorderActive) {
+                parentliEl.addClass('img-border-active');
+                parentliEl.style.setProperty('border-color', this.settings.galleryImgBorderActiveColor);
+            }
         }
     }
 

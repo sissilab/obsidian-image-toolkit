@@ -78,8 +78,13 @@ export default {
 
   // >>>Gallery Navbar Settings:
   GALLERY_NAVBAR_SETTINGS: 'Gallery Navbar Settings (Experimental):',
-  GALLERY_NAVBAR_TOGGLE_NAME: "Display gallery navbar (Only support reading view)",
+  GALLERY_NAVBAR_TOGGLE_NAME: "Display gallery navbar",
   GALLERY_NAVBAR_TOGGLE_DESC: "All of the images in the current pane view can be displayed at the bottom of the popup layer.",
+  GALLERY_NAVBAR_DEFAULT_COLOR_NAME: "Set the background color of the gallery navbar (default state)",
+  GALLERY_NAVBAR_HOVER_COLOR_NAME: "Set the background color of the gallery navbar (hovering state)",
+  GALLERY_IMG_BORDER_TOGGLE_NAME: "Display the selected image on the gallery navbar",
+  GALLERY_IMG_BORDER_TOGGLE_DESC: "When you select an image, the image's border will be displayed, so you can know which image is currently active.",
+  GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME: 'Set the border color of the selected image',
 
   // toolbar icon title
   ZOOM_TO_100: "zoom to actual size",
