@@ -13,12 +13,14 @@ export default class ImageToolkitPlugin extends Plugin {
 	public imgSelector: string = ``;
 
 	async onload() {
-		console.log('loading obsidian-image-toolkit plugin...');
+		console.log('loading ' + this.manifest.id + ' plugin v' + this.manifest.version + ' ...');
 
 		await this.loadSettings();
 
 		// plugin settings
 		this.addSettingTab(new ImageToolkitSettingTab(this.app, this));
+
+		// this.registerCommands();
 
 		this.containerView = new ContainerView(this);
 
@@ -40,6 +42,19 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+
+	async registerCommands() {
+		this.addCommand({
+			"id": "oit-move-up-image",
+			"name": "move up the image",
+			hotkeys: [{ modifiers: ["Ctrl"], key: "ArrowUp" }],
+			checkCallback: (checking: boolean) => {
+				if (checking) return false;
+				this.containerView.moveImgViewByHotkey('UP');
+			},
+		});
+
 	}
 
 	private clickImage = (event: MouseEvent) => {

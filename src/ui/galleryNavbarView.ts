@@ -186,38 +186,71 @@ export class GalleryNavbarView {
         return [prevHash, targetImgHash, nextHash];
     }
 
+    private activateImage = (liEl: HTMLLIElement | HTMLElement, imgEL?: HTMLImageElement) => {
+        if (!liEl || 'LI' !== liEl.tagName) return;
+        if (!imgEL) {
+            const imgELList: HTMLCollectionOf<HTMLImageElement> = liEl.getElementsByTagName('img');
+            if (imgELList && 0 < imgELList.length) {
+                imgEL = imgELList[0];
+            }
+        }
+        if (imgEL) {
+            this.containerView.initDefaultData(imgEL.style);
+            this.containerView.refreshImg(imgEL.src, imgEL.alt ? imgEL.alt : ' ');
+        }
+
+        liEl.addClass('gallery-active');
+        if (this.settings.galleryImgBorderActive) {
+            liEl.addClass('img-border-active');
+            liEl.style.setProperty('border-color', this.settings.galleryImgBorderActiveColor);
+        }
+    }
+
+    private deactivateImage = (liEl: HTMLLIElement) => {
+        if (!liEl) return;
+        liEl.removeClass('gallery-active');
+        if (liEl.hasClass('img-border-active')) {
+            liEl.removeClass('img-border-active');
+            liEl.style.removeProperty('border-color');
+        }
+    }
+
     private clickGalleryImg = (event: MouseEvent) => {
         const targetEl = (<HTMLImageElement>event.target);
         if (!targetEl || 'IMG' !== targetEl.tagName) return;
 
-        this.containerView.initDefaultData(targetEl.style);
-        this.containerView.refreshImg(targetEl.src, targetEl.alt ? targetEl.alt : ' ');
-
         if (this.galleryListEl) {
-            // remove the li's class gallery-active
-            const liElList: HTMLCollectionOf<HTMLLIElement> = this.galleryListEl.getElementsByTagName('li');
-            let liEl: HTMLLIElement;
+            const liElList: HTMLCollectionOf<Element> = this.galleryListEl.getElementsByClassName('gallery-active');
             for (let i = 0, len = liElList.length; i < len; i++) {
-                if ((liEl = liElList[i])) {
-                    if (liEl.hasClass('gallery-active')) liEl.removeClass('gallery-active');
-                    if (liEl.hasClass('img-border-active')) {
-                        liEl.removeClass('img-border-active');
-                        liEl.style.removeProperty('border-color');
-                    }
-                }
+                this.deactivateImage(<HTMLLIElement>liElList[i]);
             }
         }
 
-        // targetEl.addClass('img-view-active');
-        // add class 'gallery-active' for the current clicked image in the gallery-navbar
-        const parentliEl = targetEl.parentElement;
-        if (parentliEl && 'LI' === parentliEl.tagName) {
-            parentliEl.addClass('gallery-active');
-            if (this.settings.galleryImgBorderActive) {
-                parentliEl.addClass('img-border-active');
-                parentliEl.style.setProperty('border-color', this.settings.galleryImgBorderActiveColor);
+        this.activateImage(targetEl.parentElement, targetEl);
+    }
+
+    /**
+     * switch the image on the gallery navbar
+     * @param next true: switch to the next image; false: switch to the previous image
+     */
+    public switchImage = (next: boolean) => {
+        if (!this.state || !this.galleryListEl) return;
+        const liElList: HTMLCollectionOf<HTMLLIElement> = this.galleryListEl.getElementsByTagName('li');
+        if (!liElList || 0 >= liElList.length) return;
+        let liEl: HTMLLIElement;
+        let toSwitchIdx: number = -1;
+        for (let i = 0, len = liElList.length; i < len; i++) {
+            if (!(liEl = liElList[i])) continue;
+            if (liEl.hasClass('gallery-active')) {
+                toSwitchIdx = next ? (len <= (i + 1) ? 0 : i + 1) : (0 == i ? len - 1 : i - 1);
+                this.deactivateImage(liEl);
+                break;
             }
         }
+        if (0 >= toSwitchIdx) {
+            toSwitchIdx = 0;
+        }
+        this.activateImage(liElList[toSwitchIdx]);
     }
 
     private mouseDownGallery = (event: MouseEvent) => {

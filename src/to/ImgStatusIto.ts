@@ -8,9 +8,12 @@ export interface ImgStatusIto {
     // whether the image is being dragged
     dragging: boolean;
 
-    // ARROW_PRESS_STATUS
+    // keybord pressing status
     arrowUp: boolean;
     arrowDown: boolean;
     arrowLeft: boolean;
     arrowRight: boolean;
+    control: boolean;
+    alt: boolean;
+    shift: boolean;
 }

@@ -111,5 +111,5 @@ export const IMG_BORDER_COLOR = {
 }
 
 export const GALLERY_NAVBAR_DEFAULT_COLOR = '#0000001A'; // rgba(0, 0, 0, 0.1)
-export const GALLERY_NAVBAR_HOVER_COLOR = '#000000CC'; // rgba(0, 0, 0, 0.8)
+export const GALLERY_NAVBAR_HOVER_COLOR = '#0000004D'; // rgba(0, 0, 0, 0.3)
 export const GALLERY_IMG_BORDER_ACTIVE_COLOR = '#FF0000'; // red

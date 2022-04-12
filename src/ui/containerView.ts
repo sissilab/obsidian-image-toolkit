@@ -1,6 +1,7 @@
 import { IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from 'src/conf/constants';
 import { IMG_GLOBAL_SETTINGS } from 'src/conf/settings';
 import { t } from 'src/lang/helpers';
+import tr from 'src/lang/locale/tr';
 import ImageToolkitPlugin from 'src/main';
 import { ImgInfoIto } from 'src/to/ImgInfoIto';
 import { ImgStatusIto } from 'src/to/ImgStatusIto';
@@ -56,7 +57,10 @@ export class ContainerView {
         arrowUp: false,
         arrowDown: false,
         arrowLeft: false,
-        arrowRight: false
+        arrowRight: false,
+        control: false,
+        alt: false,
+        shift: false,
     }
 
     private defaultImgStyles = {
@@ -158,6 +162,9 @@ export class ContainerView {
         this.imgStatus.arrowDown = false;
         this.imgStatus.arrowLeft = false;
         this.imgStatus.arrowRight = false;
+        // this.imgStatus.control = false;
+        // this.imgStatus.alt = false;
+        // this.imgStatus.shift = false;
 
         this.imgInfo.invertColor = false;
         this.imgInfo.scaleX = false;
@@ -442,10 +449,10 @@ export class ContainerView {
     }
 
     private triggerKeyup = (event: KeyboardEvent) => {
-        //console.log('keyup', event, event.code);
+        // console.log('keyup', event, event.key, this.imgStatus.control);
         event.preventDefault();
         event.stopPropagation();
-        switch (event.code) {
+        switch (event.key) {
             case 'Escape': // Esc
                 this.imgInfo.fullScreen ? this.closePlayerImg() : this.closeViewContainer();
                 break;
@@ -457,9 +464,22 @@ export class ContainerView {
                 break;
             case 'ArrowLeft':
                 this.imgStatus.arrowLeft = false;
+                // switch to the previous image
+                if (this.imgStatus.control) this.galleryNavbarView.switchImage(false);
                 break;
             case 'ArrowRight':
                 this.imgStatus.arrowRight = false;
+                // switch to the next image
+                if (this.imgStatus.control) this.galleryNavbarView.switchImage(true);
+                break;
+            case 'Control':
+                this.imgStatus.control = false;
+                break;
+            case 'Alt':
+                this.imgStatus.alt = false;
+                break;
+            case 'Shift':
+                this.imgStatus.shift = false;
                 break;
             default:
                 break
@@ -467,41 +487,84 @@ export class ContainerView {
     }
 
     private triggerKeydown = (event: KeyboardEvent) => {
-        // console.log('keyup', event, event.code);
+        // console.log('keydown', event, event.key, this.imgStatus.control);
         event.preventDefault();
         event.stopPropagation();
-        if (this.imgStatus.arrowUp && this.imgStatus.arrowLeft) {
-            this.mousemoveImgView(null, { offsetX: -IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: -IMG_GLOBAL_SETTINGS.imageMoveSpeed });
-            return;
-        } else if (this.imgStatus.arrowUp && this.imgStatus.arrowRight) {
-            this.mousemoveImgView(null, { offsetX: IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: -IMG_GLOBAL_SETTINGS.imageMoveSpeed });
-            return;
-        } else if (this.imgStatus.arrowDown && this.imgStatus.arrowLeft) {
-            this.mousemoveImgView(null, { offsetX: -IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: IMG_GLOBAL_SETTINGS.imageMoveSpeed });
-            return;
-        } else if (this.imgStatus.arrowDown && this.imgStatus.arrowRight) {
-            this.mousemoveImgView(null, { offsetX: IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: IMG_GLOBAL_SETTINGS.imageMoveSpeed });
-            return;
+        if (!this.imgStatus.control) {
+            if (this.imgStatus.arrowUp && this.imgStatus.arrowLeft) {
+                this.moveImgViewByHotkey('UP_LEFT');
+                return;
+            } else if (this.imgStatus.arrowUp && this.imgStatus.arrowRight) {
+                this.moveImgViewByHotkey('UP_RIGHT');
+                return;
+            } else if (this.imgStatus.arrowDown && this.imgStatus.arrowLeft) {
+                this.moveImgViewByHotkey('DOWN_LEFT');
+                return;
+            } else if (this.imgStatus.arrowDown && this.imgStatus.arrowRight) {
+                this.moveImgViewByHotkey('DOWN_RIGHT');
+                return;
+            }
         }
-        switch (event.code) {
+        switch (event.key) {
             case 'ArrowUp':
-                this.mousemoveImgView(null, { offsetX: 0, offsetY: -IMG_GLOBAL_SETTINGS.imageMoveSpeed });
                 this.imgStatus.arrowUp = true;
+                this.moveImgViewByHotkey('UP');
                 break;
             case 'ArrowDown':
-                this.mousemoveImgView(null, { offsetX: 0, offsetY: IMG_GLOBAL_SETTINGS.imageMoveSpeed });
                 this.imgStatus.arrowDown = true;
+                this.moveImgViewByHotkey('DOWN');
                 break;
             case 'ArrowLeft':
-                this.mousemoveImgView(null, { offsetX: -IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: 0 });
                 this.imgStatus.arrowLeft = true;
+                this.moveImgViewByHotkey('LEFT');
                 break;
             case 'ArrowRight':
-                this.mousemoveImgView(null, { offsetX: IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: 0 });
                 this.imgStatus.arrowRight = true;
+                this.moveImgViewByHotkey('RIGHT');
+                break;
+            case 'Control':
+                this.imgStatus.control = true;
+                break;
+            case 'Alt':
+                this.imgStatus.alt = true;
+                break;
+            case 'Shift':
+                this.imgStatus.shift = true;
                 break;
             default:
                 break
+        }
+    }
+
+    public moveImgViewByHotkey = (orientation: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'UP_LEFT' | 'UP_RIGHT' | 'DOWN_LEFT' | 'DOWN_RIGHT') => {
+        if (!orientation || !this.imgStatus.popup || this.imgStatus.control) return;
+        switch (orientation) {
+            case 'UP':
+                this.mousemoveImgView(null, { offsetX: 0, offsetY: -IMG_GLOBAL_SETTINGS.imageMoveSpeed });
+                break;
+            case 'DOWN':
+                this.mousemoveImgView(null, { offsetX: 0, offsetY: IMG_GLOBAL_SETTINGS.imageMoveSpeed });
+                break;
+            case 'LEFT':
+                this.mousemoveImgView(null, { offsetX: -IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: 0 });
+                break;
+            case 'RIGHT':
+                this.mousemoveImgView(null, { offsetX: IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: 0 });
+                break;
+            case 'UP_LEFT':
+                this.mousemoveImgView(null, { offsetX: -IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: -IMG_GLOBAL_SETTINGS.imageMoveSpeed });
+                break;
+            case 'UP_RIGHT':
+                this.mousemoveImgView(null, { offsetX: IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: -IMG_GLOBAL_SETTINGS.imageMoveSpeed });
+                break;
+            case 'DOWN_LEFT':
+                this.mousemoveImgView(null, { offsetX: -IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: IMG_GLOBAL_SETTINGS.imageMoveSpeed });
+                break;
+            case 'DOWN_RIGHT':
+                this.mousemoveImgView(null, { offsetX: IMG_GLOBAL_SETTINGS.imageMoveSpeed, offsetY: IMG_GLOBAL_SETTINGS.imageMoveSpeed });
+                break;
+            default:
+                break;
         }
     }
 
@@ -531,7 +594,7 @@ export class ContainerView {
         } else {
             return;
         }
-        // 修改图片位置
+        // move the image
         this.imgInfo.imgViewEl.style.setProperty('margin-top', this.imgInfo.top + 'px', 'important');
         this.imgInfo.imgViewEl.style.setProperty('margin-left', this.imgInfo.left + 'px', 'important');
     }
