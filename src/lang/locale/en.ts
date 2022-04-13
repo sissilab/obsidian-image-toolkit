@@ -1,7 +1,7 @@
 // English
 
 export default {
-  
+
   // settings
   IMAGE_TOOLKIT_SETTINGS_TITLE: "Image Toolkit Settings",
 
@@ -12,8 +12,8 @@ export default {
   VIEW_IMAGE_EDITOR_NAME: 'Click and view an image in the Editor Area',
   VIEW_IMAGE_EDITOR_DESC: 'Turn on this option if you want to click and view an image in the Editor Area.',
   // CPB = COMMUNITY_PLUGINS_BROWSER
-  VIEW_IMAGE_IN_CPB_NAME: 'Click and view an image in the Community Plugins browser', 
-  VIEW_IMAGE_IN_CPB_DESC: 'Turn on this option if you want to click and view an image in the Community Plugins browser.', 
+  VIEW_IMAGE_IN_CPB_NAME: 'Click and view an image in the Community Plugins browser',
+  VIEW_IMAGE_IN_CPB_DESC: 'Turn on this option if you want to click and view an image in the Community Plugins browser.',
   VIEW_IMAGE_WITH_A_LINK_NAME: 'Click and view an image with a link',
   VIEW_IMAGE_WITH_A_LINK_DESC: 'Turn on this option if you want to click and view an image with a link. (NOTE: The browser will be opened for you to visit the link and the image will be popped up for being viewed at the same time when you click the image.)',
   VIEW_IMAGE_OTHER_NAME: 'Click and view in the other areas except the above',
@@ -85,6 +85,14 @@ export default {
   GALLERY_IMG_BORDER_TOGGLE_NAME: "Display the selected image on the gallery navbar",
   GALLERY_IMG_BORDER_TOGGLE_DESC: "When you select an image, the image's border will be displayed, so you can know which image is currently active.",
   GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME: 'Set the border color of the selected image',
+
+  // >>>HOTKEYS_SETTINGS:
+  HOTKEYS_SETTINGS: "Hotkeys Settings:",
+  MODIFIER_KEY_OWNER_NAME: "Set the owner of the modifier key (e.g. Ctrl, Alt, Shift)",
+  MODIFIER_KEY_OWNER_DESC: "When you set 'Move the image', you should move the image by holding the modifier key and pressing arrow keybord. When you set 'Switch the image', you should switch to the previous/next image by holding the modifier key and pressing arrow left/right.",
+  IMAGE_SWITCH: "Switch the image",
+  IMAGE_MOVE: "Move the image",
+  MODIFIER_KEY_CONF_NAME: "Set the hotkeys for the owner",
 
   // toolbar icon title
   ZOOM_TO_100: "zoom to actual size",

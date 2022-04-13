@@ -1,4 +1,4 @@
-import { IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from 'src/conf/constants';
+import { IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS, MODIFIER_KEY_CONF, MODIFIER_KEY_OWNER } from 'src/conf/constants';
 import { IMG_GLOBAL_SETTINGS } from 'src/conf/settings';
 import { t } from 'src/lang/helpers';
 import tr from 'src/lang/locale/tr';
@@ -57,10 +57,7 @@ export class ContainerView {
         arrowUp: false,
         arrowDown: false,
         arrowLeft: false,
-        arrowRight: false,
-        control: false,
-        alt: false,
-        shift: false,
+        arrowRight: false
     }
 
     private defaultImgStyles = {
@@ -155,7 +152,7 @@ export class ContainerView {
             this.defaultImgStyles.borderColor = targetImgStyle.borderColor;
         }
 
-        this.realImgInterval = null;
+        // this.realImgInterval = null;
 
         this.imgStatus.dragging = false;
         this.imgStatus.arrowUp = false;
@@ -232,6 +229,10 @@ export class ContainerView {
         const alt = imgAlt ? imgAlt : this.imgInfo.imgViewEl.alt;
         this.renderImgTitle(alt);
         if (src) {
+            if (this.realImgInterval) {
+                clearInterval(this.realImgInterval);
+                this.realImgInterval = null;
+            }
             let realImg = new Image();
             realImg.src = src;
             this.realImgInterval = setInterval((img) => {
@@ -372,6 +373,7 @@ export class ContainerView {
             // zoom the image via mouse wheel
             this.imgInfo.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer, { passive: true });
         } else {
+            // flag = false
             document.removeEventListener('keyup', this.triggerKeyup);
             document.removeEventListener('keydown', this.triggerKeydown);
             this.imgInfo.oitContainerViewEl.removeEventListener('click', this.closeViewContainer);
@@ -449,7 +451,7 @@ export class ContainerView {
     }
 
     private triggerKeyup = (event: KeyboardEvent) => {
-        // console.log('keyup', event, event.key, this.imgStatus.control);
+        // console.log('keyup', event, event.key);
         event.preventDefault();
         event.stopPropagation();
         switch (event.key) {
@@ -465,21 +467,12 @@ export class ContainerView {
             case 'ArrowLeft':
                 this.imgStatus.arrowLeft = false;
                 // switch to the previous image
-                if (this.imgStatus.control) this.galleryNavbarView.switchImage(false);
+                this.switchImageOnGalleryNavBar(event, false);
                 break;
             case 'ArrowRight':
                 this.imgStatus.arrowRight = false;
                 // switch to the next image
-                if (this.imgStatus.control) this.galleryNavbarView.switchImage(true);
-                break;
-            case 'Control':
-                this.imgStatus.control = false;
-                break;
-            case 'Alt':
-                this.imgStatus.alt = false;
-                break;
-            case 'Shift':
-                this.imgStatus.shift = false;
+                this.switchImageOnGalleryNavBar(event, true);
                 break;
             default:
                 break
@@ -487,57 +480,71 @@ export class ContainerView {
     }
 
     private triggerKeydown = (event: KeyboardEvent) => {
-        // console.log('keydown', event, event.key, this.imgStatus.control);
+        console.log('keydown', event, event.key, this.imgStatus);
         event.preventDefault();
         event.stopPropagation();
-        if (!this.imgStatus.control) {
-            if (this.imgStatus.arrowUp && this.imgStatus.arrowLeft) {
-                this.moveImgViewByHotkey('UP_LEFT');
-                return;
-            } else if (this.imgStatus.arrowUp && this.imgStatus.arrowRight) {
-                this.moveImgViewByHotkey('UP_RIGHT');
-                return;
-            } else if (this.imgStatus.arrowDown && this.imgStatus.arrowLeft) {
-                this.moveImgViewByHotkey('DOWN_LEFT');
-                return;
-            } else if (this.imgStatus.arrowDown && this.imgStatus.arrowRight) {
-                this.moveImgViewByHotkey('DOWN_RIGHT');
-                return;
-            }
+        if (this.imgStatus.arrowUp && this.imgStatus.arrowLeft) {
+            this.moveImgViewByHotkey(event, 'UP_LEFT');
+            return;
+        } else if (this.imgStatus.arrowUp && this.imgStatus.arrowRight) {
+            this.moveImgViewByHotkey(event, 'UP_RIGHT');
+            return;
+        } else if (this.imgStatus.arrowDown && this.imgStatus.arrowLeft) {
+            this.moveImgViewByHotkey(event, 'DOWN_LEFT');
+            return;
+        } else if (this.imgStatus.arrowDown && this.imgStatus.arrowRight) {
+            this.moveImgViewByHotkey(event, 'DOWN_RIGHT');
+            return;
         }
         switch (event.key) {
             case 'ArrowUp':
                 this.imgStatus.arrowUp = true;
-                this.moveImgViewByHotkey('UP');
+                this.moveImgViewByHotkey(event, 'UP');
                 break;
             case 'ArrowDown':
                 this.imgStatus.arrowDown = true;
-                this.moveImgViewByHotkey('DOWN');
+                this.moveImgViewByHotkey(event, 'DOWN');
                 break;
             case 'ArrowLeft':
                 this.imgStatus.arrowLeft = true;
-                this.moveImgViewByHotkey('LEFT');
+                this.moveImgViewByHotkey(event, 'LEFT');
                 break;
             case 'ArrowRight':
                 this.imgStatus.arrowRight = true;
-                this.moveImgViewByHotkey('RIGHT');
-                break;
-            case 'Control':
-                this.imgStatus.control = true;
-                break;
-            case 'Alt':
-                this.imgStatus.alt = true;
-                break;
-            case 'Shift':
-                this.imgStatus.shift = true;
+                this.moveImgViewByHotkey(event, 'RIGHT');
                 break;
             default:
                 break
         }
     }
 
-    public moveImgViewByHotkey = (orientation: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'UP_LEFT' | 'UP_RIGHT' | 'DOWN_LEFT' | 'DOWN_RIGHT') => {
-        if (!orientation || !this.imgStatus.popup || this.imgStatus.control) return;
+    private checkModifiedKeyConf = (event: KeyboardEvent) => {
+        const modifierKeyConf = this.plugin.settings.modifierKeyConf;
+        if (MODIFIER_KEY_CONF.CTRL === modifierKeyConf && event.ctrlKey && !event.altKey && !event.shiftKey) {
+            return true;
+        } else if (MODIFIER_KEY_CONF.ALT === modifierKeyConf && !event.ctrlKey && event.altKey && !event.shiftKey) {
+            return true;
+        } else if (MODIFIER_KEY_CONF.SHIFT === modifierKeyConf && !event.ctrlKey && !event.altKey && event.shiftKey) {
+            return true;
+        } else if (MODIFIER_KEY_CONF.CTRL_ALT === modifierKeyConf && event.ctrlKey && event.altKey && !event.shiftKey) {
+            return true;
+        } else if (MODIFIER_KEY_CONF.CTRL_SHIFT === modifierKeyConf && event.ctrlKey && !event.altKey && event.shiftKey) {
+            return true;
+        } else if (MODIFIER_KEY_CONF.SHIFT_ALT === modifierKeyConf && !event.ctrlKey && event.altKey && event.shiftKey) {
+            return true;
+        } else if (MODIFIER_KEY_CONF.CTRL_SHIFT_ALT === modifierKeyConf && event.ctrlKey && event.altKey && event.shiftKey) {
+            return true;
+        }
+        return false;
+    }
+
+    public moveImgViewByHotkey = (event: KeyboardEvent, orientation: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'UP_LEFT' | 'UP_RIGHT' | 'DOWN_LEFT' | 'DOWN_RIGHT') => {
+        if (!orientation || !this.imgStatus.popup) return;
+        if (MODIFIER_KEY_OWNER.IMAGE_MOVE === this.plugin.settings.modifierKeyOwner) {
+            if (!this.checkModifiedKeyConf(event)) return;
+        } else {
+            if (event.ctrlKey || event.altKey || event.shiftKey) return;
+        }
         switch (orientation) {
             case 'UP':
                 this.mousemoveImgView(null, { offsetX: 0, offsetY: -IMG_GLOBAL_SETTINGS.imageMoveSpeed });
@@ -566,6 +573,15 @@ export class ContainerView {
             default:
                 break;
         }
+    }
+
+    private switchImageOnGalleryNavBar = (event: KeyboardEvent, next: boolean) => {
+        if (MODIFIER_KEY_OWNER.IMAGE_SWITCH === this.plugin.settings.modifierKeyOwner) {
+            if (!this.checkModifiedKeyConf(event)) return;
+        } else {
+            if (event.ctrlKey || event.altKey || event.shiftKey) return;
+        }
+        this.galleryNavbarView.switchImage(next);
     }
 
     private mousedownImgView = (event: MouseEvent) => {

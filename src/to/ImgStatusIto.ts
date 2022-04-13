@@ -13,7 +13,5 @@ export interface ImgStatusIto {
     arrowDown: boolean;
     arrowLeft: boolean;
     arrowRight: boolean;
-    control: boolean;
-    alt: boolean;
-    shift: boolean;
+    
 }

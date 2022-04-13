@@ -1,4 +1,3 @@
-
 export const ZOOM_FACTOR = 0.8;
 
 export const IMG_TOOLBAR_ICONS = [{
@@ -61,7 +60,7 @@ export const IMG_FULL_SCREEN_MODE = {
 export const VIEW_IMG_SELECTOR = {
     EDITOR_AREAS: `.workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img`,
     EDITOR_AREAS_NO_LINK: `.workspace-leaf-content[data-type='markdown'] img:not(a img),.workspace-leaf-content[data-type='image'] img:not(a img)`,
-    
+
     CPB: `.community-plugin-readme img`,
     CPB_NO_LINK: `.community-plugin-readme img:not(a img)`,
 
@@ -113,3 +112,18 @@ export const IMG_BORDER_COLOR = {
 export const GALLERY_NAVBAR_DEFAULT_COLOR = '#0000001A'; // rgba(0, 0, 0, 0.1)
 export const GALLERY_NAVBAR_HOVER_COLOR = '#0000004D'; // rgba(0, 0, 0, 0.3)
 export const GALLERY_IMG_BORDER_ACTIVE_COLOR = '#FF0000'; // red
+
+export const MODIFIER_KEY_OWNER = {
+    IMAGE_SWITCH: "IMAGE_SWITCH", // switch to the previous/next image on the gallery navbar
+    IMAGE_MOVE: "IMAGE_MOVE" // move the image by arrow keyboard
+}
+
+export const MODIFIER_KEY_CONF = {
+    CTRL: "Ctrl",
+    ALT: "Alt",
+    SHIFT: "Shift",
+    CTRL_ALT: "Ctrl+Alt",
+    CTRL_SHIFT: "Ctrl+Shift",
+    SHIFT_ALT: "Shift+Alt",
+    CTRL_SHIFT_ALT: "Ctrl+Shift+Alt"
+}

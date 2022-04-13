@@ -24,4 +24,7 @@ export interface ImgSettingIto {
     galleryImgBorderActive: boolean;
     galleryImgBorderActiveColor: string;
 
+    // hotkeys conf
+    modifierKeyOwner: string;
+    modifierKeyConf : string;
 }

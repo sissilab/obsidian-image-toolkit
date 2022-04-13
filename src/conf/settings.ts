@@ -2,7 +2,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
 import { ImgSettingIto } from 'src/to/ImgSettingIto';
-import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE } from './constants';
+import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE, MODIFIER_KEY_CONF, MODIFIER_KEY_OWNER } from './constants';
 import Pickr from '@simonwep/pickr';
 
 export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
@@ -25,7 +25,11 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     galleryNavbarDefaultColor: GALLERY_NAVBAR_DEFAULT_COLOR,
     galleryNavbarHoverColor: GALLERY_NAVBAR_HOVER_COLOR,
     galleryImgBorderActive: false,
-    galleryImgBorderActiveColor: GALLERY_IMG_BORDER_ACTIVE_COLOR
+    galleryImgBorderActiveColor: GALLERY_IMG_BORDER_ACTIVE_COLOR,
+
+    // hotkeys conf
+    modifierKeyOwner: MODIFIER_KEY_OWNER.IMAGE_SWITCH,
+    modifierKeyConf: MODIFIER_KEY_CONF.CTRL
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -258,11 +262,44 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.galleryImgBorderActive)
                 .onChange(async (value) => {
                     this.plugin.settings.galleryImgBorderActive = value;
-                    // IMG_GLOBAL_SETTINGS.galleryImgBorderActive = value;
                     await this.plugin.saveSettings();
                 }));
         this.createPickrSetting(containerEl, 'GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME', GALLERY_IMG_BORDER_ACTIVE_COLOR);
         // >>>GALLERY_NAVBAR_SETTINGS end
+
+        // >>>HOTKEYS_SETTINGS start
+        containerEl.createEl('h3', { text: t("HOTKEYS_SETTINGS") });
+
+        new Setting(containerEl)
+            .setName(t("MODIFIER_KEY_OWNER_NAME"))
+            .setDesc(t("MODIFIER_KEY_OWNER_DESC"))
+            .addDropdown(async (dropdown) => {
+                for (const key in MODIFIER_KEY_OWNER) {
+                    // @ts-ignore
+                    dropdown.addOption(MODIFIER_KEY_OWNER[key], t(key));
+                }
+                dropdown.setValue(this.plugin.settings.modifierKeyOwner);
+                dropdown.onChange(async (option) => {
+                    this.plugin.settings.modifierKeyOwner = option;
+                    await this.plugin.saveSettings();
+                });
+            });
+
+        new Setting(containerEl)
+            .setName(t("MODIFIER_KEY_CONF_NAME"))
+            .addDropdown(async (dropdown) => {
+                for (const key in MODIFIER_KEY_CONF) {
+                    // @ts-ignore
+                    dropdown.addOption(MODIFIER_KEY_CONF[key], MODIFIER_KEY_CONF[key]);
+                }
+                dropdown.setValue(this.plugin.settings.modifierKeyConf);
+                dropdown.onChange(async (option) => {
+                    this.plugin.settings.modifierKeyConf = option;
+                    await this.plugin.saveSettings();
+                });
+            });
+
+        // >>>HOTKEYS_SETTINGS end
     }
 
     createPickrSetting(containerEl: HTMLElement, name: string, defaultColor: string): void {
