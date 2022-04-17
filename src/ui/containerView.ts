@@ -1,7 +1,6 @@
-import { IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS, MODIFIER_KEY_CONF, MODIFIER_KEY_OWNER } from 'src/conf/constants';
+import { IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from 'src/conf/constants';
 import { IMG_GLOBAL_SETTINGS } from 'src/conf/settings';
 import { t } from 'src/lang/helpers';
-import tr from 'src/lang/locale/tr';
 import ImageToolkitPlugin from 'src/main';
 import { ImgInfoIto } from 'src/to/ImgInfoIto';
 import { ImgStatusIto } from 'src/to/ImgStatusIto';
@@ -152,16 +151,11 @@ export class ContainerView {
             this.defaultImgStyles.borderColor = targetImgStyle.borderColor;
         }
 
-        // this.realImgInterval = null;
-
         this.imgStatus.dragging = false;
         this.imgStatus.arrowUp = false;
         this.imgStatus.arrowDown = false;
         this.imgStatus.arrowLeft = false;
         this.imgStatus.arrowRight = false;
-        // this.imgStatus.control = false;
-        // this.imgStatus.alt = false;
-        // this.imgStatus.shift = false;
 
         this.imgInfo.invertColor = false;
         this.imgInfo.scaleX = false;
@@ -480,7 +474,7 @@ export class ContainerView {
     }
 
     private triggerKeydown = (event: KeyboardEvent) => {
-        console.log('keydown', event, event.key, this.imgStatus);
+        // console.log('keydown', event, event.key, this.imgStatus);
         event.preventDefault();
         event.stopPropagation();
         if (this.imgStatus.arrowUp && this.imgStatus.arrowLeft) {
@@ -518,33 +512,9 @@ export class ContainerView {
         }
     }
 
-    private checkModifiedKeyConf = (event: KeyboardEvent) => {
-        const modifierKeyConf = this.plugin.settings.modifierKeyConf;
-        if (MODIFIER_KEY_CONF.CTRL === modifierKeyConf && event.ctrlKey && !event.altKey && !event.shiftKey) {
-            return true;
-        } else if (MODIFIER_KEY_CONF.ALT === modifierKeyConf && !event.ctrlKey && event.altKey && !event.shiftKey) {
-            return true;
-        } else if (MODIFIER_KEY_CONF.SHIFT === modifierKeyConf && !event.ctrlKey && !event.altKey && event.shiftKey) {
-            return true;
-        } else if (MODIFIER_KEY_CONF.CTRL_ALT === modifierKeyConf && event.ctrlKey && event.altKey && !event.shiftKey) {
-            return true;
-        } else if (MODIFIER_KEY_CONF.CTRL_SHIFT === modifierKeyConf && event.ctrlKey && !event.altKey && event.shiftKey) {
-            return true;
-        } else if (MODIFIER_KEY_CONF.SHIFT_ALT === modifierKeyConf && !event.ctrlKey && event.altKey && event.shiftKey) {
-            return true;
-        } else if (MODIFIER_KEY_CONF.CTRL_SHIFT_ALT === modifierKeyConf && event.ctrlKey && event.altKey && event.shiftKey) {
-            return true;
-        }
-        return false;
-    }
-
     public moveImgViewByHotkey = (event: KeyboardEvent, orientation: 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | 'UP_LEFT' | 'UP_RIGHT' | 'DOWN_LEFT' | 'DOWN_RIGHT') => {
-        if (!orientation || !this.imgStatus.popup) return;
-        if (MODIFIER_KEY_OWNER.IMAGE_MOVE === this.plugin.settings.modifierKeyOwner) {
-            if (!this.checkModifiedKeyConf(event)) return;
-        } else {
-            if (event.ctrlKey || event.altKey || event.shiftKey) return;
-        }
+        if (!orientation || !this.imgStatus.popup || !this.checkHotkeySettings(event, this.plugin.settings.moveTheImageHotkey))
+            return;
         switch (orientation) {
             case 'UP':
                 this.mousemoveImgView(null, { offsetX: 0, offsetY: -IMG_GLOBAL_SETTINGS.imageMoveSpeed });
@@ -576,12 +546,31 @@ export class ContainerView {
     }
 
     private switchImageOnGalleryNavBar = (event: KeyboardEvent, next: boolean) => {
-        if (MODIFIER_KEY_OWNER.IMAGE_SWITCH === this.plugin.settings.modifierKeyOwner) {
-            if (!this.checkModifiedKeyConf(event)) return;
-        } else {
-            if (event.ctrlKey || event.altKey || event.shiftKey) return;
-        }
+        if (!this.checkHotkeySettings(event, this.plugin.settings.switchTheImageHotkey))
+            return;
         this.galleryNavbarView.switchImage(next);
+    }
+
+    private checkHotkeySettings = (event: KeyboardEvent, hotkey: string): boolean => {
+        switch (hotkey) {
+            case "NONE":
+                return !event.ctrlKey && !event.altKey && !event.shiftKey;
+            case "CTRL":
+                return event.ctrlKey && !event.altKey && !event.shiftKey;
+            case "ALT":
+                return !event.ctrlKey && event.altKey && !event.shiftKey;
+            case "SHIFT":
+                return !event.ctrlKey && !event.altKey && event.shiftKey;
+            case "CTRL_ALT":
+                return event.ctrlKey && event.altKey && !event.shiftKey;
+            case "CTRL_SHIFT":
+                return event.ctrlKey && !event.altKey && event.shiftKey;
+            case "SHIFT_ALT":
+                return !event.ctrlKey && event.altKey && event.shiftKey;
+            case "CTRL_SHIFT_ALT":
+                return event.ctrlKey && event.altKey && event.shiftKey;
+        }
+        return false;
     }
 
     private mousedownImgView = (event: MouseEvent) => {

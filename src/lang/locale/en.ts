@@ -87,12 +87,22 @@ export default {
   GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME: 'Set the border color of the selected image',
 
   // >>>HOTKEYS_SETTINGS:
-  HOTKEYS_SETTINGS: "Hotkeys Settings:",
-  MODIFIER_KEY_OWNER_NAME: "Set the owner of the modifier key (e.g. Ctrl, Alt, Shift)",
-  MODIFIER_KEY_OWNER_DESC: "When you set 'Move the image', you should move the image by holding the modifier key and pressing arrow keybord. When you set 'Switch the image', you should switch to the previous/next image by holding the modifier key and pressing arrow left/right.",
-  IMAGE_SWITCH: "Switch the image",
-  IMAGE_MOVE: "Move the image",
-  MODIFIER_KEY_CONF_NAME: "Set the hotkeys for the owner",
+  HOTKEY_SETTINGS: "Hotkey Settings:",
+  HOTKEY_SETTINGS_DESC: "📢 You canont set the same hotkey for 'Move the image' and 'Switch the image' at the same time.",
+  MOVE_THE_IMAGE_NAME: "Set the hotkey for moving the image",
+  MOVE_THE_IMAGE_DESC: "You can move the image on the popup layer by hotkey.",
+  SWITCH_THE_IMAGE_NAME: "Set the hotkey for switching the image",
+  SWITCH_THE_IMAGE_DESC: "You can switch to the previous/next image on the gallery navbar by hotkey.",
+
+  // MODIFIER_HOTKEYS
+  NONE: "None",
+  CTRL: "Ctrl",
+  ALT: "Alt",
+  SHIFT: "Shift",
+  CTRL_ALT: "Ctrl+Alt",
+  CTRL_SHIFT: "Ctrl+Shift",
+  SHIFT_ALT: "Shift+Alt",
+  CTRL_SHIFT_ALT: "Ctrl+Shift+Alt",
 
   // toolbar icon title
   ZOOM_TO_100: "zoom to actual size",

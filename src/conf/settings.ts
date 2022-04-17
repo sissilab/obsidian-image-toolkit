@@ -2,7 +2,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
 import { ImgSettingIto } from 'src/to/ImgSettingIto';
-import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE, MODIFIER_KEY_CONF, MODIFIER_KEY_OWNER } from './constants';
+import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE, MODIFIER_HOTKEYS, MOVE_THE_IMAGE, SWITCH_THE_IMAGE } from './constants';
 import Pickr from '@simonwep/pickr';
 
 export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
@@ -28,8 +28,8 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     galleryImgBorderActiveColor: GALLERY_IMG_BORDER_ACTIVE_COLOR,
 
     // hotkeys conf
-    modifierKeyOwner: MODIFIER_KEY_OWNER.IMAGE_SWITCH,
-    modifierKeyConf: MODIFIER_KEY_CONF.CTRL
+    moveTheImageHotkey: MOVE_THE_IMAGE.DEFAULT_HOTKEY,
+    switchTheImageHotkey: SWITCH_THE_IMAGE.DEFAULT_HOTKEY,
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -268,36 +268,61 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         // >>>GALLERY_NAVBAR_SETTINGS end
 
         // >>>HOTKEYS_SETTINGS start
-        containerEl.createEl('h3', { text: t("HOTKEYS_SETTINGS") });
+        containerEl.createEl('h3', { text: t("HOTKEY_SETTINGS") });
+        containerEl.createEl('p', { text: t("HOTKEY_SETTINGS_DESC") });
 
-        new Setting(containerEl)
-            .setName(t("MODIFIER_KEY_OWNER_NAME"))
-            .setDesc(t("MODIFIER_KEY_OWNER_DESC"))
+        if (this.plugin.settings.moveTheImageHotkey === this.plugin.settings.switchTheImageHotkey) {
+            this.plugin.settings.moveTheImageHotkey = MOVE_THE_IMAGE.DEFAULT_HOTKEY;
+        }
+        const moveTheImageSetting = new Setting(containerEl)
+            .setName(t("MOVE_THE_IMAGE_NAME"))
+            .setDesc(t("MOVE_THE_IMAGE_DESC"))
             .addDropdown(async (dropdown) => {
-                for (const key in MODIFIER_KEY_OWNER) {
-                    // @ts-ignore
-                    dropdown.addOption(MODIFIER_KEY_OWNER[key], t(key));
-                }
-                dropdown.setValue(this.plugin.settings.modifierKeyOwner);
+                dropdown.addOptions(this.getDropdownOptions());
+                dropdown.setValue(this.plugin.settings.moveTheImageHotkey);
                 dropdown.onChange(async (option) => {
-                    this.plugin.settings.modifierKeyOwner = option;
+                    this.plugin.settings.moveTheImageHotkey = option;
+                    this.checkDropdownOptions(MOVE_THE_IMAGE.CODE, switchTheImageSetting);
                     await this.plugin.saveSettings();
                 });
+            }).then((setting) => {
+                setting.controlEl.appendChild(createDiv('setting-editor-extra-setting-button hotkeys-settings-plus', (el) => {
+                    el.innerHTML = "+";
+                }));
+                setting.controlEl.appendChild(createDiv('setting-editor-extra-setting-button', (el) => {
+                    el.innerHTML = MOVE_THE_IMAGE.SVG;
+                }));
             });
 
-        new Setting(containerEl)
-            .setName(t("MODIFIER_KEY_CONF_NAME"))
+        if (this.plugin.settings.switchTheImageHotkey === this.plugin.settings.moveTheImageHotkey) {
+            this.plugin.settings.switchTheImageHotkey = SWITCH_THE_IMAGE.DEFAULT_HOTKEY;
+        }
+        const switchTheImageSetting = new Setting(containerEl)
+            .setName(t("SWITCH_THE_IMAGE_NAME"))
+            .setDesc(t("SWITCH_THE_IMAGE_DESC"))
             .addDropdown(async (dropdown) => {
-                for (const key in MODIFIER_KEY_CONF) {
-                    // @ts-ignore
-                    dropdown.addOption(MODIFIER_KEY_CONF[key], MODIFIER_KEY_CONF[key]);
-                }
-                dropdown.setValue(this.plugin.settings.modifierKeyConf);
+                dropdown.addOptions(this.getDropdownOptions());
+                dropdown.setValue(this.plugin.settings.switchTheImageHotkey);
                 dropdown.onChange(async (option) => {
-                    this.plugin.settings.modifierKeyConf = option;
+                    this.plugin.settings.switchTheImageHotkey = option;
+                    this.checkDropdownOptions(SWITCH_THE_IMAGE.CODE, moveTheImageSetting);
                     await this.plugin.saveSettings();
                 });
+            }).then((setting) => {
+                setting.controlEl.appendChild(createDiv('setting-editor-extra-setting-button hotkeys-settings-plus', (el) => {
+                    el.innerHTML = "+";
+                }));
+                setting.controlEl.appendChild(createDiv('setting-editor-extra-setting-button', (el) => {
+                    el.innerHTML = SWITCH_THE_IMAGE.SVG;
+                }));
             });
+
+        if (switchTheImageSetting) {
+            this.checkDropdownOptions(MOVE_THE_IMAGE.CODE, switchTheImageSetting);
+        }
+        if (moveTheImageSetting) {
+            this.checkDropdownOptions(SWITCH_THE_IMAGE.CODE, moveTheImageSetting);
+        }
 
         // >>>HOTKEYS_SETTINGS end
     }
@@ -376,6 +401,27 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             this.plugin.settings.galleryImgBorderActiveColor = savedColor;
         }
         this.plugin.saveSettings();
+    }
+
+    getDropdownOptions(): Record<string, string> {
+        let options: Record<string, string> = {};
+        for (const key in MODIFIER_HOTKEYS) {
+            //@ts-ignore
+            options[key] = t(key);
+        }
+        return options;
+    }
+
+    checkDropdownOptions(code: string, setting: Setting): void {
+        if (!setting || !setting.controlEl) return;
+        const optionElList: HTMLCollectionOf<HTMLOptionElement> = setting.controlEl.getElementsByClassName('dropdown')[0].getElementsByTagName('option');
+        for (let i = 0, size = optionElList.length; i < size; i++) {
+            if (code === MOVE_THE_IMAGE.CODE) {
+                optionElList[i].disabled = optionElList[i].value === this.plugin.settings.moveTheImageHotkey;
+            } else if (code === SWITCH_THE_IMAGE.CODE) {
+                optionElList[i].disabled = optionElList[i].value === this.plugin.settings.switchTheImageHotkey;
+            }
+        }
     }
 
 }

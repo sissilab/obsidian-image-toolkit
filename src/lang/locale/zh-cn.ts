@@ -30,7 +30,7 @@ export default {
   FIT: '自适应',
   FILL: '填充',
   STRETCH: '拉伸',
-  
+
   // >>>图片边框设置：
   IMAGE_BORDER_SETTINGS: '图片边框设置：',
   IMAGE_BORDER_TOGGLE_NAME: "展示被点击图片的边框",
@@ -86,6 +86,17 @@ export default {
   GALLERY_IMG_BORDER_TOGGLE_DESC: "当你选中正查看某一图片，对应图片导航底栏上将突出显示该缩略图片的边框。",
   GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME: '设置被选中图片的边框色',
 
+  // >>>HOTKEYS_SETTINGS:
+  HOTKEY_SETTINGS: "快捷键设置:",
+  HOTKEY_SETTINGS_DESC: "📢  你无法为'移动图片'和'切换图片'设置相同的快捷键。",
+  MOVE_THE_IMAGE_NAME: "为移动图片设置快捷键",
+  MOVE_THE_IMAGE_DESC: "你可以利用快捷键来移动弹出层上的图片。",
+  SWITCH_THE_IMAGE_NAME: "为切换图片设置快捷键",
+  SWITCH_THE_IMAGE_DESC: "你可以利用快捷键来切换在图片导航栏上的图片至上一张/下一张。",
+
+  // MODIFIER_HOTKEYS
+  NONE: "无",
+
   // toolbar icon title
   ZOOM_TO_100: "缩放至实际大小",
   ZOOM_IN: "放大",
@@ -98,7 +109,7 @@ export default {
   SCALE_Y: 'y轴翻转',
   INVERT_COLOR: '反色',
   COPY: '复制',
-  
+
   // tip:
   COPY_IMAGE_SUCCESS: '拷贝图片成功！',
   COPY_IMAGE_ERROR: '拷贝图片失败！'
