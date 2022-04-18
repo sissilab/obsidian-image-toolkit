@@ -88,11 +88,11 @@ export default {
 
   // >>>HOTKEYS_SETTINGS:
   HOTKEY_SETTINGS: "Hotkey Settings:",
-  HOTKEY_SETTINGS_DESC: "📢 You canont set the same hotkey for 'Move the image' and 'Switch the image' at the same time.",
+  HOTKEY_SETTINGS_DESC: "📢 You cannot set the same hotkey for 'Move the image' and 'Switch the image' at the same time.",
   MOVE_THE_IMAGE_NAME: "Set the hotkey for moving the image",
   MOVE_THE_IMAGE_DESC: "You can move the image on the popup layer by hotkey.",
   SWITCH_THE_IMAGE_NAME: "Set the hotkey for switching the image",
-  SWITCH_THE_IMAGE_DESC: "You can switch to the previous/next image on the gallery navbar by hotkey.",
+  SWITCH_THE_IMAGE_DESC: "You can switch to the previous/next image on the gallery navbar by hotkey. (NOTE: You need to turn on 'Display gallery navbar' first, if you wanna use this hotkey.)",
 
   // MODIFIER_HOTKEYS
   NONE: "None",
