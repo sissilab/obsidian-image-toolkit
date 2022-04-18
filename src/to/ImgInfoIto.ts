@@ -11,8 +11,6 @@ export interface ImgInfoIto {
     imgFooterEl: HTMLElement;
     imgPlayerEl: HTMLDivElement;
     imgPlayerImgViewEl: HTMLImageElement;
-    galleryNavbar: HTMLDivElement;
-    galleryList: HTMLElement;
 
     curWidth: number;
     curHeight: number;

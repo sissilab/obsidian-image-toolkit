@@ -27,8 +27,6 @@ export class ContainerView {
         imgFooterEl: null,
         imgPlayerEl: null,
         imgPlayerImgViewEl: null,
-        galleryNavbar: null,
-        galleryList: null,
 
         curWidth: 0,
         curHeight: 0,
@@ -82,6 +80,12 @@ export class ContainerView {
     }
 
     public initContainerView = (targetEl: HTMLImageElement, containerEl: HTMLElement): void => {
+        if (this.imgInfo.oitContainerViewEl) {
+            const containerElList: HTMLCollectionOf<Element> = document.getElementsByClassName('oit-container-view');
+            if (!containerElList || 0 >= containerElList.length) {
+                this.removeOitContainerView();
+            }
+        }
         if (null == this.imgInfo.oitContainerViewEl || !this.imgInfo.oitContainerViewEl) {
             // console.log('initContainerView....', this.imgInfo.containerViewEl);
             // <div class="oit-container-view">
@@ -200,6 +204,12 @@ export class ContainerView {
         this.imgInfo.oitContainerViewEl = null;
         this.imgInfo.imgViewEl = null;
         this.imgInfo.imgTitleEl = null;
+        this.imgInfo.imgTipEl = null;
+        this.imgInfo.imgTipTimeout = null;
+        this.imgInfo.imgFooterEl = null;
+        this.imgInfo.imgPlayerEl = null;
+        this.imgInfo.imgPlayerImgViewEl = null;
+
         this.imgInfo.curWidth = 0;
         this.imgInfo.curHeight = 0;
         this.imgInfo.realWidth = 0;
@@ -207,6 +217,13 @@ export class ContainerView {
         this.imgInfo.moveX = 0;
         this.imgInfo.moveY = 0;
         this.imgInfo.rotate = 0;
+        this.imgInfo.invertColor = false;
+        this.imgInfo.scaleX = false;
+        this.imgInfo.scaleY = false;
+        this.imgInfo.fullScreen = false;
+
+        this.galleryNavbarView?.removeGalleryNavbar();
+        this.galleryNavbarView = null;
     }
 
     private renderGalleryNavbar = () => {

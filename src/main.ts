@@ -54,7 +54,6 @@ export default class ImageToolkitPlugin extends Plugin {
 				this.containerView.moveImgViewByHotkey('UP');
 			},
 		}); */
-
 	}
 
 	private clickImage = (event: MouseEvent) => {

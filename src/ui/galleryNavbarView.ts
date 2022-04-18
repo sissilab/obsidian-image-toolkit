@@ -115,9 +115,11 @@ export class GalleryNavbarView {
     private initDefaultData = () => {
         this.galleryMouseDownClientX = 0;
         this.galleryTranslateX = 0;
-        this.galleryListEl.style.transform = 'translateX(0px)';
-        // remove all childs (li) of gallery-list
-        this.galleryListEl.innerHTML = '';
+        if (this.galleryListEl) {
+            this.galleryListEl.style.transform = 'translateX(0px)';
+            // remove all childs (li) of gallery-list
+            this.galleryListEl.innerHTML = '';
+        }
     }
 
     private initGalleryNavbar = (imgFooterEl: HTMLElement) => {
@@ -152,6 +154,25 @@ export class GalleryNavbarView {
         if (!this.state) return;
         this.galleryNavbarEl.hidden = true; // hide 'gallery-navbar'
         this.state = false;
+        this.initDefaultData();
+    }
+
+    public removeGalleryNavbar = () => {
+        this.state = false;
+
+        this.galleryNavbarEl?.remove();
+        this.galleryListEl?.remove();
+
+        this.galleryNavbarEl = null;
+        this.galleryListEl = null;
+
+        this.galleryIsMousingDown = false;
+        this.galleryMouseDownClientX = 0;
+        this.galleryTranslateX = 0;
+        this.mouseDownTime = null;
+
+        GalleryNavbarView.GALLERY_IMG_CACHE = new Map();
+
         this.initDefaultData();
     }
 
