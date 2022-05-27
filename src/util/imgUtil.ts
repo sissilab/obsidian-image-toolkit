@@ -1,8 +1,9 @@
 import { Notice } from 'obsidian';
 import { t } from 'src/lang/helpers';
+import da from 'src/lang/locale/da';
 import { ImgInfoIto } from 'src/to/ImgInfoIto';
 import { OffsetSizeIto } from 'src/to/OffsetSizeIto';
-import { ZOOM_FACTOR } from '../conf/constants'
+import { IMG_DEFAULT_BACKGROUND_COLOR, ZOOM_FACTOR } from '../conf/constants'
 
 
 export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfoIto): ImgInfoIto => {
@@ -102,8 +103,6 @@ export const invertImgColor = (imgEle: HTMLImageElement, open: boolean) => {
 }
 
 export function copyText(text: string) {
-    // console.log('text:', text);
-
     navigator.clipboard.writeText(text)
         .then(() => {
             //console.log('copyText:', copyText);
@@ -122,14 +121,22 @@ export function copyImage(imgEle: HTMLImageElement, width: number, height: numbe
         canvas.width = image.width;
         canvas.height = image.height;
         const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(image, 0, 0);
-        canvas.toBlob((blob: any) => {
-            // @ts-ignore
-            const item = new ClipboardItem({ "image/png": blob });
-            // @ts-ignore
-            navigator.clipboard.write([item]);
-            new Notice(t("COPY_IMAGE_SUCCESS"));
-        });
+        try {
+            canvas.toBlob(async (blob: any) => {
+                await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+                    .then(() => {
+                        new Notice(t("COPY_IMAGE_SUCCESS"));
+                    }, () => {
+                        new Notice(t("COPY_IMAGE_ERROR"));
+                    });
+            });
+        } catch (error) {
+            new Notice(t("COPY_IMAGE_ERROR"));
+            console.error(error);
+        }
     };
     image.onerror = () => {
         new Notice(t("COPY_IMAGE_ERROR"));

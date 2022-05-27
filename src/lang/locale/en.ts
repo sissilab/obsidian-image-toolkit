@@ -120,6 +120,6 @@ export default {
 
   // tip:
   COPY_IMAGE_SUCCESS: 'Copy the image successfully!',
-  COPY_IMAGE_ERROR: 'Error Copying the image!'
+  COPY_IMAGE_ERROR: 'Fail to copy the image!'
 
 };

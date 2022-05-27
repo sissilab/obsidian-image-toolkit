@@ -1,7 +1,6 @@
 import { IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from 'src/conf/constants';
 import { IMG_GLOBAL_SETTINGS } from 'src/conf/settings';
 import { t } from 'src/lang/helpers';
-import tr from 'src/lang/locale/tr';
 import ImageToolkitPlugin from 'src/main';
 import { ImgInfoIto } from 'src/to/ImgInfoIto';
 import { ImgStatusIto } from 'src/to/ImgStatusIto';
