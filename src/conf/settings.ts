@@ -2,7 +2,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
 import { ImgSettingIto } from 'src/to/ImgSettingIto';
-import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_FULL_SCREEN_MODE, MODIFIER_HOTKEYS, MOVE_THE_IMAGE, SWITCH_THE_IMAGE } from './constants';
+import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE, MODIFIER_HOTKEYS, MOVE_THE_IMAGE, SWITCH_THE_IMAGE } from './constants';
 import Pickr from '@simonwep/pickr';
 
 export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
@@ -15,6 +15,7 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     imageMoveSpeed: 10,
     imgTipToggle: true,
     imgFullScreenMode: IMG_FULL_SCREEN_MODE.FIT,
+    imgViewBackgroundColor: IMG_DEFAULT_BACKGROUND_COLOR,
 
     imageBorderToggle: false,
     imageBorderWidth: IMG_BORDER_WIDTH.MEDIUM,
@@ -175,6 +176,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
+        
+        this.createPickrSetting(containerEl, 'IMG_VIEW_BACKGROUND_COLOR_NAME', IMG_DEFAULT_BACKGROUND_COLOR);
         // >>> VIEW_DETAILS_SETTINGS end
 
         // >>>IMAGE_BORDER_SETTINGS start
@@ -235,7 +238,6 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
-
         // >>>IMAGE_BORDER_SETTINGS end
 
         // >>>GALLERY_NAVBAR_SETTINGS start
@@ -335,6 +337,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             pickrDefault = this.plugin.settings.galleryNavbarHoverColor;
         } else if ('GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME' === name) {
             pickrDefault = this.plugin.settings.galleryImgBorderActiveColor;
+        } else if ('IMG_VIEW_BACKGROUND_COLOR_NAME' === name) {
+            pickrDefault = this.plugin.settings.imgViewBackgroundColor;
         } else {
             pickrDefault = defaultColor;
         }
@@ -399,6 +403,9 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             this.plugin.settings.galleryNavbarHoverColor = savedColor;
         } else if ('GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME' === name) {
             this.plugin.settings.galleryImgBorderActiveColor = savedColor;
+        } else if ('IMG_VIEW_BACKGROUND_COLOR_NAME' === name) {
+            this.plugin.settings.imgViewBackgroundColor = savedColor;
+            this.plugin.containerView.setImgViewDefaultBackground();
         }
         this.plugin.saveSettings();
     }

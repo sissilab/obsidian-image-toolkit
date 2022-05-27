@@ -30,6 +30,7 @@ export default {
   FIT: '自适应',
   FILL: '填充',
   STRETCH: '拉伸',
+  IMG_VIEW_BACKGROUND_COLOR_NAME: "设置预览图片的背景色",
 
   // >>>图片边框设置：
   IMAGE_BORDER_SETTINGS: '图片边框设置：',

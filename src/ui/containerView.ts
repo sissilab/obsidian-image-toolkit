@@ -1,6 +1,7 @@
-import { IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from 'src/conf/constants';
+import { IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from 'src/conf/constants';
 import { IMG_GLOBAL_SETTINGS } from 'src/conf/settings';
 import { t } from 'src/lang/helpers';
+import tr from 'src/lang/locale/tr';
 import ImageToolkitPlugin from 'src/main';
 import { ImgInfoIto } from 'src/to/ImgInfoIto';
 import { ImgStatusIto } from 'src/to/ImgStatusIto';
@@ -97,6 +98,7 @@ export class ContainerView {
             imgContainerEl.addClass('img-container');
             imgContainerEl.appendChild(this.imgInfo.imgViewEl = createEl('img')); // img-view
             this.imgInfo.imgViewEl.addClass('img-view');
+            this.setImgViewDefaultBackground();
             this.imgInfo.oitContainerViewEl.appendChild(imgContainerEl);
 
             // <div class="img-tip"></div>
@@ -224,6 +226,18 @@ export class ContainerView {
 
         this.galleryNavbarView?.removeGalleryNavbar();
         this.galleryNavbarView = null;
+    }
+
+    public setImgViewDefaultBackground = () => {
+        if (!this.imgInfo.imgViewEl) return;
+        const color = this.plugin.settings.imgViewBackgroundColor;
+        if (color && IMG_DEFAULT_BACKGROUND_COLOR != color) {
+            this.imgInfo.imgViewEl.removeClass('img-default-background');
+            this.imgInfo.imgViewEl.style.setProperty('background-color', color);
+        } else {
+            this.imgInfo.imgViewEl.addClass('img-default-background');
+            this.imgInfo.imgViewEl.style.removeProperty('background-color');
+        }
     }
 
     private renderGalleryNavbar = () => {

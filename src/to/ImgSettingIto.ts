@@ -12,6 +12,7 @@ export interface ImgSettingIto {
     imageMoveSpeed: number;
     imgTipToggle: boolean;
     imgFullScreenMode: string;
+    imgViewBackgroundColor: string;
 
     imageBorderToggle: boolean;
     imageBorderWidth: string;
