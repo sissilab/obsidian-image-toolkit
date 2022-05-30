@@ -1,10 +1,10 @@
 import { Md5 } from "md5-typescript";
 import { MarkdownView, TFile } from "obsidian";
 import ImageToolkitPlugin from "src/main";
-import { GalleryImgCacheCto, GalleryImgCto } from "src/to/GalleryNavbarTo";
 import { ImgSettingIto } from "src/to/imgTo";
 import { md5Img, parseActiveViewData } from "src/util/markdowParse";
 import { MainContainerView } from "./mainContainerView";
+import {GalleryImgCacheCto, GalleryImgCto} from "../to/galleryNavbarTo";
 
 export class GalleryNavbarView {
     private readonly plugin: ImageToolkitPlugin;
@@ -156,7 +156,7 @@ export class GalleryNavbarView {
         this.initDefaultData();
     }
 
-    public removeGalleryNavbar = () => {
+    public remove = () => {
         this.state = false;
 
         this.galleryNavbarEl?.remove();

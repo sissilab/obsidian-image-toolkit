@@ -1,4 +1,4 @@
-import {CONTAINER_TYPE, IMG_DEFAULT_BACKGROUND_COLOR} from "src/conf/constants";
+import {CONTAINER_TYPE, IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE} from "src/conf/constants";
 import ImageToolkitPlugin from "src/main";
 import {ImgStatusIto, ImgInfoIto} from "src/to/imgTo";
 import {ImgUtil} from "src/util/imgUtil";
@@ -77,6 +77,7 @@ export abstract class ContainerView {
         return this.targetOriginalImgEl;
     }
 
+    //region ================== Container View & Init ========================
     /**
      * render when clicking an image
      * @param targetEl the clicked image's element
@@ -111,7 +112,37 @@ export abstract class ContainerView {
         this.imgInfo.oitContainerViewEl.style.setProperty('display', 'block');
     }
 
-    abstract closeViewContainer(event?: MouseEvent): void;
+    abstract closeContainerView(event?: MouseEvent): void;
+
+    public removeOitContainerView = () => {
+        this.imgInfo.oitContainerViewEl?.remove();
+
+        this.imgStatus.dragging = false;
+        this.imgStatus.popup = false;
+
+        this.imgInfo.oitContainerViewEl = null;
+        this.imgInfo.imgViewEl = null;
+        this.imgInfo.imgTitleEl = null;
+        this.imgInfo.imgTipEl = null;
+        this.imgInfo.imgTipTimeout = null;
+        this.imgInfo.imgFooterEl = null;
+        this.imgInfo.imgPlayerEl = null;
+        this.imgInfo.imgPlayerImgViewEl = null;
+
+        this.imgInfo.curWidth = 0;
+        this.imgInfo.curHeight = 0;
+        this.imgInfo.realWidth = 0;
+        this.imgInfo.realHeight = 0
+        this.imgInfo.moveX = 0;
+        this.imgInfo.moveY = 0;
+        this.imgInfo.rotate = 0;
+        this.imgInfo.invertColor = false;
+        this.imgInfo.scaleX = false;
+        this.imgInfo.scaleY = false;
+        this.imgInfo.fullScreen = false;
+
+        this.removeGalleryNavbar();
+    }
 
     protected checkType = (): boolean => {
         if (!this.containerType) return false;
@@ -152,10 +183,13 @@ export abstract class ContainerView {
 
     protected setTargetOriginalImg = (targetEl: HTMLImageElement) => {
         if (!targetEl) return;
+        // 'data-oit-target' is set for locating current image
         targetEl.setAttribute('data-oit-target', '1');
         this.targetOriginalImgEl = targetEl;
     }
+    //endregion
 
+    //region ================== (Original) Image Border ========================
     protected addBorderForTargetOriginalImg = (targetEl: HTMLImageElement) => {
         this.setTargetOriginalImg(targetEl);
         if (!targetEl || !this.plugin.settings.imageBorderToggle) return;
@@ -176,7 +210,9 @@ export abstract class ContainerView {
             targetOriginalImgStyle.setProperty('border-color', this.defaultImgStyles.borderColor);
         }
     }
+    //endregion
 
+    //region ================== Image ========================
     public refreshImg = (imgSrc?: string, imgAlt?: string) => {
         const src = imgSrc ? imgSrc : this.imgInfo.imgViewEl.src;
         const alt = imgAlt ? imgAlt : this.imgInfo.imgViewEl.alt;
@@ -252,22 +288,65 @@ export abstract class ContainerView {
             this.imgInfo.imgViewEl.style.removeProperty('background-color');
         }
     }
+    //endregion
 
-    /***********************************************************************************************************************
-     Gallery NavBar: start
-     ***********************************************************************************************************************/
+    //region ================== Gallery NavBar ========================
     protected switchImageOnGalleryNavBar = (event: KeyboardEvent, next: boolean) => {
     }
 
     protected renderGalleryNavbar = () => {
     }
-    /***********************************************************************************************************************
-     Gallery NavBar: end
-     ***********************************************************************************************************************/
 
-    /***********************************************************************************************************************
-     full screen : start
-     ***********************************************************************************************************************/
+    protected removeGalleryNavbar = () => {
+    }
+    //endregion
+
+    //region ================== full screen ========================
+    /**
+     * full-screen mode
+     */
+    protected showPlayerImg = () => {
+        this.imgInfo.fullScreen = true;
+        this.imgInfo.imgViewEl.style.setProperty('display', 'none', 'important'); // hide imgViewEl
+        this.imgInfo.imgFooterEl.style.setProperty('display', 'none'); // hide 'img-footer'
+        // show the img-player
+        this.imgInfo.imgPlayerEl.style.setProperty('display', 'block'); // display 'img-player'
+        this.imgInfo.imgPlayerEl.addEventListener('click', this.closePlayerImg);
+
+        const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
+        const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+        let newWidth, newHeight;
+        let top = 0, left = 0;
+        if (IMG_FULL_SCREEN_MODE.STRETCH == IMG_GLOBAL_SETTINGS.imgFullScreenMode) {
+            newWidth = windowWidth + 'px';
+            newHeight = windowHeight + 'px';
+        } else if (IMG_FULL_SCREEN_MODE.FILL == IMG_GLOBAL_SETTINGS.imgFullScreenMode) {
+            newWidth = '100%';
+            newHeight = '100%';
+        } else {
+            // fit
+            const widthRatio = windowWidth / this.imgInfo.realWidth;
+            const heightRatio = windowHeight / this.imgInfo.realHeight;
+            if (widthRatio <= heightRatio) {
+                newWidth = windowWidth;
+                newHeight = widthRatio * this.imgInfo.realHeight;
+            } else {
+                newHeight = windowHeight;
+                newWidth = heightRatio * this.imgInfo.realWidth;
+            }
+            top = (windowHeight - newHeight) / 2;
+            left = (windowWidth - newWidth) / 2;
+            newWidth = newWidth + 'px';
+            newHeight = newHeight + 'px';
+        }
+        this.imgInfo.imgPlayerImgViewEl.setAttribute('src', this.imgInfo.imgViewEl.src);
+        this.imgInfo.imgPlayerImgViewEl.setAttribute('alt', this.imgInfo.imgViewEl.alt);
+        this.imgInfo.imgPlayerImgViewEl.setAttribute('width', newWidth);
+        this.imgInfo.imgPlayerImgViewEl.setAttribute('height', newHeight);
+        this.imgInfo.imgPlayerImgViewEl.style.setProperty('margin-top', top + 'px');
+        //this.imgInfo.imgPlayerImgViewEl.style.setProperty('margin-left', left + 'px');
+    }
+
     /**
      * close full screen
      */
@@ -284,19 +363,14 @@ export abstract class ContainerView {
         this.imgInfo.imgViewEl?.style.setProperty('display', 'block', 'important');
         this.imgInfo.imgFooterEl?.style.setProperty('display', 'block');
     }
-    /***********************************************************************************************************************
-     full screen : end
-     ***********************************************************************************************************************/
+    //endregion
 
-
-    /***********************************************************************************************************************
-     all events: start
-     ***********************************************************************************************************************/
+    //region ================== events ========================
     protected addOrRemoveEvents = (flag: boolean) => {
         if (flag) {
             document.addEventListener('keyup', this.triggerKeyup);
             document.addEventListener('keydown', this.triggerKeydown);
-            this.imgInfo.oitContainerViewEl.addEventListener('click', this.closeViewContainer);
+            this.imgInfo.oitContainerViewEl.addEventListener('click', this.closeContainerView);
             // drag the image via mouse
             this.imgInfo.imgViewEl.addEventListener('mousedown', this.mousedownImgView);
             // zoom the image via mouse wheel
@@ -305,7 +379,7 @@ export abstract class ContainerView {
             // flag = false
             document.removeEventListener('keyup', this.triggerKeyup);
             document.removeEventListener('keydown', this.triggerKeydown);
-            this.imgInfo.oitContainerViewEl.removeEventListener('click', this.closeViewContainer);
+            this.imgInfo.oitContainerViewEl.removeEventListener('click', this.closeContainerView);
             this.imgInfo.imgViewEl.removeEventListener('mousedown', this.mousedownImgView);
             this.imgInfo.oitContainerViewEl.removeEventListener('mousewheel', this.mousewheelViewContainer);
             if (this.realImgInterval) {
@@ -321,7 +395,7 @@ export abstract class ContainerView {
         event.stopPropagation();
         switch (event.key) {
             case 'Escape':
-                this.imgInfo.fullScreen ? this.closePlayerImg() : this.closeViewContainer();
+                this.imgInfo.fullScreen ? this.closePlayerImg() : this.closeContainerView();
                 break;
             case 'ArrowUp':
                 this.imgStatus.arrowUp = false;
@@ -496,8 +570,6 @@ export abstract class ContainerView {
         // @ts-ignore
         this.zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);
     }
+    //endregion
 
-    /***********************************************************************************************************************
-     all events: end
-     ***********************************************************************************************************************/
 }

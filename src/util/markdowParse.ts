@@ -2,8 +2,7 @@ import { Md5 } from 'md5-typescript';
 import { TFile } from 'obsidian';
 import ImageToolkitPlugin from 'src/main';
 import { FileCto } from 'src/to/commonTo';
-import { GalleryImgCacheCto, GalleryImgCto } from 'src/to/GalleryNavbarTo';
-
+import {GalleryImgCacheCto, GalleryImgCto} from "../to/galleryNavbarTo";
 
 /* // const imgList: Array<GalleryImg> = parseMarkDown(plugin, activeView.sourceMode?.cmEditor, activeView.file.path);
 export const parseMarkDown = (plugin: ImageToolkitPlugin, cm: CodeMirror.Editor, filePath: string) => {

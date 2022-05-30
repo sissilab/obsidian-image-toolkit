@@ -8,6 +8,7 @@ export class PinContainerView extends ContainerView {
         super(plugin, containerType);
     }
 
+    //region ================== Container View ========================
     public initContainerViewDom = (containerEl: HTMLElement): void => {
         if (null == this.imgInfo.oitContainerViewEl || !this.imgInfo.oitContainerViewEl) {
             // <div class="oit-pin-container-view">
@@ -21,7 +22,9 @@ export class PinContainerView extends ContainerView {
         }
     }
 
-    public closeViewContainer = (event?: MouseEvent): void => {
+    public closeContainerView = (event?: MouseEvent): void => {
 
     }
+    //endregion
+
 }

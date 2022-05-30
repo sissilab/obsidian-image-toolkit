@@ -1,9 +1,4 @@
-import {
-    CONTAINER_TYPE,
-    IMG_FULL_SCREEN_MODE,
-    IMG_TOOLBAR_ICONS
-} from 'src/conf/constants';
-import {IMG_GLOBAL_SETTINGS} from 'src/conf/settings';
+import {CONTAINER_TYPE, IMG_TOOLBAR_ICONS} from 'src/conf/constants';
 import {t} from 'src/lang/helpers';
 import ImageToolkitPlugin from 'src/main';
 import {OffsetSizeIto} from 'src/to/commonTo';
@@ -20,6 +15,7 @@ export class MainContainerView extends ContainerView {
         super(plugin, containerType);
     }
 
+    //region ================== Container View ========================
     public initContainerViewDom = (containerEl: HTMLElement): void => {
         if (this.imgInfo.oitContainerViewEl) {
             const containerElList: HTMLCollectionOf<Element> = document.getElementsByClassName('oit-main-container-view');
@@ -75,7 +71,7 @@ export class MainContainerView extends ContainerView {
         }
     }
 
-    public closeViewContainer = (event?: MouseEvent): void => {
+    public closeContainerView = (event?: MouseEvent): void => {
         if (event) {
             const targetClassName = (<HTMLElement>event.target).className;
             if ('img-container' != targetClassName && 'oit-main-container-view' != targetClassName) return;
@@ -92,38 +88,9 @@ export class MainContainerView extends ContainerView {
             this.galleryNavbarView.closeGalleryNavbar();
         }
     }
+    //endregion
 
-    public removeOitContainerView = () => {
-        this.imgInfo.oitContainerViewEl?.remove();
-
-        this.imgStatus.dragging = false;
-        this.imgStatus.popup = false;
-
-        this.imgInfo.oitContainerViewEl = null;
-        this.imgInfo.imgViewEl = null;
-        this.imgInfo.imgTitleEl = null;
-        this.imgInfo.imgTipEl = null;
-        this.imgInfo.imgTipTimeout = null;
-        this.imgInfo.imgFooterEl = null;
-        this.imgInfo.imgPlayerEl = null;
-        this.imgInfo.imgPlayerImgViewEl = null;
-
-        this.imgInfo.curWidth = 0;
-        this.imgInfo.curHeight = 0;
-        this.imgInfo.realWidth = 0;
-        this.imgInfo.realHeight = 0
-        this.imgInfo.moveX = 0;
-        this.imgInfo.moveY = 0;
-        this.imgInfo.rotate = 0;
-        this.imgInfo.invertColor = false;
-        this.imgInfo.scaleX = false;
-        this.imgInfo.scaleY = false;
-        this.imgInfo.fullScreen = false;
-
-        this.galleryNavbarView?.removeGalleryNavbar();
-        this.galleryNavbarView = null;
-    }
-
+    //region ================== Gallery Navbar ========================
     protected renderGalleryNavbar = () => {
         // <div class="gallery-navbar"> <ul class="gallery-list"> <li> <img src='' alt=''> </li> <li...> <ul> </div>
         if (!this.plugin.settings.galleryNavbarToggle) return;
@@ -132,6 +99,13 @@ export class MainContainerView extends ContainerView {
         }
         this.galleryNavbarView.renderGalleryImg(this.imgInfo.imgFooterEl);
     }
+
+    protected removeGalleryNavbar = () => {
+        if (!this.galleryNavbarView) return;
+        this.galleryNavbarView.remove();
+        this.galleryNavbarView = null;
+    }
+    //endregion
 
     protected renderImgTitle = (alt: string): void => {
         this.imgInfo.imgTitleEl?.setText(alt);
@@ -151,51 +125,6 @@ export class MainContainerView extends ContainerView {
         this.imgInfo.imgViewEl.setAttribute('width', zoomData.curWidth + 'px');
         this.imgInfo.imgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
         this.imgInfo.imgViewEl.style.setProperty('margin-left', zoomData.left + 'px', 'important');
-    }
-
-    /**
-     * full-screen mode
-     */
-    private showPlayerImg = () => {
-        this.imgInfo.fullScreen = true;
-        this.imgInfo.imgViewEl.style.setProperty('display', 'none', 'important'); // hide imgViewEl
-        this.imgInfo.imgFooterEl.style.setProperty('display', 'none'); // hide 'img-footer'
-        // show the img-player
-        this.imgInfo.imgPlayerEl.style.setProperty('display', 'block'); // display 'img-player'
-        this.imgInfo.imgPlayerEl.addEventListener('click', this.closePlayerImg);
-
-        const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
-        const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
-        let newWidth, newHeight;
-        let top = 0, left = 0;
-        if (IMG_FULL_SCREEN_MODE.STRETCH == IMG_GLOBAL_SETTINGS.imgFullScreenMode) {
-            newWidth = windowWidth + 'px';
-            newHeight = windowHeight + 'px';
-        } else if (IMG_FULL_SCREEN_MODE.FILL == IMG_GLOBAL_SETTINGS.imgFullScreenMode) {
-            newWidth = '100%';
-            newHeight = '100%';
-        } else {
-            // fit
-            const widthRatio = windowWidth / this.imgInfo.realWidth;
-            const heightRatio = windowHeight / this.imgInfo.realHeight;
-            if (widthRatio <= heightRatio) {
-                newWidth = windowWidth;
-                newHeight = widthRatio * this.imgInfo.realHeight;
-            } else {
-                newHeight = windowHeight;
-                newWidth = heightRatio * this.imgInfo.realWidth;
-            }
-            top = (windowHeight - newHeight) / 2;
-            left = (windowWidth - newWidth) / 2;
-            newWidth = newWidth + 'px';
-            newHeight = newHeight + 'px';
-        }
-        this.imgInfo.imgPlayerImgViewEl.setAttribute('src', this.imgInfo.imgViewEl.src);
-        this.imgInfo.imgPlayerImgViewEl.setAttribute('alt', this.imgInfo.imgViewEl.alt);
-        this.imgInfo.imgPlayerImgViewEl.setAttribute('width', newWidth);
-        this.imgInfo.imgPlayerImgViewEl.setAttribute('height', newHeight);
-        this.imgInfo.imgPlayerImgViewEl.style.setProperty('margin-top', top + 'px');
-        //this.imgInfo.imgPlayerImgViewEl.style.setProperty('margin-left', left + 'px');
     }
 
     private clickImgToolbar = (event: MouseEvent): void => {
