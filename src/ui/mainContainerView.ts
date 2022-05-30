@@ -1,11 +1,10 @@
-import { timeStamp } from 'console';
 import { IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE, IMG_TOOLBAR_ICONS } from 'src/conf/constants';
 import { IMG_GLOBAL_SETTINGS } from 'src/conf/settings';
 import { t } from 'src/lang/helpers';
 import ImageToolkitPlugin from 'src/main';
 import { OffsetSizeIto } from 'src/to/commonTo';
 import { ImgInfoIto } from 'src/to/imgTo';
-import { calculateImgZoomSize, copyImage, invertImgColor, transform, zoom } from 'src/util/imgUtil';
+import { ImgUtil } from 'src/util/imgUtil';
 import { ContainerView } from './containerView';
 import { GalleryNavbarView } from './galleryNavbarView';
 
@@ -111,7 +110,7 @@ export class MainContainerView extends ContainerView {
             this.addOrRemoveEvents(false);
             this.imgStatus.popup = false;
         }
-        if (IMG_GLOBAL_SETTINGS.galleryNavbarToggle && this.galleryNavbarView) {
+        if (this.plugin.settings.galleryNavbarToggle && this.galleryNavbarView) {
             this.galleryNavbarView.closeGalleryNavbar();
         }
     }
@@ -168,69 +167,8 @@ export class MainContainerView extends ContainerView {
         this.galleryNavbarView.renderGalleryImg(this.imgInfo.imgFooterEl);
     }
 
-    public refreshImg = (imgSrc?: string, imgAlt?: string) => {
-        const src = imgSrc ? imgSrc : this.imgInfo.imgViewEl.src;
-        const alt = imgAlt ? imgAlt : this.imgInfo.imgViewEl.alt;
-        this.renderImgTitle(alt);
-        if (src) {
-            if (this.realImgInterval) {
-                clearInterval(this.realImgInterval);
-                this.realImgInterval = null;
-            }
-            let realImg = new Image();
-            realImg.src = src;
-            this.realImgInterval = setInterval((img) => {
-                if (img.width > 0 || img.height > 0) {
-                    clearInterval(this.realImgInterval);
-                    this.realImgInterval = null;
-                    this.setImgViewPosition(calculateImgZoomSize(img, this.imgInfo), 0);
-                    this.renderImgView(src, alt);
-                    this.renderImgTip();
-                    this.imgInfo.imgViewEl.style.setProperty('transform', this.defaultImgStyles.transform);
-                    this.imgInfo.imgViewEl.style.setProperty('filter', this.defaultImgStyles.filter);
-                    this.imgInfo.imgViewEl.style.setProperty('mix-blend-mode', this.defaultImgStyles.mixBlendMode);
-                }
-            }, 40, realImg);
-        }
-    }
-
-    private renderImgView = (src: string, alt: string) => {
-        if (!this.imgInfo.imgViewEl) return;
-        this.imgInfo.imgViewEl.setAttribute('src', src);
-        this.imgInfo.imgViewEl.setAttribute('alt', alt);
-    }
-
-    private renderImgTitle = (alt: string) => {
+    public renderImgTitle = (alt: string): void => {
         this.imgInfo.imgTitleEl?.setText(alt);
-    }
-
-    public renderImgTip = () => {
-        if (this.imgInfo.realWidth > 0 && this.imgInfo.curWidth > 0) {
-            if (this.imgInfo.imgTipTimeout) {
-                clearTimeout(this.imgInfo.imgTipTimeout);
-            }
-            if (IMG_GLOBAL_SETTINGS.imgTipToggle) {
-                this.imgInfo.imgTipEl.hidden = false; // display 'img-tip'
-                this.imgInfo.imgTipEl.setText(parseInt(this.imgInfo.curWidth * 100 / this.imgInfo.realWidth + '') + '%');
-                this.imgInfo.imgTipTimeout = setTimeout(() => {
-                    this.imgInfo.imgTipEl.hidden = true;
-                }, 1000);
-            } else {
-                this.imgInfo.imgTipEl.hidden = true; // hide 'img-tip'
-                this.imgInfo.imgTipTimeout = null;
-            }
-        }
-    }
-
-    private setImgViewPosition = (imgZoomSize: ImgInfoIto, rotate?: number) => {
-        if (imgZoomSize) {
-            this.imgInfo.imgViewEl.setAttribute('width', imgZoomSize.curWidth + 'px');
-            this.imgInfo.imgViewEl.style.setProperty('margin-top', imgZoomSize.top + 'px', 'important');
-            this.imgInfo.imgViewEl.style.setProperty('margin-left', imgZoomSize.left + 'px', 'important');
-        }
-        const rotateDeg = rotate ? rotate : 0;
-        this.imgInfo.imgViewEl.style.transform = 'rotate(' + rotateDeg + 'deg)';
-        this.imgInfo.rotate = rotateDeg;
     }
 
     private zoomAndRender = (ratio: number, event?: WheelEvent, actualSize?: boolean) => {
@@ -242,7 +180,7 @@ export class MainContainerView extends ContainerView {
             offsetSize.offsetX = this.imgInfo.curWidth / 2;
             offsetSize.offsetY = this.imgInfo.curHeight / 2;
         }
-        const zoomData: ImgInfoIto = zoom(ratio, this.imgInfo, offsetSize, actualSize);
+        const zoomData: ImgInfoIto = ImgUtil.zoom(ratio, this.imgInfo, offsetSize, actualSize);
         this.renderImgTip();
         this.imgInfo.imgViewEl.setAttribute('width', zoomData.curWidth + 'px');
         this.imgInfo.imgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
@@ -350,26 +288,26 @@ export class MainContainerView extends ContainerView {
                 break;
             case 'toolbar_rotate_left':
                 this.imgInfo.rotate -= 90;
-                transform(this.imgInfo);
+                ImgUtil.transform(this.imgInfo);
                 break;
             case 'toolbar_rotate_right':
                 this.imgInfo.rotate += 90;
-                transform(this.imgInfo);
+                ImgUtil.transform(this.imgInfo);
                 break;
             case 'toolbar_scale_x':
                 this.imgInfo.scaleX = !this.imgInfo.scaleX;
-                transform(this.imgInfo);
+                ImgUtil.transform(this.imgInfo);
                 break;
             case 'toolbar_scale_y':
                 this.imgInfo.scaleY = !this.imgInfo.scaleY;
-                transform(this.imgInfo);
+                ImgUtil.transform(this.imgInfo);
                 break;
             case 'toolbar_invert_color':
                 this.imgInfo.invertColor = !this.imgInfo.invertColor;
-                invertImgColor(this.imgInfo.imgViewEl, this.imgInfo.invertColor);
+                ImgUtil.invertImgColor(this.imgInfo.imgViewEl, this.imgInfo.invertColor);
                 break;
             case 'toolbar_copy':
-                copyImage(this.imgInfo.imgViewEl, this.imgInfo.curWidth, this.imgInfo.curHeight);
+                ImgUtil.copyImage(this.imgInfo.imgViewEl, this.imgInfo.curWidth, this.imgInfo.curHeight);
                 break;
             default:
                 break;

@@ -1,5 +1,6 @@
 import ImageToolkitPlugin from "src/main";
 import { ImgStatusIto, ImgInfoIto } from "src/to/imgTo";
+import { ImgUtil } from "src/util/imgUtil";
 
 export abstract class ContainerView {
 
@@ -124,6 +125,69 @@ export abstract class ContainerView {
             targetOriginalImgStyle.setProperty('border-width', this.defaultImgStyles.borderWidth);
             targetOriginalImgStyle.setProperty('border-style', this.defaultImgStyles.borderStyle);
             targetOriginalImgStyle.setProperty('border-color', this.defaultImgStyles.borderColor);
+        }
+    }
+
+    public refreshImg = (imgSrc?: string, imgAlt?: string) => {
+        const src = imgSrc ? imgSrc : this.imgInfo.imgViewEl.src;
+        const alt = imgAlt ? imgAlt : this.imgInfo.imgViewEl.alt;
+        this.renderImgTitle(alt);
+        if (src) {
+            if (this.realImgInterval) {
+                clearInterval(this.realImgInterval);
+                this.realImgInterval = null;
+            }
+            let realImg = new Image();
+            realImg.src = src;
+            this.realImgInterval = setInterval((img) => {
+                if (img.width > 0 || img.height > 0) {
+                    clearInterval(this.realImgInterval);
+                    this.realImgInterval = null;
+                    this.setImgViewPosition(ImgUtil.calculateImgZoomSize(img, this.imgInfo), 0);
+                    this.renderImgView(src, alt);
+                    this.renderImgTip();
+                    this.imgInfo.imgViewEl.style.setProperty('transform', this.defaultImgStyles.transform);
+                    this.imgInfo.imgViewEl.style.setProperty('filter', this.defaultImgStyles.filter);
+                    this.imgInfo.imgViewEl.style.setProperty('mix-blend-mode', this.defaultImgStyles.mixBlendMode);
+                }
+            }, 40, realImg);
+        }
+    }
+
+    protected renderImgTitle = (alt: string): void => { }
+
+    protected setImgViewPosition = (imgZoomSize: ImgInfoIto, rotate?: number) => {
+        if (imgZoomSize) {
+            this.imgInfo.imgViewEl.setAttribute('width', imgZoomSize.curWidth + 'px');
+            this.imgInfo.imgViewEl.style.setProperty('margin-top', imgZoomSize.top + 'px', 'important');
+            this.imgInfo.imgViewEl.style.setProperty('margin-left', imgZoomSize.left + 'px', 'important');
+        }
+        const rotateDeg = rotate ? rotate : 0;
+        this.imgInfo.imgViewEl.style.transform = 'rotate(' + rotateDeg + 'deg)';
+        this.imgInfo.rotate = rotateDeg;
+    }
+
+    protected renderImgView = (src: string, alt: string) => {
+        if (!this.imgInfo.imgViewEl) return;
+        this.imgInfo.imgViewEl.setAttribute('src', src);
+        this.imgInfo.imgViewEl.setAttribute('alt', alt);
+    }
+
+    public renderImgTip = () => {
+        if (this.imgInfo.realWidth > 0 && this.imgInfo.curWidth > 0) {
+            if (this.imgInfo.imgTipTimeout) {
+                clearTimeout(this.imgInfo.imgTipTimeout);
+            }
+            if (this.plugin.settings.imgTipToggle) {
+                this.imgInfo.imgTipEl.hidden = false; // display 'img-tip'
+                this.imgInfo.imgTipEl.setText(parseInt(this.imgInfo.curWidth * 100 / this.imgInfo.realWidth + '') + '%');
+                this.imgInfo.imgTipTimeout = setTimeout(() => {
+                    this.imgInfo.imgTipEl.hidden = true;
+                }, 1000);
+            } else {
+                this.imgInfo.imgTipEl.hidden = true; // hide 'img-tip'
+                this.imgInfo.imgTipTimeout = null;
+            }
         }
     }
 

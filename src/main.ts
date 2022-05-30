@@ -30,7 +30,7 @@ export default class ImageToolkitPlugin extends Plugin {
 
 	onunload() {
 		console.log('unloading obsidian-image-toolkit plugin...');
-		// this.mainContainerView.removeOitContainerView();
+		this.mainContainerView.removeOitContainerView();
 		this.mainContainerView = null;
 		document.off('click', this.imgSelector, this.clickImage);
 		document.off('mouseover', this.imgSelector, this.mouseoverImg);
