@@ -1,23 +1,27 @@
+import {CONTAINER_TYPE} from "src/conf/constants";
 import ImageToolkitPlugin from "src/main";
+import {ContainerView} from "./containerView";
 
-export class PinContainerView {
+export class PinContainerView extends ContainerView {
 
-    private readonly plugin: ImageToolkitPlugin;
-
-    constructor(plugin: ImageToolkitPlugin) {
-        this.plugin = plugin;
+    constructor(plugin: ImageToolkitPlugin, containerType: keyof typeof CONTAINER_TYPE) {
+        super(plugin, containerType);
     }
 
-    public renderContainerView = (targetEl: HTMLImageElement) => {
-        this.initContainerView(targetEl, this.plugin.app.workspace.containerEl);
+    public initContainerViewDom = (containerEl: HTMLElement): void => {
+        if (null == this.imgInfo.oitContainerViewEl || !this.imgInfo.oitContainerViewEl) {
+            // <div class="oit-pin-container-view">
+            containerEl.appendChild(this.imgInfo.oitContainerViewEl = createDiv('oit-pin-container-view'));
+            // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
+            const imgContainerEl = createDiv('img-container');
+            imgContainerEl.appendChild(this.imgInfo.imgViewEl = createEl('img')); // img-view
+            this.imgInfo.imgViewEl.addClass('img-view');
+            this.setImgViewDefaultBackground();
+            this.imgInfo.oitContainerViewEl.appendChild(imgContainerEl);
+        }
     }
 
-    public initContainerView = (targetEl: HTMLImageElement, containerEl: HTMLElement): void => {
-        const pinContainerViewEl: HTMLDivElement = createDiv('oit-pin-container-view');
-        const imgEl: HTMLImageElement = createEl('img');
-        imgEl.src = 'app://local/D:/ObsidianVault-Dev/0x0_Cellar/0x00_Images/pool/obsidian_note_icon.jpg?1628961459958';
-        imgEl.alt = 'TTT';
-        pinContainerViewEl.appendChild(imgEl);
-    }
+    public closeViewContainer = (event?: MouseEvent): void => {
 
+    }
 }

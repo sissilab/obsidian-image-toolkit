@@ -4,6 +4,9 @@ import { OffsetSizeIto } from 'src/to/commonTo';
 import { ImgInfoIto } from 'src/to/imgTo';
 import { ZOOM_FACTOR } from '../conf/constants'
 
+/**
+ * Image utility class
+ */
 export class ImgUtil {
 
     public static calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfoIto): ImgInfoIto => {

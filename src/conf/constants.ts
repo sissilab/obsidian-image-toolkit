@@ -133,3 +133,8 @@ export const SWITCH_THE_IMAGE = {
 }
 
 export const IMG_DEFAULT_BACKGROUND_COLOR = '#00000000';
+
+export const enum CONTAINER_TYPE {
+    MAIN,
+    PIN
+}

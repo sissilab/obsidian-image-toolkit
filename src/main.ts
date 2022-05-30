@@ -1,6 +1,6 @@
 import { Plugin } from 'obsidian';
 import { ImageToolkitSettingTab, IMG_GLOBAL_SETTINGS } from './conf/settings'
-import { VIEW_IMG_SELECTOR } from './conf/constants'
+import { CONTAINER_TYPE, VIEW_IMG_SELECTOR } from './conf/constants'
 import { MainContainerView } from './ui/mainContainerView';
 import { PinContainerView } from './ui/pinContainerView';
 import { ImgSettingIto } from './to/imgTo';
@@ -22,8 +22,8 @@ export default class ImageToolkitPlugin extends Plugin {
 
 		// this.registerCommands();
 
-		this.mainContainerView = new MainContainerView(this);
-		this.pinContainerView = new PinContainerView(this);
+		this.mainContainerView = new MainContainerView(this, "MAIN");
+		this.pinContainerView = new PinContainerView(this, "PIN");
 
 		this.toggleViewImage();
 	}
@@ -61,7 +61,7 @@ export default class ImageToolkitPlugin extends Plugin {
 		const targetEl = (<HTMLImageElement>event.target);
 		if (!targetEl || 'IMG' !== targetEl.tagName) return;
 		this.mainContainerView.renderContainerView(targetEl);
-		// this.pinContainerView.renderContainerView(targetEl);
+		this.pinContainerView.renderContainerView(targetEl);
 	}
 
 	private mouseoverImg = (event: MouseEvent) => {

@@ -25,8 +25,8 @@ export interface ImgInfoIto {
     imgTipEl: HTMLDivElement;
     imgTipTimeout?: NodeJS.Timeout;
     imgFooterEl: HTMLElement;
-    imgPlayerEl: HTMLDivElement;
-    imgPlayerImgViewEl: HTMLImageElement;
+    imgPlayerEl: HTMLDivElement; // 'img-player'
+    imgPlayerImgViewEl: HTMLImageElement; // 'img-fullscreen'
 
     curWidth: number;
     curHeight: number;
