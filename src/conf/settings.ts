@@ -1,9 +1,9 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import { t } from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
-import { ImgSettingIto } from 'src/to/ImgSettingIto';
 import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE, MODIFIER_HOTKEYS, MOVE_THE_IMAGE, SWITCH_THE_IMAGE } from './constants';
 import Pickr from '@simonwep/pickr';
+import { ImgSettingIto } from 'src/to/imgTo';
 
 export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     // viewImageGlobal: true,
@@ -11,6 +11,8 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     viewImageInCPB: true,
     viewImageWithALink: true,
     viewImageOther: true,
+
+    pinMode: false,
 
     imageMoveSpeed: 10,
     imgTipToggle: true,
@@ -63,26 +65,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
 
         containerEl.createEl('h2', { text: t("IMAGE_TOOLKIT_SETTINGS_TITLE") });
 
+        // >>> VIEW_TRIGGER_SETTINGS start
         containerEl.createEl('h3', { text: t("VIEW_TRIGGER_SETTINGS") });
-
-        /* new Setting(containerEl)
-            .setName(t("VIEW_IMAGE_GLOBAL_NAME"))
-            .setDesc(t("VIEW_IMAGE_GLOBAL_DESC"))
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.viewImageGlobal)
-                .onChange(async (value) => {
-                    this.plugin.settings.viewImageGlobal = value;
-                    if (!value) {
-                        // @ts-ignore
-                        this.viewImageEditorSetting?.components[0]?.setValue(false);
-                        // @ts-ignore
-                        this.viewImageInCPBSetting?.components[0]?.setValue(false);
-                        // @ts-ignore
-                        this.viewImageWithALinkSetting?.components[0]?.setValue(false);
-                    }
-                    this.plugin.toggleViewImage();
-                    await this.plugin.saveSettings();
-                })); */
 
         new Setting(containerEl)
             .setName(t("VIEW_IMAGE_EDITOR_NAME"))
@@ -127,6 +111,17 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     this.plugin.toggleViewImage();
                     await this.plugin.saveSettings();
                 }));
+
+        new Setting(containerEl)
+            .setName(t("PIN_MODE_NAME"))
+            .setDesc(t("PIN_MODE_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.pinMode)
+                .onChange(async (value) => {
+                    this.plugin.settings.pinMode = value;
+                    await this.plugin.saveSettings();
+                }));
+        // >>> VIEW_TRIGGER_SETTINGS end
 
         // >>> VIEW_DETAILS_SETTINGS start
         containerEl.createEl('h3', { text: t("VIEW_DETAILS_SETTINGS") });
@@ -176,7 +171,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
-        
+
         this.createPickrSetting(containerEl, 'IMG_VIEW_BACKGROUND_COLOR_NAME', IMG_DEFAULT_BACKGROUND_COLOR);
         // >>> VIEW_DETAILS_SETTINGS end
 
@@ -405,7 +400,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             this.plugin.settings.galleryImgBorderActiveColor = savedColor;
         } else if ('IMG_VIEW_BACKGROUND_COLOR_NAME' === name) {
             this.plugin.settings.imgViewBackgroundColor = savedColor;
-            this.plugin.containerView.setImgViewDefaultBackground();
+            this.plugin.mainContainerView.setImgViewDefaultBackground();
         }
         this.plugin.saveSettings();
     }

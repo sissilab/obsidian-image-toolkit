@@ -1,16 +1,15 @@
 import { Md5 } from "md5-typescript";
 import { MarkdownView, TFile } from "obsidian";
 import ImageToolkitPlugin from "src/main";
-import { GalleryImgCacheCto } from "src/to/GalleryImgCacheCto";
-import { GalleryImgCto } from "src/to/GalleryImgCto";
-import { ImgSettingIto } from "src/to/ImgSettingIto";
+import { GalleryImgCacheCto, GalleryImgCto } from "src/to/GalleryNavbarTo";
+import { ImgSettingIto } from "src/to/imgTo";
 import { md5Img, parseActiveViewData } from "src/util/markdowParse";
-import { ContainerView } from "./containerView";
+import { MainContainerView } from "./mainContainerView";
 
 export class GalleryNavbarView {
     private readonly plugin: ImageToolkitPlugin;
     private readonly settings: ImgSettingIto;
-    private readonly containerView: ContainerView;
+    private readonly mainContainerView: MainContainerView;
 
     // whether to display gallery navbar
     private state: boolean = false;
@@ -28,8 +27,8 @@ export class GalleryNavbarView {
     private readonly CACHE_LIMIT: number = 10;
     private readonly CLICK_TIME: number = 150;
 
-    constructor(containerView: ContainerView, plugin: ImageToolkitPlugin) {
-        this.containerView = containerView;
+    constructor(mainContainerView: MainContainerView, plugin: ImageToolkitPlugin) {
+        this.mainContainerView = mainContainerView;
         this.plugin = plugin;
         this.settings = plugin.settings;
     }
@@ -60,7 +59,7 @@ export class GalleryNavbarView {
         // console.log('oit-gallery-navbar: ' + (hitCache ? 'hit cache' : 'miss cache') + '!', galleryImg);
 
         const imgList: Array<GalleryImgCto> = galleryImg.galleryImgList;
-        const imgContextHash: string[] = this.getTargetImgContextHash(this.containerView.targetImgEl, activeView.containerEl, this.plugin.imgSelector);
+        const imgContextHash: string[] = this.getTargetImgContextHash(this.mainContainerView.getTargetOriginalImgEl(), activeView.containerEl, this.plugin.imgSelector);
         let liEl: HTMLLIElement, imgEl, liElActive: HTMLLIElement;
         let targetImageIdx = -1;
         let isAddGalleryActive: boolean = false;
@@ -216,8 +215,8 @@ export class GalleryNavbarView {
             }
         }
         if (imgEL) {
-            this.containerView.initDefaultData(imgEL.style);
-            this.containerView.refreshImg(imgEL.src, imgEL.alt ? imgEL.alt : ' ');
+            this.mainContainerView.initDefaultData(imgEL.style);
+            this.mainContainerView.refreshImg(imgEL.src, imgEL.alt ? imgEL.alt : ' ');
         }
 
         liEl.addClass('gallery-active');

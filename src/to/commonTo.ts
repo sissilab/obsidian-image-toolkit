@@ -1,3 +1,9 @@
+
+export interface OffsetSizeIto {
+    offsetX: number;
+    offsetY: number;
+}
+
 export class FileCto {
     path: string;
     ctime: number;
@@ -11,3 +17,5 @@ export class FileCto {
         this.mtime = mtime;
     }
 }
+
+

@@ -1,9 +1,8 @@
 import { Md5 } from 'md5-typescript';
 import { TFile } from 'obsidian';
 import ImageToolkitPlugin from 'src/main';
-import { FileCto } from 'src/to/FileCto';
-import { GalleryImgCacheCto } from 'src/to/GalleryImgCacheCto';
-import { GalleryImgCto } from 'src/to/GalleryImgCto';
+import { FileCto } from 'src/to/commonTo';
+import { GalleryImgCacheCto, GalleryImgCto } from 'src/to/GalleryNavbarTo';
 
 
 /* // const imgList: Array<GalleryImg> = parseMarkDown(plugin, activeView.sourceMode?.cmEditor, activeView.file.path);

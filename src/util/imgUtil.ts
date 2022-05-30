@@ -1,9 +1,8 @@
 import { Notice } from 'obsidian';
 import { t } from 'src/lang/helpers';
-import da from 'src/lang/locale/da';
-import { ImgInfoIto } from 'src/to/ImgInfoIto';
-import { OffsetSizeIto } from 'src/to/OffsetSizeIto';
-import { IMG_DEFAULT_BACKGROUND_COLOR, ZOOM_FACTOR } from '../conf/constants'
+import { OffsetSizeIto } from 'src/to/commonTo';
+import { ImgInfoIto } from 'src/to/imgTo';
+import { ZOOM_FACTOR } from '../conf/constants'
 
 
 export const calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfoIto): ImgInfoIto => {

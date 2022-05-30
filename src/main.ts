@@ -1,15 +1,15 @@
 import { Plugin } from 'obsidian';
 import { ImageToolkitSettingTab, IMG_GLOBAL_SETTINGS } from './conf/settings'
 import { VIEW_IMG_SELECTOR } from './conf/constants'
-import { ContainerView } from './ui/containerView';
-import { ImgSettingIto } from './to/ImgSettingIto';
+import { MainContainerView } from './ui/mainContainerView';
+import { PinContainerView } from './ui/pinContainerView';
+import { ImgSettingIto } from './to/imgTo';
 
 export default class ImageToolkitPlugin extends Plugin {
 
 	public settings: ImgSettingIto;
-
-	public containerView: ContainerView;
-
+	public mainContainerView: MainContainerView;
+	public pinContainerView: PinContainerView;
 	public imgSelector: string = ``;
 
 	async onload() {
@@ -22,15 +22,16 @@ export default class ImageToolkitPlugin extends Plugin {
 
 		// this.registerCommands();
 
-		this.containerView = new ContainerView(this);
+		this.mainContainerView = new MainContainerView(this);
+		this.pinContainerView = new PinContainerView(this);
 
 		this.toggleViewImage();
 	}
 
 	onunload() {
 		console.log('unloading obsidian-image-toolkit plugin...');
-		this.containerView.removeOitContainerView();
-		this.containerView = null;
+		// this.mainContainerView.removeOitContainerView();
+		this.mainContainerView = null;
 		document.off('click', this.imgSelector, this.clickImage);
 		document.off('mouseover', this.imgSelector, this.mouseoverImg);
 		document.off('mouseout', this.imgSelector, this.mouseoutImg);
@@ -59,7 +60,8 @@ export default class ImageToolkitPlugin extends Plugin {
 	private clickImage = (event: MouseEvent) => {
 		const targetEl = (<HTMLImageElement>event.target);
 		if (!targetEl || 'IMG' !== targetEl.tagName) return;
-		this.containerView.renderContainerView(targetEl);
+		this.mainContainerView.renderContainerView(targetEl);
+		// this.pinContainerView.renderContainerView(targetEl);
 	}
 
 	private mouseoverImg = (event: MouseEvent) => {
