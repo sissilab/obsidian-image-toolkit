@@ -20,7 +20,7 @@ export default {
   VIEW_IMAGE_OTHER_DESC: 'Except for the above mentioned, it also supports other areas, e.g. flashcards.',
 
   PIN_MODE_NAME: "📌 Pin an image",
-  PIN_MODE_DESC: "You can pin an image onto the top of the screen.",
+  PIN_MODE_DESC: "You can pin an image onto the top of the screen. (1. press Esc to close 2. only can pin one image for now)",
 
   // >>>View Detail Settings:
   VIEW_DETAILS_SETTINGS: 'View Detail Settings:',

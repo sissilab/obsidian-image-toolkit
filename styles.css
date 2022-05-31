@@ -45,14 +45,19 @@ body {
     pointer-events: none;
 }
 
-.oit-main-container-view .img-container .img-view,
-.oit-pin-container-view .img-container .img-view {
+.oit-main-container-view .img-container .img-view {
     max-height: none;
     pointer-events: auto;
 }
 
+.oit-pin-container-view .img-container .img-view {
+    max-height: none;
+    pointer-events: auto;
+    box-shadow: 0 0 5px;
+}
+
 .oit-pin-container-view .img-container .img-view:hover {
-    box-shadow: 0 0 5px #55acc6;
+    box-shadow: 0 0 6px #55acc6;
 }
 
 .oit-main-container-view .img-container .img-default-background,

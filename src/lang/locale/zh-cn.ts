@@ -19,6 +19,9 @@ export default {
   VIEW_IMAGE_OTHER_NAME: '支持除上述其他地方来预览图片',
   VIEW_IMAGE_OTHER_DESC: '除上述支持范围外，还支持一些其他区域，如flashcards。',
 
+  PIN_MODE_NAME: "📌 将所点击的图片贴到屏幕上",
+  PIN_MODE_DESC: "你可以将当前所点击的图片贴到屏幕上 (1. 按 Esc 关闭已贴图片的展示 2. 目前仅能贴一张图片)",
+
   // >>>查看细节设置：
   VIEW_DETAILS_SETTINGS: '查看细节设置：',
   IMAGE_MOVE_SPEED_NAME: '图片移动速度设置',

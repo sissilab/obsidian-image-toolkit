@@ -4,6 +4,7 @@ import {ImgStatusIto, ImgInfoIto} from "src/to/imgTo";
 import {ImgUtil} from "src/util/imgUtil";
 import {IMG_GLOBAL_SETTINGS} from "../conf/settings";
 import {OffsetSizeIto} from "../to/commonTo";
+import ar from "../lang/locale/ar";
 
 export abstract class ContainerView {
 
@@ -406,8 +407,10 @@ export abstract class ContainerView {
 
     protected triggerKeyup = (event: KeyboardEvent) => {
         // console.log('keyup', event, event.key);
-        event.preventDefault();
-        event.stopPropagation();
+        if ('PIN' !== this.containerType) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         switch (event.key) {
             case 'Escape':
                 // close full screen, hide container view
@@ -439,9 +442,11 @@ export abstract class ContainerView {
      * @param event
      */
     protected triggerKeydown = (event: KeyboardEvent) => {
-        // console.log('keydown', event, event.key, this.imgStatus);
-        event.preventDefault();
-        event.stopPropagation();
+        //console.log('keydown', event, event.key, this.imgStatus);
+        if ('PIN' !== this.containerType) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         if (this.imgStatus.arrowUp && this.imgStatus.arrowLeft) {
             this.moveImgViewByHotkey(event, 'UP_LEFT');
             return;

@@ -18,16 +18,19 @@ export class PinContainerView extends ContainerView {
         /*
         <div class="oit-pin-container-view">
           <div class="img-container">
-            <img class="img-view" src="" alt="">
+            <img class="img-view" data-index='1' src="" alt="">
+            <img class="img-view" data-index='2' src="" alt="">
+            ...
           </div>
         </div>
          */
-        if (null == this.imgInfo.oitContainerViewEl || !this.imgInfo.oitContainerViewEl) {
+        if (null == this.imgInfo.oitContainerViewEl || !this.imgInfo.oitContainerViewEl) { // init at first time
             // <div class="oit-pin-container-view">
             containerEl.appendChild(this.imgInfo.oitContainerViewEl = createDiv('oit-pin-container-view'));
             // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
             const imgContainerEl = createDiv('img-container');
             imgContainerEl.appendChild(this.imgInfo.imgViewEl = createEl('img')); // img-view
+
             this.imgInfo.imgViewEl.addClass('img-view');
             this.setImgViewDefaultBackground();
             this.imgInfo.oitContainerViewEl.appendChild(imgContainerEl);
