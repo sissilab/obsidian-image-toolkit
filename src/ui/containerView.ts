@@ -7,14 +7,14 @@ import {OffsetSizeIto} from "../to/commonTo";
 
 export abstract class ContainerView {
 
-    protected containerType: keyof typeof CONTAINER_TYPE;
+    private readonly containerType: keyof typeof CONTAINER_TYPE;
 
     protected readonly plugin: ImageToolkitPlugin;
 
     // the clicked original image element
     protected targetOriginalImgEl: HTMLImageElement;
 
-    protected realImgInterval: NodeJS.Timeout;
+    private realImgInterval: NodeJS.Timeout;
 
     protected defaultImgStyles = {
         transform: 'none',
@@ -64,6 +64,7 @@ export abstract class ContainerView {
         fullScreen: false
     }
 
+
     protected constructor(plugin: ImageToolkitPlugin, containerType: keyof typeof CONTAINER_TYPE) {
         this.plugin = plugin;
         this.containerType = containerType;
@@ -84,7 +85,7 @@ export abstract class ContainerView {
      * @returns
      */
     public renderContainerView = (targetEl: HTMLImageElement): void => {
-        if (this.imgStatus.popup || !this.checkType()) return;
+        if (!this.checkStatus()) return;
         this.initContainerView(targetEl, this.plugin.app.workspace.containerEl);
         this.openOitContainerView();
         this.renderGalleryNavbar();
@@ -93,14 +94,13 @@ export abstract class ContainerView {
 
     public initContainerView = (targetEl: HTMLImageElement, containerEl: HTMLElement): void => {
         this.initContainerViewDom(containerEl);
-        this.restoreBorderForLastTargetOriginalImg(targetEl);
+        this.restoreBorderForLastTargetOriginalImg();
         this.initDefaultData(window.getComputedStyle(targetEl));
         this.addBorderForTargetOriginalImg(targetEl);
         this.addOrRemoveEvents(true); // add events
     }
 
-    protected initContainerViewDom = (containerEl: HTMLElement): void => {
-    }
+    abstract initContainerViewDom(containerEl: HTMLElement): void;
 
     protected openOitContainerView = () => {
         if (!this.imgInfo.oitContainerViewEl) {
@@ -115,6 +115,9 @@ export abstract class ContainerView {
     abstract closeContainerView(event?: MouseEvent): void;
 
     public removeOitContainerView = () => {
+        this.restoreBorderForLastTargetOriginalImg();
+        this.removeGalleryNavbar();
+
         this.imgInfo.oitContainerViewEl?.remove();
 
         this.imgStatus.dragging = false;
@@ -140,28 +143,40 @@ export abstract class ContainerView {
         this.imgInfo.scaleX = false;
         this.imgInfo.scaleY = false;
         this.imgInfo.fullScreen = false;
-
-        this.removeGalleryNavbar();
     }
 
-    protected checkType = (): boolean => {
+    protected checkStatus = (): boolean => {
         if (!this.containerType) return false;
+        let oitContainerViewClass: string;
         switch (this.containerType) {
             case 'MAIN':
-                return !this.plugin.settings.pinMode;
-            case 'PIN':
-                return this.plugin.settings.pinMode;
-            default:
+                if (this.plugin.settings.pinMode) {
+                    return false;
+                }
+                oitContainerViewClass = 'oit-main-container-view';
                 break;
+            case 'PIN':
+                if (!this.plugin.settings.pinMode) {
+                    return false;
+                }
+                oitContainerViewClass = 'oit-pin-container-view';
+                break;
+            default:
+                return false;
         }
-        return false;
+        if (this.imgInfo.oitContainerViewEl) {
+            const containerElList: HTMLCollectionOf<Element> = document.getElementsByClassName(oitContainerViewClass);
+            if (!containerElList || 0 >= containerElList.length) {
+                this.removeOitContainerView();
+            }
+        }
+        return !this.imgStatus.popup;
     }
 
     public initDefaultData = (targetImgStyle: CSSStyleDeclaration) => {
         if (targetImgStyle) {
             this.defaultImgStyles.transform = 'none';
             this.defaultImgStyles.filter = targetImgStyle.filter;
-            // @ts-ignore
             this.defaultImgStyles.mixBlendMode = targetImgStyle.mixBlendMode;
 
             this.defaultImgStyles.borderWidth = targetImgStyle.borderWidth;
@@ -200,7 +215,7 @@ export abstract class ContainerView {
         targetOriginalImgStyle.setProperty('border-color', this.plugin.settings.imageBorderColor);
     }
 
-    protected restoreBorderForLastTargetOriginalImg = (targetEl: HTMLImageElement) => {
+    protected restoreBorderForLastTargetOriginalImg = () => {
         if (!this.targetOriginalImgEl) return;
         this.targetOriginalImgEl.removeAttribute('data-oit-target');
         const targetOriginalImgStyle = this.targetOriginalImgEl.style;
@@ -260,7 +275,7 @@ export abstract class ContainerView {
     }
 
     public renderImgTip = () => {
-        if (this.imgInfo.realWidth > 0 && this.imgInfo.curWidth > 0) {
+        if (this.imgInfo.realWidth > 0 && this.imgInfo.curWidth > 0 && this.imgInfo.imgTipEl) {
             if (this.imgInfo.imgTipTimeout) {
                 clearTimeout(this.imgInfo.imgTipTimeout);
             }
@@ -366,17 +381,17 @@ export abstract class ContainerView {
     //endregion
 
     //region ================== events ========================
-    protected addOrRemoveEvents = (flag: boolean) => {
-        if (flag) {
+    protected addOrRemoveEvents = (isAdd: boolean) => {
+        if (isAdd) {
             document.addEventListener('keyup', this.triggerKeyup);
             document.addEventListener('keydown', this.triggerKeydown);
+            // click event: hide container view
             this.imgInfo.oitContainerViewEl.addEventListener('click', this.closeContainerView);
             // drag the image via mouse
             this.imgInfo.imgViewEl.addEventListener('mousedown', this.mousedownImgView);
             // zoom the image via mouse wheel
             this.imgInfo.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer, {passive: true});
         } else {
-            // flag = false
             document.removeEventListener('keyup', this.triggerKeyup);
             document.removeEventListener('keydown', this.triggerKeydown);
             this.imgInfo.oitContainerViewEl.removeEventListener('click', this.closeContainerView);
@@ -395,6 +410,7 @@ export abstract class ContainerView {
         event.stopPropagation();
         switch (event.key) {
             case 'Escape':
+                // close full screen, hide container view
                 this.imgInfo.fullScreen ? this.closePlayerImg() : this.closeContainerView();
                 break;
             case 'ArrowUp':
@@ -405,12 +421,12 @@ export abstract class ContainerView {
                 break;
             case 'ArrowLeft':
                 this.imgStatus.arrowLeft = false;
-                // switch to the previous image
+                // switch to the previous image on the gallery navBar
                 this.switchImageOnGalleryNavBar(event, false);
                 break;
             case 'ArrowRight':
                 this.imgStatus.arrowRight = false;
-                // switch to the next image
+                // switch to the next image on the gallery navBar
                 this.switchImageOnGalleryNavBar(event, true);
                 break;
             default:
@@ -418,6 +434,10 @@ export abstract class ContainerView {
         }
     }
 
+    /**
+     * move the image by keyboard
+     * @param event
+     */
     protected triggerKeydown = (event: KeyboardEvent) => {
         // console.log('keydown', event, event.key, this.imgStatus);
         event.preventDefault();
@@ -502,27 +522,7 @@ export abstract class ContainerView {
         }
     }
 
-    protected checkHotkeySettings = (event: KeyboardEvent, hotkey: string): boolean => {
-        switch (hotkey) {
-            case "NONE":
-                return !event.ctrlKey && !event.altKey && !event.shiftKey;
-            case "CTRL":
-                return event.ctrlKey && !event.altKey && !event.shiftKey;
-            case "ALT":
-                return !event.ctrlKey && event.altKey && !event.shiftKey;
-            case "SHIFT":
-                return !event.ctrlKey && !event.altKey && event.shiftKey;
-            case "CTRL_ALT":
-                return event.ctrlKey && event.altKey && !event.shiftKey;
-            case "CTRL_SHIFT":
-                return event.ctrlKey && !event.altKey && event.shiftKey;
-            case "SHIFT_ALT":
-                return !event.ctrlKey && event.altKey && event.shiftKey;
-            case "CTRL_SHIFT_ALT":
-                return event.ctrlKey && event.altKey && event.shiftKey;
-        }
-        return false;
-    }
+    abstract checkHotkeySettings(event: KeyboardEvent, hotkey: string): boolean;
 
     protected mousemoveImgView = (event: MouseEvent, offsetSize?: OffsetSizeIto) => {
         if (!this.imgStatus.dragging && !offsetSize) return;
@@ -569,6 +569,22 @@ export abstract class ContainerView {
         event.stopPropagation();
         // @ts-ignore
         this.zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);
+    }
+
+    protected zoomAndRender = (ratio: number, event?: WheelEvent, actualSize?: boolean) => {
+        let offsetSize: OffsetSizeIto = {offsetX: 0, offsetY: 0};
+        if (event) {
+            offsetSize.offsetX = event.offsetX;
+            offsetSize.offsetY = event.offsetY;
+        } else {
+            offsetSize.offsetX = this.imgInfo.curWidth / 2;
+            offsetSize.offsetY = this.imgInfo.curHeight / 2;
+        }
+        const zoomData: ImgInfoIto = ImgUtil.zoom(ratio, this.imgInfo, offsetSize, actualSize);
+        this.renderImgTip();
+        this.imgInfo.imgViewEl.setAttribute('width', zoomData.curWidth + 'px');
+        this.imgInfo.imgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
+        this.imgInfo.imgViewEl.style.setProperty('margin-left', zoomData.left + 'px', 'important');
     }
     //endregion
 

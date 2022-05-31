@@ -119,6 +119,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.pinMode)
                 .onChange(async (value) => {
                     this.plugin.settings.pinMode = value;
+                    this.plugin.togglePinMode(value);
                     await this.plugin.saveSettings();
                 }));
         // >>> VIEW_TRIGGER_SETTINGS end

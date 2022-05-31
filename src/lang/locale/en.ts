@@ -19,8 +19,8 @@ export default {
   VIEW_IMAGE_OTHER_NAME: 'Click and view in the other areas except the above',
   VIEW_IMAGE_OTHER_DESC: 'Except for the above mentioned, it also supports other areas, e.g. flashcards.',
 
-  PIN_MODE_NAME: "Pin an image onto the top of Obsidan's screen",
-  PIN_MODE_DESC: '',
+  PIN_MODE_NAME: "📌 Pin an image",
+  PIN_MODE_DESC: "You can pin an image onto the top of the screen.",
 
   // >>>View Detail Settings:
   VIEW_DETAILS_SETTINGS: 'View Detail Settings:',

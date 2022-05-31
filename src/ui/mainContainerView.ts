@@ -17,21 +17,13 @@ export class MainContainerView extends ContainerView {
 
     //region ================== Container View ========================
     public initContainerViewDom = (containerEl: HTMLElement): void => {
-        if (this.imgInfo.oitContainerViewEl) {
-            const containerElList: HTMLCollectionOf<Element> = document.getElementsByClassName('oit-main-container-view');
-            if (!containerElList || 0 >= containerElList.length) {
-                this.removeOitContainerView();
-            }
-        }
         if (null == this.imgInfo.oitContainerViewEl || !this.imgInfo.oitContainerViewEl) {
             // console.log('initContainerView....', this.imgInfo.containerViewEl);
             // <div class="oit-main-container-view">
-            containerEl.appendChild(this.imgInfo.oitContainerViewEl = createDiv()) // oit-main-container-view
-            this.imgInfo.oitContainerViewEl.addClass('oit-main-container-view');
+            containerEl.appendChild(this.imgInfo.oitContainerViewEl = createDiv('oit-main-container-view'));
 
             // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
-            const imgContainerEl = createDiv();
-            imgContainerEl.addClass('img-container');
+            const imgContainerEl = createDiv('img-container');
             imgContainerEl.appendChild(this.imgInfo.imgViewEl = createEl('img')); // img-view
             this.imgInfo.imgViewEl.addClass('img-view');
             this.setImgViewDefaultBackground();
@@ -111,22 +103,6 @@ export class MainContainerView extends ContainerView {
         this.imgInfo.imgTitleEl?.setText(alt);
     }
 
-    private zoomAndRender = (ratio: number, event?: WheelEvent, actualSize?: boolean) => {
-        let offsetSize: OffsetSizeIto = {offsetX: 0, offsetY: 0};
-        if (event) {
-            offsetSize.offsetX = event.offsetX;
-            offsetSize.offsetY = event.offsetY;
-        } else {
-            offsetSize.offsetX = this.imgInfo.curWidth / 2;
-            offsetSize.offsetY = this.imgInfo.curHeight / 2;
-        }
-        const zoomData: ImgInfoIto = ImgUtil.zoom(ratio, this.imgInfo, offsetSize, actualSize);
-        this.renderImgTip();
-        this.imgInfo.imgViewEl.setAttribute('width', zoomData.curWidth + 'px');
-        this.imgInfo.imgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
-        this.imgInfo.imgViewEl.style.setProperty('margin-left', zoomData.left + 'px', 'important');
-    }
-
     private clickImgToolbar = (event: MouseEvent): void => {
         const targetElClass = (<HTMLElement>event.target).className;
         switch (targetElClass) {
@@ -178,4 +154,27 @@ export class MainContainerView extends ContainerView {
             return;
         this.galleryNavbarView.switchImage(next);
     }
+
+    public checkHotkeySettings = (event: KeyboardEvent, hotkey: string): boolean => {
+        switch (hotkey) {
+            case "NONE":
+                return !event.ctrlKey && !event.altKey && !event.shiftKey;
+            case "CTRL":
+                return event.ctrlKey && !event.altKey && !event.shiftKey;
+            case "ALT":
+                return !event.ctrlKey && event.altKey && !event.shiftKey;
+            case "SHIFT":
+                return !event.ctrlKey && !event.altKey && event.shiftKey;
+            case "CTRL_ALT":
+                return event.ctrlKey && event.altKey && !event.shiftKey;
+            case "CTRL_SHIFT":
+                return event.ctrlKey && !event.altKey && event.shiftKey;
+            case "SHIFT_ALT":
+                return !event.ctrlKey && event.altKey && event.shiftKey;
+            case "CTRL_SHIFT_ALT":
+                return event.ctrlKey && event.altKey && event.shiftKey;
+        }
+        return false;
+    }
+
 }

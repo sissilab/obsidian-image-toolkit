@@ -1,5 +1,6 @@
-
 export const ZOOM_FACTOR = 0.8;
+
+export const IMG_VIEW_MIN = 30;
 
 export const IMG_TOOLBAR_ICONS = [{
     key: 'zoom_to_100',

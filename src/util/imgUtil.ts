@@ -1,8 +1,8 @@
-import { Notice } from 'obsidian';
-import { t } from 'src/lang/helpers';
-import { OffsetSizeIto } from 'src/to/commonTo';
-import { ImgInfoIto } from 'src/to/imgTo';
-import { ZOOM_FACTOR } from '../conf/constants'
+import {Notice} from 'obsidian';
+import {t} from 'src/lang/helpers';
+import {OffsetSizeIto} from 'src/to/commonTo';
+import {ImgInfoIto} from 'src/to/imgTo';
+import {IMG_VIEW_MIN, ZOOM_FACTOR} from '../conf/constants'
 
 /**
  * Image utility class
@@ -42,12 +42,12 @@ export class ImgUtil {
     }
 
     /**
-     * zoom an image 
-     * @param ratio 
-     * @param targetImgInfo 
+     * zoom an image
+     * @param ratio
+     * @param targetImgInfo
      * @param offsetSize
      * @param actualSize
-     * @returns 
+     * @returns
      */
     public static zoom = (ratio: number, targetImgInfo: ImgInfoIto, offsetSize?: OffsetSizeIto, actualSize?: boolean): ImgInfoIto => {
         let zoomRatio: number;
@@ -66,8 +66,19 @@ export class ImgUtil {
             ratio = 1 / curRatio;
         }
 
-        const newWidth = targetImgInfo.realWidth * zoomRatio;
-        const newHeight = targetImgInfo.realHeight * zoomRatio;
+        let newWidth = targetImgInfo.realWidth * zoomRatio;
+        let newHeight = targetImgInfo.realHeight * zoomRatio;
+        if (IMG_VIEW_MIN >= newWidth || IMG_VIEW_MIN >= newHeight) {
+            // set minimum width or height
+            if (IMG_VIEW_MIN >= newWidth) {
+                newWidth = IMG_VIEW_MIN;
+                newHeight = (newWidth * targetImgInfo.realHeight) / targetImgInfo.realWidth;
+            } else {
+                newHeight = IMG_VIEW_MIN;
+                newWidth = (newHeight * targetImgInfo.realWidth) / targetImgInfo.realHeight;
+            }
+            ratio = 1;
+        }
         const left = targetImgInfo.left + offsetSize.offsetX * (1 - ratio);
         const top = targetImgInfo.top + offsetSize.offsetY * (1 - ratio);
         // cache image info: curWidth, curHeight, left, top
@@ -129,7 +140,7 @@ export class ImgUtil {
             ctx.drawImage(image, 0, 0);
             try {
                 canvas.toBlob(async (blob: any) => {
-                    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+                    await navigator.clipboard.write([new ClipboardItem({"image/png": blob})])
                         .then(() => {
                             new Notice(t("COPY_IMAGE_SUCCESS"));
                         }, () => {
