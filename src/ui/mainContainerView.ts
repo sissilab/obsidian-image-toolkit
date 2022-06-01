@@ -11,6 +11,8 @@ export class MainContainerView extends ContainerView {
 
     private galleryNavbarView: GalleryNavbarView;
 
+    private pinMaximum: number = 1;
+
     constructor(plugin: ImageToolkitPlugin, containerType: keyof typeof CONTAINER_TYPE) {
         super(plugin, containerType);
     }

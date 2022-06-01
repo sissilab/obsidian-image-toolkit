@@ -13,6 +13,8 @@ export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
     viewImageOther: true,
 
     pinMode: false,
+    pinMaximum: 1,
+    pinCoverMode: false,
 
     imageMoveSpeed: 10,
     imgTipToggle: true,

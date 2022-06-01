@@ -59,7 +59,7 @@ export class GalleryNavbarView {
         // console.log('oit-gallery-navbar: ' + (hitCache ? 'hit cache' : 'miss cache') + '!', galleryImg);
 
         const imgList: Array<GalleryImgCto> = galleryImg.galleryImgList;
-        const imgContextHash: string[] = this.getTargetImgContextHash(this.mainContainerView.getTargetOriginalImgEl(), activeView.containerEl, this.plugin.imgSelector);
+        const imgContextHash: string[] = this.getTargetImgContextHash(this.mainContainerView.getLastClickedImgEl(), activeView.containerEl, this.plugin.imgSelector);
         let liEl: HTMLLIElement, imgEl, liElActive: HTMLLIElement;
         let targetImageIdx = -1;
         let isAddGalleryActive: boolean = false;

@@ -1,7 +1,7 @@
 import {Notice} from 'obsidian';
 import {t} from 'src/lang/helpers';
 import {OffsetSizeIto} from 'src/to/commonTo';
-import {ImgInfoIto} from 'src/to/imgTo';
+import {ImgCto, ImgInfoIto} from 'src/to/imgTo';
 import {IMG_VIEW_MIN, ZOOM_FACTOR} from '../conf/constants'
 
 /**
@@ -9,7 +9,7 @@ import {IMG_VIEW_MIN, ZOOM_FACTOR} from '../conf/constants'
  */
 export class ImgUtil {
 
-    public static calculateImgZoomSize = (realImg: HTMLImageElement, imgInfo: ImgInfoIto): ImgInfoIto => {
+    public static calculateImgZoomSize = (realImg: HTMLImageElement, imgCto: ImgCto): ImgCto => {
         const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
         const windowHeight = (document.documentElement.clientHeight || document.body.clientHeight) - 100;
         const windowZoomWidth = windowWidth * ZOOM_FACTOR;
@@ -27,18 +27,18 @@ export class ImgUtil {
         }
         tempHeight = tempWidth * realImg.height / realImg.width;
         // cache image info: curWidth, curHeight, realWidth, realHeight, left, top
-        imgInfo.left = (windowWidth - tempWidth) / 2;
-        imgInfo.top = (windowHeight - tempHeight) / 2;
-        imgInfo.curWidth = tempWidth;
-        imgInfo.curHeight = tempHeight;
-        imgInfo.realWidth = realImg.width;
-        imgInfo.realHeight = realImg.height;
+        imgCto.left = (windowWidth - tempWidth) / 2;
+        imgCto.top = (windowHeight - tempHeight) / 2;
+        imgCto.curWidth = tempWidth;
+        imgCto.curHeight = tempHeight;
+        imgCto.realWidth = realImg.width;
+        imgCto.realHeight = realImg.height;
 
         /* console.log('calculateImgZoomSize', 'realImg: ' + realImg.width + ',' + realImg.height,
             'tempSize: ' + tempWidth + ',' + tempHeight,
             'windowZoomSize: ' + windowZoomWidth + ',' + windowZoomHeight,
             'windowSize: ' + windowWidth + ',' + windowHeight); */
-        return imgInfo;
+        return imgCto;
     }
 
     /**
@@ -49,7 +49,7 @@ export class ImgUtil {
      * @param actualSize
      * @returns
      */
-    public static zoom = (ratio: number, targetImgInfo: ImgInfoIto, offsetSize?: OffsetSizeIto, actualSize?: boolean): ImgInfoIto => {
+    public static zoom = (ratio: number, targetImgInfo: ImgCto, offsetSize?: OffsetSizeIto, actualSize?: boolean): ImgCto => {
         let zoomRatio: number;
         if (!actualSize) {
             const zoomInFlag = ratio > 0;

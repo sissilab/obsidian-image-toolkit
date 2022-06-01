@@ -1,25 +1,29 @@
-
 /**
- * typescript object of interface for defining operating status of the image
+ * typescript class object for defining operating status of the image
  */
-export interface ImgStatusIto {
+export class ImgStatusCto {
     // true: the popup layer of viewing image is displayed
-    popup: boolean;
+    popup: boolean = false;
     // whether the image is being dragged
-    dragging: boolean;
+    dragging: boolean = false;
 
     // keybord pressing status
-    arrowUp: boolean;
-    arrowDown: boolean;
-    arrowLeft: boolean;
-    arrowRight: boolean;
+    arrowUp: boolean = false;
+    arrowDown: boolean = false;
+    arrowLeft: boolean = false;
+    arrowRight: boolean = false;
+
+    fullScreen: boolean = false;
+
+    // being dragged
+    activeImg: ImgCto;
 }
 
 /**
  * typescript object of interface for defining image's information
  */
 export interface ImgInfoIto {
-    oitContainerViewEl: HTMLDivElement;
+    oitContainerViewEl: HTMLDivElement; // 'oit-main-container-view', 'oit-pin-container-view'
     imgViewEl: HTMLImageElement;
     imgTitleEl: HTMLDivElement;
     imgTipEl: HTMLDivElement;
@@ -46,6 +50,64 @@ export interface ImgInfoIto {
     fullScreen: boolean;
 }
 
+export class ImgInfoCto {
+    oitContainerViewEl: HTMLDivElement; // 'oit-main-container-view', 'oit-pin-container-view'
+    imgContainerEl: HTMLDivElement; // 'img-container': including <img class='img-view' src='' alt=''>
+
+    imgList: Array<ImgCto> = new Array<ImgCto>();
+}
+
+export class ImgCto {
+    index: number;
+    mtime: number; // modified time
+    popup: boolean = false;
+
+    targetOriginalImgEl: HTMLImageElement;
+
+    refreshImgInterval: NodeJS.Timeout;
+
+    imgViewEl: HTMLImageElement; // 'img-view'
+    imgTitleEl: HTMLDivElement; // 'img-title'
+    imgTipEl: HTMLDivElement; // 'img-tip': show the zoom ratio
+    imgTipTimeout?: NodeJS.Timeout; // timer: control the display time of 'img-tip'
+    imgFooterEl: HTMLElement; // 'img-footer': including 'img-title', 'img-toolbar', 'gallery-navbar'
+    imgPlayerEl: HTMLDivElement; // 'img-player': including <img class="img-fullscreen" src='' alt=''>
+    imgPlayerImgViewEl: HTMLImageElement; // 'img-fullscreen'
+
+    curWidth: number = 0; // image's current width
+    curHeight: number = 0;
+    realWidth: number = 0; // image's real width
+    realHeight: number = 0;
+    left: number = 0; // margin-left
+    top: number = 0; // margin-top
+    moveX: number = 0; // 鼠标相对于图片的位置
+    moveY: number = 0;
+
+    rotate: number = 0; // rotateDeg
+    invertColor: boolean = false;
+    scaleX: boolean = false; // scaleX(-1)
+    scaleY: boolean = false; // scaleY(-1)
+    fullScreen: boolean = false; // whether the image is being previewed in full-screen mode
+
+    defaultImgStyle = {
+        transform: 'none',
+        filter: 'none',
+        mixBlendMode: 'normal',
+
+        borderWidth: '',
+        borderStyle: '',
+        borderColor: ''
+    }
+
+    constructor();
+    constructor(index: number, mtime: number, imgViewEl: HTMLImageElement);
+    constructor(index?: number, mtime?: number, imgViewEl?: HTMLImageElement) {
+        this.index = index;
+        this.mtime = mtime;
+        this.imgViewEl = imgViewEl;
+    }
+}
+
 /**
  * typescript object of interface for defining image's settings
  */
@@ -57,6 +119,8 @@ export interface ImgSettingIto {
     viewImageOther: boolean;
 
     pinMode: boolean;
+    pinMaximum: number;
+    pinCoverMode: boolean; // cover the earliest image which is being popped up
 
     imageMoveSpeed: number;
     imgTipToggle: boolean;

@@ -1,6 +1,7 @@
 import {CONTAINER_TYPE} from "src/conf/constants";
 import ImageToolkitPlugin from "src/main";
 import {ContainerView} from "./containerView";
+import {ImgCto} from "../to/imgTo";
 
 /**
  * PinContainerView: Pin an image on the top
@@ -9,32 +10,32 @@ import {ContainerView} from "./containerView";
  */
 export class PinContainerView extends ContainerView {
 
+    private pinMaximum: number = 5;
+
     constructor(plugin: ImageToolkitPlugin, containerType: keyof typeof CONTAINER_TYPE) {
         super(plugin, containerType);
+        //this.pinMaximum = this.plugin.settings.pinMaximum;
     }
 
     //region ================== Container View ========================
-    public initContainerViewDom = (containerEl: HTMLElement): void => {
+    public initContainerViewDom = (containerEl: HTMLElement): ImgCto => {
         /*
         <div class="oit-pin-container-view">
           <div class="img-container">
+            <img class="img-view" data-index='0' src="" alt="">
             <img class="img-view" data-index='1' src="" alt="">
-            <img class="img-view" data-index='2' src="" alt="">
             ...
           </div>
         </div>
          */
-        if (null == this.imgInfo.oitContainerViewEl || !this.imgInfo.oitContainerViewEl) { // init at first time
+        if (!this.imgInfoCto.oitContainerViewEl) { // init at first time
             // <div class="oit-pin-container-view">
-            containerEl.appendChild(this.imgInfo.oitContainerViewEl = createDiv('oit-pin-container-view'));
-            // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
-            const imgContainerEl = createDiv('img-container');
-            imgContainerEl.appendChild(this.imgInfo.imgViewEl = createEl('img')); // img-view
-
-            this.imgInfo.imgViewEl.addClass('img-view');
-            this.setImgViewDefaultBackground();
-            this.imgInfo.oitContainerViewEl.appendChild(imgContainerEl);
+            containerEl.appendChild(this.imgInfoCto.oitContainerViewEl = createDiv('oit-pin-container-view'));
+            // <div class="oit-pin-container-view"> <div class="img-container"/> </div>
+            this.imgInfoCto.oitContainerViewEl.append(this.imgInfoCto.imgContainerEl = createDiv('img-container'));
         }
+        this.updateImgViewElAndList(this.pinMaximum);
+        return this.getMatchedImg();
     }
 
     /**
@@ -46,13 +47,18 @@ export class PinContainerView extends ContainerView {
             // PinContainerView doesn't need click event to hide container for now
             return;
         }
-        if (!this.imgInfo.oitContainerViewEl) return;
-        // hide 'oit-pin-container-view'
-        this.imgInfo.oitContainerViewEl.style.setProperty('display', 'none');
-        this.renderImgView('', '');
+        if (!this.imgInfoCto.oitContainerViewEl) return;
+
+        // todo 鼠标在哪个图片上，就关闭哪个图片
+        // for (const imgCto of this.imgInfoCto.imgList) {
+        //     this.renderImgView(imgCto.imgViewEl, '', '');
+        // }
+
+        // this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'none'); // hide 'oit-pin-container-view'
+
         // remove events
-        this.addOrRemoveEvents(false);
-        this.imgStatus.popup = false;
+        // this.addOrRemoveEvents(false);
+        // this.imgStatus.popup = false;
     }
     //endregion
 
