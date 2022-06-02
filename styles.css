@@ -51,6 +51,7 @@ body {
 }
 
 .oit-pin-container-view .img-container .img-view {
+    position: absolute;
     max-height: none;
     pointer-events: auto;
     box-shadow: 0 0 5px;
@@ -60,8 +61,8 @@ body {
     box-shadow: 0 0 6px #55acc6;
 }
 
-.oit-main-container-view .img-container .img-default-background,
-.oit-pin-container-view .img-container .img-default-background {
+.oit-main-container-view .img-default-background,
+.oit-pin-container-view .img-default-background {
     background-position: 0 0, 5px 5px !important;
     background-size: 10px 10px !important;
     background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee 100%), linear-gradient(45deg, #eee 25%, #fff 25%, #fff 75%, #eee 75%, #eee 100%) !important;

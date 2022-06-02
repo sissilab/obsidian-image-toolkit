@@ -1,9 +1,9 @@
-import { Md5 } from "md5-typescript";
-import { MarkdownView, TFile } from "obsidian";
+import {Md5} from "md5-typescript";
+import {MarkdownView, TFile} from "obsidian";
 import ImageToolkitPlugin from "src/main";
-import { ImgSettingIto } from "src/to/imgTo";
-import { md5Img, parseActiveViewData } from "src/util/markdowParse";
-import { MainContainerView } from "./mainContainerView";
+import {ImgSettingIto} from "src/to/imgTo";
+import {md5Img, parseActiveViewData} from "src/util/markdowParse";
+import {MainContainerView} from "./mainContainerView";
 import {GalleryImgCacheCto, GalleryImgCto} from "../to/galleryNavbarTo";
 
 export class GalleryNavbarView {
@@ -74,6 +74,7 @@ export class GalleryNavbarView {
             imgEl.addClass('gallery-img');
             imgEl.setAttr('alt', img.alt);
             imgEl.setAttr('src', img.src);
+            this.mainContainerView.setImgViewDefaultBackground(imgEl);
             // find the target image (which image is just clicked)
             if (!imgContextHash || isAddGalleryActive) continue;
             if (imgContextHash[1] == img.hash) {
@@ -215,8 +216,9 @@ export class GalleryNavbarView {
             }
         }
         if (imgEL) {
-            this.mainContainerView.initDefaultData(imgEL.style);
-            this.mainContainerView.refreshImg(imgEL.src, imgEL.alt ? imgEL.alt : ' ');
+            const activeImg = this.mainContainerView.getActiveImg();
+            this.mainContainerView.initDefaultData(activeImg, imgEL.style);
+            this.mainContainerView.refreshImg(activeImg, imgEL.src, imgEL.alt ? imgEL.alt : ' ');
         }
 
         liEl.addClass('gallery-active');

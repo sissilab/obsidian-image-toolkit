@@ -1,20 +1,31 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
-import { t } from 'src/lang/helpers';
+import {App, PluginSettingTab, Setting} from 'obsidian';
+import {t} from 'src/lang/helpers';
 import type ImageToolkitPlugin from "src/main";
-import { GALLERY_IMG_BORDER_ACTIVE_COLOR, GALLERY_NAVBAR_DEFAULT_COLOR, GALLERY_NAVBAR_HOVER_COLOR, IMG_BORDER_COLOR, IMG_BORDER_STYLE, IMG_BORDER_WIDTH, IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE, MODIFIER_HOTKEYS, MOVE_THE_IMAGE, SWITCH_THE_IMAGE } from './constants';
+import {
+    GALLERY_IMG_BORDER_ACTIVE_COLOR,
+    GALLERY_NAVBAR_DEFAULT_COLOR,
+    GALLERY_NAVBAR_HOVER_COLOR,
+    IMG_BORDER_COLOR,
+    IMG_BORDER_STYLE,
+    IMG_BORDER_WIDTH,
+    IMG_DEFAULT_BACKGROUND_COLOR,
+    IMG_FULL_SCREEN_MODE,
+    MODIFIER_HOTKEYS,
+    MOVE_THE_IMAGE,
+    SWITCH_THE_IMAGE
+} from './constants';
 import Pickr from '@simonwep/pickr';
-import { ImgSettingIto } from 'src/to/imgTo';
+import {ImgSettingIto} from "../to/imgTo";
 
-export const IMG_GLOBAL_SETTINGS: ImgSettingIto = {
-    // viewImageGlobal: true,
+export const DEFAULT_SETTINGS: ImgSettingIto = {
     viewImageEditor: true,
     viewImageInCPB: true,
     viewImageWithALink: true,
     viewImageOther: true,
 
     pinMode: false,
-    pinMaximum: 1,
-    pinCoverMode: false,
+    pinMaximum: 5,
+    pinCoverMode: true, // cover the earliest image which is being popped up
 
     imageMoveSpeed: 10,
     imgTipToggle: true,
@@ -43,32 +54,16 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
     constructor(app: App, plugin: ImageToolkitPlugin) {
         super(app, plugin);
         this.plugin = plugin;
-
-        // IMG_GLOBAL_SETTINGS.viewImageGlobal = this.plugin.settings.viewImageGlobal;
-        IMG_GLOBAL_SETTINGS.viewImageEditor = this.plugin.settings.viewImageEditor;
-        IMG_GLOBAL_SETTINGS.viewImageInCPB = this.plugin.settings.viewImageInCPB;
-        IMG_GLOBAL_SETTINGS.viewImageWithALink = this.plugin.settings.viewImageWithALink;
-        IMG_GLOBAL_SETTINGS.viewImageOther = this.plugin.settings.viewImageOther;
-
-        IMG_GLOBAL_SETTINGS.imageMoveSpeed = this.plugin.settings.imageMoveSpeed;
-        IMG_GLOBAL_SETTINGS.imgTipToggle = this.plugin.settings.imgTipToggle;
-        IMG_GLOBAL_SETTINGS.imgFullScreenMode = this.plugin.settings.imgFullScreenMode;
-        IMG_GLOBAL_SETTINGS.imageBorderToggle = this.plugin.settings.imageBorderToggle;
-        IMG_GLOBAL_SETTINGS.imageBorderWidth = this.plugin.settings.imageBorderWidth;
-        IMG_GLOBAL_SETTINGS.imageBorderStyle = this.plugin.settings.imageBorderStyle;
-        IMG_GLOBAL_SETTINGS.imageBorderColor = this.plugin.settings.imageBorderColor;
-
-        IMG_GLOBAL_SETTINGS.galleryNavbarToggle = this.plugin.settings.galleryNavbarToggle;
     }
 
     display(): void {
-        let { containerEl } = this;
+        let {containerEl} = this;
         containerEl.empty();
 
-        containerEl.createEl('h2', { text: t("IMAGE_TOOLKIT_SETTINGS_TITLE") });
+        containerEl.createEl('h2', {text: t("IMAGE_TOOLKIT_SETTINGS_TITLE")});
 
-        // >>> VIEW_TRIGGER_SETTINGS start
-        containerEl.createEl('h3', { text: t("VIEW_TRIGGER_SETTINGS") });
+        //region >>> VIEW_TRIGGER_SETTINGS
+        containerEl.createEl('h3', {text: t("VIEW_TRIGGER_SETTINGS")});
 
         new Setting(containerEl)
             .setName(t("VIEW_IMAGE_EDITOR_NAME"))
@@ -113,6 +108,10 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     this.plugin.toggleViewImage();
                     await this.plugin.saveSettings();
                 }));
+        //endregion
+
+        //region >>> PIN_MODE_SETTINGS
+        containerEl.createEl('h3', {text: t("PIN_MODE_SETTINGS")});
 
         new Setting(containerEl)
             .setName(t("PIN_MODE_NAME"))
@@ -124,12 +123,42 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     this.plugin.togglePinMode(value);
                     await this.plugin.saveSettings();
                 }));
-        // >>> VIEW_TRIGGER_SETTINGS end
 
-        // >>> VIEW_DETAILS_SETTINGS start
-        containerEl.createEl('h3', { text: t("VIEW_DETAILS_SETTINGS") });
+        let pinMaximumScaleText: HTMLDivElement;
+        new Setting(containerEl)
+            .setName(t("PIN_MAXIMUM_NAME"))
+            .addSlider(slider => slider
+                .setLimits(1, 5, 1)
+                .setValue(this.plugin.settings.pinMaximum)
+                .onChange(async (value) => {
+                    pinMaximumScaleText.innerText = " " + value.toString();
+                    this.plugin.settings.pinMaximum = value;
+                    this.plugin.pinContainerView?.setPinMaximum(value);
+                    this.plugin.saveSettings();
+                }))
+            .settingEl.createDiv('', (el) => {
+            pinMaximumScaleText = el;
+            el.style.minWidth = "2.3em";
+            el.style.textAlign = "right";
+            el.innerText = " " + this.plugin.settings.pinMaximum.toString();
+        });
 
-        let scaleText: HTMLDivElement;
+        new Setting(containerEl)
+            .setName(t("PIN_COVER_NAME"))
+            .setDesc(t("PIN_COVER_DESC"))
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.pinCoverMode)
+                .onChange(async (value) => {
+                    this.plugin.settings.pinCoverMode = value;
+                    await this.plugin.saveSettings();
+                }));
+        //endregion
+
+
+        //region >>> VIEW_DETAILS_SETTINGS
+        containerEl.createEl('h3', {text: t("VIEW_DETAILS_SETTINGS")});
+
+        let imgMoveSpeedScaleText: HTMLDivElement;
         new Setting(containerEl)
             .setName(t("IMAGE_MOVE_SPEED_NAME"))
             .setDesc(t("IMAGE_MOVE_SPEED_DESC"))
@@ -137,17 +166,16 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setLimits(1, 30, 1)
                 .setValue(this.plugin.settings.imageMoveSpeed)
                 .onChange(async (value) => {
-                    scaleText.innerText = " " + value.toString();
+                    imgMoveSpeedScaleText.innerText = " " + value.toString();
                     this.plugin.settings.imageMoveSpeed = value;
-                    IMG_GLOBAL_SETTINGS.imageMoveSpeed = value;
                     this.plugin.saveSettings();
                 }))
             .settingEl.createDiv('', (el) => {
-                scaleText = el;
-                el.style.minWidth = "2.3em";
-                el.style.textAlign = "right";
-                el.innerText = " " + this.plugin.settings.imageMoveSpeed.toString();
-            });
+            imgMoveSpeedScaleText = el;
+            el.style.minWidth = "2.3em";
+            el.style.textAlign = "right";
+            el.innerText = " " + this.plugin.settings.imageMoveSpeed.toString();
+        });
 
         new Setting(containerEl)
             .setName(t("IMAGE_TIP_TOGGLE_NAME"))
@@ -156,7 +184,6 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.imgTipToggle)
                 .onChange(async (value) => {
                     this.plugin.settings.imgTipToggle = value;
-                    IMG_GLOBAL_SETTINGS.imgTipToggle = value;
                     await this.plugin.saveSettings();
                 }));
 
@@ -167,19 +194,18 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     // @ts-ignore
                     dropdown.addOption(key, t(key));
                 }
-                dropdown.setValue(IMG_GLOBAL_SETTINGS.imgFullScreenMode);
+                dropdown.setValue(this.plugin.settings.imgFullScreenMode);
                 dropdown.onChange(async (option) => {
                     this.plugin.settings.imgFullScreenMode = option;
-                    IMG_GLOBAL_SETTINGS.imgFullScreenMode = option;
                     await this.plugin.saveSettings();
                 });
             });
 
         this.createPickrSetting(containerEl, 'IMG_VIEW_BACKGROUND_COLOR_NAME', IMG_DEFAULT_BACKGROUND_COLOR);
-        // >>> VIEW_DETAILS_SETTINGS end
+        //endregion
 
-        // >>>IMAGE_BORDER_SETTINGS start
-        containerEl.createEl('h3', { text: t("IMAGE_BORDER_SETTINGS") });
+        //region >>> IMAGE_BORDER_SETTINGS
+        containerEl.createEl('h3', {text: t("IMAGE_BORDER_SETTINGS")});
 
         new Setting(containerEl)
             .setName(t("IMAGE_BORDER_TOGGLE_NAME"))
@@ -188,7 +214,6 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.imageBorderToggle)
                 .onChange(async (value) => {
                     this.plugin.settings.imageBorderToggle = value;
-                    IMG_GLOBAL_SETTINGS.imageBorderToggle = value;
                     await this.plugin.saveSettings();
                 }));
 
@@ -199,10 +224,9 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     // @ts-ignore
                     dropdown.addOption(IMG_BORDER_WIDTH[key], t(key));
                 }
-                dropdown.setValue(IMG_GLOBAL_SETTINGS.imageBorderWidth);
+                dropdown.setValue(this.plugin.settings.imageBorderWidth);
                 dropdown.onChange(async (option) => {
                     this.plugin.settings.imageBorderWidth = option;
-                    IMG_GLOBAL_SETTINGS.imageBorderWidth = option;
                     await this.plugin.saveSettings();
                 });
             });
@@ -214,10 +238,9 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     // @ts-ignore
                     dropdown.addOption(IMG_BORDER_STYLE[key], t(key));
                 }
-                dropdown.setValue(IMG_GLOBAL_SETTINGS.imageBorderStyle);
+                dropdown.setValue(this.plugin.settings.imageBorderStyle);
                 dropdown.onChange(async (option) => {
                     this.plugin.settings.imageBorderStyle = option;
-                    IMG_GLOBAL_SETTINGS.imageBorderStyle = option;
                     await this.plugin.saveSettings();
                 });
             });
@@ -229,17 +252,16 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     // @ts-ignore
                     dropdown.addOption(IMG_BORDER_COLOR[key], t(key));
                 }
-                dropdown.setValue(IMG_GLOBAL_SETTINGS.imageBorderColor);
+                dropdown.setValue(this.plugin.settings.imageBorderColor);
                 dropdown.onChange(async (option) => {
                     this.plugin.settings.imageBorderColor = option;
-                    IMG_GLOBAL_SETTINGS.imageBorderColor = option;
                     await this.plugin.saveSettings();
                 });
             });
-        // >>>IMAGE_BORDER_SETTINGS end
+        //endregion
 
-        // >>>GALLERY_NAVBAR_SETTINGS start
-        containerEl.createEl('h3', { text: t("GALLERY_NAVBAR_SETTINGS") });
+        //region >>> GALLERY_NAVBAR_SETTINGS
+        containerEl.createEl('h3', {text: t("GALLERY_NAVBAR_SETTINGS")});
 
         new Setting(containerEl)
             .setName(t("GALLERY_NAVBAR_TOGGLE_NAME"))
@@ -248,7 +270,6 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.galleryNavbarToggle)
                 .onChange(async (value) => {
                     this.plugin.settings.galleryNavbarToggle = value;
-                    IMG_GLOBAL_SETTINGS.galleryNavbarToggle = value;
                     await this.plugin.saveSettings();
                 }));
 
@@ -265,11 +286,11 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
         this.createPickrSetting(containerEl, 'GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME', GALLERY_IMG_BORDER_ACTIVE_COLOR);
-        // >>>GALLERY_NAVBAR_SETTINGS end
+        //endregion
 
-        // >>>HOTKEYS_SETTINGS start
-        containerEl.createEl('h3', { text: t("HOTKEY_SETTINGS") });
-        containerEl.createEl('p', { text: t("HOTKEY_SETTINGS_DESC") });
+        //region >>> HOTKEYS_SETTINGS
+        containerEl.createEl('h3', {text: t("HOTKEY_SETTINGS")});
+        containerEl.createEl('p', {text: t("HOTKEY_SETTINGS_DESC")});
 
         if (this.plugin.settings.moveTheImageHotkey === this.plugin.settings.switchTheImageHotkey) {
             this.plugin.settings.moveTheImageHotkey = MOVE_THE_IMAGE.DEFAULT_HOTKEY;
@@ -323,8 +344,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         if (moveTheImageSetting) {
             this.checkDropdownOptions(SWITCH_THE_IMAGE.CODE, moveTheImageSetting);
         }
+        //endregion
 
-        // >>>HOTKEYS_SETTINGS end
     }
 
     createPickrSetting(containerEl: HTMLElement, name: string, defaultColor: string): void {
@@ -347,10 +368,10 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             .setName(t(name))
             .then((setting) => {
                 pickr = Pickr.create({
-                    el: setting.controlEl.createDiv({ cls: "picker" }),
+                    el: setting.controlEl.createDiv({cls: "picker"}),
                     theme: 'nano',
                     position: "left-middle",
-                    lockOpacity: false, // If true, the user won't be able to adjust any opacity. 
+                    lockOpacity: false, // If true, the user won't be able to adjust any opacity.
                     default: pickrDefault, // Default color
                     swatches: [], // Optional color swatches
                     components: {
@@ -368,7 +389,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     }
                 })
                     .on('show', (color: Pickr.HSVaColor, instance: Pickr) => { // Pickr got opened
-                        const { result } = (pickr.getRoot() as any).interaction;
+                        const {result} = (pickr.getRoot() as any).interaction;
                         requestAnimationFrame(() =>
                             requestAnimationFrame(() => result.select())
                         );
@@ -403,7 +424,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             this.plugin.settings.galleryImgBorderActiveColor = savedColor;
         } else if ('IMG_VIEW_BACKGROUND_COLOR_NAME' === name) {
             this.plugin.settings.imgViewBackgroundColor = savedColor;
-            this.plugin.mainContainerView.setImgViewDefaultBackground();
+            this.plugin.mainContainerView?.setImgViewDefaultBackgroundForImgList();
+            this.plugin.pinContainerView?.setImgViewDefaultBackgroundForImgList();
         }
         this.plugin.saveSettings();
     }

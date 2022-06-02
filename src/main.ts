@@ -1,9 +1,9 @@
 import {Plugin} from 'obsidian';
-import {ImageToolkitSettingTab, IMG_GLOBAL_SETTINGS} from './conf/settings'
-import {CONTAINER_TYPE, VIEW_IMG_SELECTOR} from './conf/constants'
+import {DEFAULT_SETTINGS, ImageToolkitSettingTab,} from './conf/settings'
+import {VIEW_IMG_SELECTOR} from './conf/constants'
 import {MainContainerView} from './ui/mainContainerView';
 import {PinContainerView} from './ui/pinContainerView';
-import {ImgSettingIto} from './to/imgTo';
+import {ImgSettingIto} from "./to/imgTo";
 
 export default class ImageToolkitPlugin extends Plugin {
 
@@ -38,7 +38,7 @@ export default class ImageToolkitPlugin extends Plugin {
     }
 
     async loadSettings() {
-        this.settings = Object.assign({}, IMG_GLOBAL_SETTINGS, await this.loadData());
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     }
 
     async saveSettings() {

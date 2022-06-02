@@ -1,3 +1,18 @@
+import {
+    GALLERY_IMG_BORDER_ACTIVE_COLOR,
+    GALLERY_NAVBAR_DEFAULT_COLOR,
+    GALLERY_NAVBAR_HOVER_COLOR,
+    IMG_BORDER_COLOR,
+    IMG_BORDER_STYLE,
+    IMG_BORDER_WIDTH,
+    IMG_DEFAULT_BACKGROUND_COLOR,
+    IMG_FULL_SCREEN_MODE,
+    MOVE_THE_IMAGE,
+    SWITCH_THE_IMAGE
+} from "../conf/constants";
+import tr from "../lang/locale/tr";
+
+
 /**
  * typescript class object for defining operating status of the image
  */
@@ -55,6 +70,14 @@ export class ImgInfoCto {
     imgContainerEl: HTMLDivElement; // 'img-container': including <img class='img-view' src='' alt=''>
 
     imgList: Array<ImgCto> = new Array<ImgCto>();
+
+    public getPopupImgNum = (): number => {
+        let num: number = 0;
+        for (const imgCto of this.imgList) {
+            if (imgCto.popup) num++;
+        }
+        return num;
+    }
 }
 
 export class ImgCto {
@@ -109,7 +132,7 @@ export class ImgCto {
 }
 
 /**
- * typescript object of interface for defining image's settings
+ * typescript class object for defining image's settings
  */
 export interface ImgSettingIto {
     // viewImageGlobal: boolean; // @Deprecated

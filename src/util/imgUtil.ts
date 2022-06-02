@@ -90,7 +90,7 @@ export class ImgUtil {
         return targetImgInfo;
     }
 
-    public static transform = (targetImgInfo: ImgInfoIto) => {
+    public static transform = (targetImgInfo: ImgCto) => {
         let transform = 'rotate(' + targetImgInfo.rotate + 'deg)';
         if (targetImgInfo.scaleX) {
             transform += ' scaleX(-1)'

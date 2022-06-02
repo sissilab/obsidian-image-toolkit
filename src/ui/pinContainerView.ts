@@ -10,11 +10,12 @@ import {ImgCto} from "../to/imgTo";
  */
 export class PinContainerView extends ContainerView {
 
-    private pinMaximum: number = 5;
-
     constructor(plugin: ImageToolkitPlugin, containerType: keyof typeof CONTAINER_TYPE) {
-        super(plugin, containerType);
-        //this.pinMaximum = this.plugin.settings.pinMaximum;
+        super(plugin, containerType, plugin.settings.pinMaximum);
+    }
+
+    public setActiveImgForMouseEvent(imgCto: ImgCto): void {
+        this.imgGlobalStatus.activeImg = imgCto;
     }
 
     //region ================== Container View ========================
@@ -29,7 +30,7 @@ export class PinContainerView extends ContainerView {
         </div>
          */
         if (!this.imgInfoCto.oitContainerViewEl) { // init at first time
-            // <div class="oit-pin-container-view">
+            // create: <div class="oit-pin-container-view">
             containerEl.appendChild(this.imgInfoCto.oitContainerViewEl = createDiv('oit-pin-container-view'));
             // <div class="oit-pin-container-view"> <div class="img-container"/> </div>
             this.imgInfoCto.oitContainerViewEl.append(this.imgInfoCto.imgContainerEl = createDiv('img-container'));
@@ -43,22 +44,30 @@ export class PinContainerView extends ContainerView {
      * @param event not null: click event; null: keyboard event (Esc)
      */
     public closeContainerView = (event?: MouseEvent): void => {
+        console.log('closeContainerView', event, this.imgGlobalStatus.activeImg)
         if (event) {
             // PinContainerView doesn't need click event to hide container for now
             return;
         }
-        if (!this.imgInfoCto.oitContainerViewEl) return;
+        let activeImg: ImgCto;
+        if (!this.imgInfoCto.oitContainerViewEl || !(activeImg = this.imgGlobalStatus.activeImg)) return;
 
-        // todo 鼠标在哪个图片上，就关闭哪个图片
-        // for (const imgCto of this.imgInfoCto.imgList) {
-        //     this.renderImgView(imgCto.imgViewEl, '', '');
-        // }
+        this.renderImgView(activeImg.imgViewEl, '', '');
+        activeImg.popup = false;
+        activeImg.mtime = 0;
 
-        // this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'none'); // hide 'oit-pin-container-view'
-
-        // remove events
-        // this.addOrRemoveEvents(false);
-        // this.imgStatus.popup = false;
+        let globalPopupFlag: boolean = false;
+        for (const imgCto of this.imgInfoCto.imgList) {
+            if (imgCto.popup) {
+                globalPopupFlag = true;
+                break;
+            }
+        }
+        if (!globalPopupFlag) {
+            this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'none'); // hide 'oit-pin-container-view'
+        }
+        this.imgGlobalStatus.popup = globalPopupFlag;
+        this.addOrRemoveEvents(activeImg, false);
     }
     //endregion
 
