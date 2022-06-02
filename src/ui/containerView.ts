@@ -3,12 +3,15 @@ import ImageToolkitPlugin from "src/main";
 import {ImgCto, ImgInfoCto, ImgStatusCto} from "src/to/imgTo";
 import {ImgUtil} from "src/util/imgUtil";
 import {OffsetSizeIto} from "../to/commonTo";
+import {Menu, MenuItem} from "obsidian";
 
 export abstract class ContainerView {
 
     private readonly containerType: keyof typeof CONTAINER_TYPE;
 
     protected readonly plugin: ImageToolkitPlugin;
+
+    protected menu: Menu = new Menu();
 
     // the clicked original image element
     protected lastClickedImgEl: HTMLImageElement;
@@ -29,6 +32,15 @@ export abstract class ContainerView {
         this.plugin = plugin;
         this.containerType = containerType;
         this.pinMaximum = pinMaximum;
+
+        // let item: MenuItem = new MenuItem(this.menu);
+        // item.setTitle("aaa")
+        this.menu.addItem(item => {
+            item.setTitle("aaa")
+        });
+        this.menu.addItem(item => {
+            item.setTitle("bbb")
+        });
     }
 
     public getPlugin = (): ImageToolkitPlugin => {
@@ -45,6 +57,10 @@ export abstract class ContainerView {
 
     public setPinMaximum = (val: number) => {
         this.pinMaximum = val;
+    }
+
+    public getOitContainerViewEl = (): HTMLDivElement => {
+        return this.imgInfoCto.imgContainerEl;
     }
 
     abstract setActiveImgForMouseEvent(imgCto: ImgCto): void;
@@ -602,18 +618,21 @@ export abstract class ContainerView {
         event.stopPropagation();
         event.preventDefault();
         const activeImg = this.getAndUpdateActiveImg(event);
-        console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
         if (!activeImg) return;
-        this.imgGlobalStatus.dragging = true;
-
-        // 鼠标相对于图片的位置
-        activeImg.moveX = activeImg.imgViewEl.offsetLeft - event.clientX;
-        activeImg.moveY = activeImg.imgViewEl.offsetTop - event.clientY;
-        // 鼠标按下时持续触发/移动事件
-        activeImg.imgViewEl.onmousemove = this.mousemoveImgView;
-        // 鼠标松开/回弹触发事件
-        activeImg.imgViewEl.onmouseup = this.mouseupImgView;
-        // activeImg.imgViewEl.onmouseleave = this.mouseleaveImgView;
+        if (0 == event.button) { // left click
+            this.imgGlobalStatus.dragging = true;
+            // 鼠标相对于图片的位置
+            activeImg.moveX = activeImg.imgViewEl.offsetLeft - event.clientX;
+            activeImg.moveY = activeImg.imgViewEl.offsetTop - event.clientY;
+            // 鼠标按下时持续触发/移动事件
+            activeImg.imgViewEl.onmousemove = this.mousemoveImgView;
+            // 鼠标松开/回弹触发事件
+            activeImg.imgViewEl.onmouseup = this.mouseupImgView;
+            // activeImg.imgViewEl.onmouseleave = this.mouseleaveImgView;
+        } else if (2 == event.button) { // right click
+            this.menu.showAtPosition({x: 20, y: 20});
+        }
+        console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg, event.button);
     }
 
     /**

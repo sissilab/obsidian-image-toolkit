@@ -48,6 +48,52 @@ export const IMG_TOOLBAR_ICONS = [{
     class: 'toolbar_copy'
 }];
 
+export const MENU_ITEM_CONF = [{
+    key: 'zoom_to_100',
+    title: "ZOOM_TO_100",
+    class: 'toolbar_zoom_to_100'
+}, {
+    key: 'zoom_in',
+    title: "ZOOM_IN",
+    class: 'toolbar_zoom_in'
+}, {
+    key: 'zoom_out',
+    title: "ZOOM_OUT",
+    class: 'toolbar_zoom_out'
+}, {
+    key: 'full_screen',
+    title: "FULL_SCREEN",
+    class: 'toolbar_full_screen'
+}, {
+    key: 'refresh',
+    title: "REFRESH",
+    class: 'toolbar_refresh'
+}, {
+    key: 'rotate_left',
+    title: "ROTATE_LEFT",
+    class: 'toolbar_rotate_left'
+}, {
+    key: 'rotate_right',
+    title: "ROTATE_RIGHT",
+    class: 'toolbar_rotate_right'
+}, {
+    key: 'scale_x',
+    title: "SCALE_X",
+    class: 'toolbar_scale_x'
+}, {
+    key: 'scale_y',
+    title: "SCALE_Y",
+    class: 'toolbar_scale_y'
+}, {
+    key: 'invert_color',
+    title: "INVERT_COLOR",
+    class: 'toolbar_invert_color'
+}, {
+    key: 'copy',
+    title: "COPY",
+    class: 'toolbar_copy'
+}];
+
 export const IMG_FULL_SCREEN_MODE = {
     FIT: 'FIT',
     FILL: 'FILL',
