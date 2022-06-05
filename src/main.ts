@@ -4,12 +4,12 @@ import {VIEW_IMG_SELECTOR} from './conf/constants'
 import {MainContainerView} from './ui/mainContainerView';
 import {PinContainerView} from './ui/pinContainerView';
 import {ImgSettingIto} from "./to/imgTo";
+import {ContainerView} from "./ui/containerView";
 
 export default class ImageToolkitPlugin extends Plugin {
 
     public settings: ImgSettingIto;
-    public mainContainerView: MainContainerView;
-    public pinContainerView: PinContainerView;
+    public containerView: ContainerView;
     public imgSelector: string = ``;
 
     async onload() {
@@ -22,16 +22,15 @@ export default class ImageToolkitPlugin extends Plugin {
 
         // this.registerCommands();
 
-        this.mainContainerView = new MainContainerView(this, "MAIN");
-        this.pinContainerView = new PinContainerView(this, "PIN");
+        this.initContainerView(this.settings.pinMode);
 
         this.toggleViewImage();
     }
 
     onunload() {
         console.log('unloading obsidian-image-toolkit plugin...');
-        this.mainContainerView.removeOitContainerView();
-        this.mainContainerView = null;
+        this.containerView.removeOitContainerView();
+        this.containerView = null;
         document.off('click', this.imgSelector, this.clickImage);
         document.off('mouseover', this.imgSelector, this.mouseoverImg);
         document.off('mouseout', this.imgSelector, this.mouseoutImg);
@@ -57,11 +56,21 @@ export default class ImageToolkitPlugin extends Plugin {
         }); */
     }
 
+    private initContainerView = (pinMode: boolean) => {
+        this.containerView = pinMode ?
+            new PinContainerView(this, "PIN") :
+            new MainContainerView(this, "MAIN");
+    }
+
+    public togglePinMode = (pinMode: boolean) => {
+        this.containerView.removeOitContainerView();
+        this.initContainerView(pinMode);
+    }
+
     private clickImage = (event: MouseEvent) => {
         const targetEl = (<HTMLImageElement>event.target);
         if (!targetEl || 'IMG' !== targetEl.tagName) return;
-        this.mainContainerView.renderContainerView(targetEl);
-        this.pinContainerView.renderContainerView(targetEl);
+        this.containerView.renderContainerView(targetEl);
     }
 
     private mouseoverImg = (event: MouseEvent) => {
@@ -115,13 +124,4 @@ export default class ImageToolkitPlugin extends Plugin {
             document.on('mouseout', this.imgSelector, this.mouseoutImg);
         }
     }
-
-    public togglePinMode = (pinMode: boolean) => {
-        if (pinMode) {
-            this.mainContainerView?.removeOitContainerView();
-        } else {
-            this.pinContainerView?.removeOitContainerView();
-        }
-    }
-
 }

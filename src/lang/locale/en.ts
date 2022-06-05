@@ -22,7 +22,7 @@ export default {
     // >>> PIN_MODE_SETTINGS
     PIN_MODE_SETTINGS: "Pin Mode Settings:",
     PIN_MODE_NAME: "📌 Pin an image",
-    PIN_MODE_DESC: "You can pin an image onto the top of the screen. (press Esc to close the image your mouse is hovering on)",
+    PIN_MODE_DESC: "You can pin an image onto the top of the screen. (press Esc to close the image where your mouse cursor is hovering)",
     PIN_MAXIMUM_NAME: "The maximum image you can pin",
     PIN_COVER_NAME: "Cover mode",
     PIN_COVER_DESC: "After those pinned images reach maximum, you can cover the earliest pinned image when you click an image once again.",
@@ -114,17 +114,18 @@ export default {
     CTRL_SHIFT_ALT: "Ctrl+Shift+Alt",
 
     // toolbar icon title
-    ZOOM_TO_100: "zoom to actual size",
+    ZOOM_TO_100: "zoom to 100%",
     ZOOM_IN: "zoom in",
     ZOOM_OUT: "zoom out",
     FULL_SCREEN: 'full screen',
     REFRESH: "refresh",
     ROTATE_LEFT: "rotate left",
     ROTATE_RIGHT: "rotate right",
-    SCALE_X: 'scale x',
-    SCALE_Y: 'scale y',
+    SCALE_X: 'flip along x-axis',
+    SCALE_Y: 'flip along y-axis',
     INVERT_COLOR: 'invert color',
     COPY: 'copy',
+    CLOSE: 'close',
 
     // tip:
     COPY_IMAGE_SUCCESS: 'Copy the image successfully!',

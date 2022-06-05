@@ -2,6 +2,7 @@ import {CONTAINER_TYPE} from "src/conf/constants";
 import ImageToolkitPlugin from "src/main";
 import {ContainerView} from "./containerView";
 import {ImgCto} from "../to/imgTo";
+import tr from "../lang/locale/tr";
 
 /**
  * PinContainerView: Pin an image on the top
@@ -34,7 +35,17 @@ export class PinContainerView extends ContainerView {
             containerEl.appendChild(this.imgInfoCto.oitContainerViewEl = createDiv('oit-pin-container-view'));
             // <div class="oit-pin-container-view"> <div class="img-container"/> </div>
             this.imgInfoCto.oitContainerViewEl.append(this.imgInfoCto.imgContainerEl = createDiv('img-container'));
+
+            // <div class="img-tip"></div>
+            this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgTipEl = createDiv('img-tip')); // img-tip
+            this.imgInfoCto.imgTipEl.hidden = true; // hide 'img-tip'
+
+            // <div class="img-player"> <img class='img-fullscreen' src=''> </div>
+            this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgPlayerEl = createDiv('img-player')); // img-player for full screen mode
+            this.imgInfoCto.imgPlayerEl.appendChild(this.imgInfoCto.imgPlayerImgViewEl = createEl('img'));
+            this.imgInfoCto.imgPlayerImgViewEl.addClass('img-fullscreen');
         }
+        // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
         this.updateImgViewElAndList(this.pinMaximum);
         return this.getMatchedImg();
     }
@@ -42,16 +53,16 @@ export class PinContainerView extends ContainerView {
     /**
      * hide container view
      * @param event not null: click event; null: keyboard event (Esc)
+     * @param activeImg
      */
-    public closeContainerView = (event?: MouseEvent): void => {
-        console.log('closeContainerView', event, this.imgGlobalStatus.activeImg)
-        if (event) {
+    public closeContainerView = (event?: MouseEvent, activeImg?: ImgCto): void => {
+        if (event && !activeImg) {
             // PinContainerView doesn't need click event to hide container for now
             return;
         }
-        let activeImg: ImgCto;
-        if (!this.imgInfoCto.oitContainerViewEl || !(activeImg = this.imgGlobalStatus.activeImg)) return;
-
+        if (!this.imgInfoCto.oitContainerViewEl) return;
+        if (!activeImg && !(activeImg = this.imgGlobalStatus.activeImg)) return;
+        // console.log('closeContainerView', event, activeImg)
         this.renderImgView(activeImg.imgViewEl, '', '');
         activeImg.popup = false;
         activeImg.mtime = 0;

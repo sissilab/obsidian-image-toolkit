@@ -111,6 +111,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         //endregion
 
         //region >>> PIN_MODE_SETTINGS
+        let pinMaximumSetting: Setting, pinCoverSetting: Setting;
+
         containerEl.createEl('h3', {text: t("PIN_MODE_SETTINGS")});
 
         new Setting(containerEl)
@@ -120,12 +122,13 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.pinMode)
                 .onChange(async (value) => {
                     this.plugin.settings.pinMode = value;
+                    this.switchSettingsDisabled(!value, pinMaximumSetting, pinCoverSetting);
                     this.plugin.togglePinMode(value);
                     await this.plugin.saveSettings();
                 }));
 
         let pinMaximumScaleText: HTMLDivElement;
-        new Setting(containerEl)
+        pinMaximumSetting = new Setting(containerEl)
             .setName(t("PIN_MAXIMUM_NAME"))
             .addSlider(slider => slider
                 .setLimits(1, 5, 1)
@@ -133,17 +136,17 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     pinMaximumScaleText.innerText = " " + value.toString();
                     this.plugin.settings.pinMaximum = value;
-                    this.plugin.pinContainerView?.setPinMaximum(value);
+                    this.plugin.containerView?.setPinMaximum(value);
                     this.plugin.saveSettings();
-                }))
-            .settingEl.createDiv('', (el) => {
+                }));
+        pinMaximumSetting.settingEl.createDiv('', (el) => {
             pinMaximumScaleText = el;
             el.style.minWidth = "2.3em";
             el.style.textAlign = "right";
             el.innerText = " " + this.plugin.settings.pinMaximum.toString();
         });
 
-        new Setting(containerEl)
+        pinCoverSetting = new Setting(containerEl)
             .setName(t("PIN_COVER_NAME"))
             .setDesc(t("PIN_COVER_DESC"))
             .addToggle(toggle => toggle
@@ -152,8 +155,9 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     this.plugin.settings.pinCoverMode = value;
                     await this.plugin.saveSettings();
                 }));
-        //endregion
 
+        this.switchSettingsDisabled(!this.plugin.settings.pinMode, pinMaximumSetting, pinCoverSetting);
+        //endregion
 
         //region >>> VIEW_DETAILS_SETTINGS
         containerEl.createEl('h3', {text: t("VIEW_DETAILS_SETTINGS")});
@@ -261,8 +265,10 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         //endregion
 
         //region >>> GALLERY_NAVBAR_SETTINGS
-        containerEl.createEl('h3', {text: t("GALLERY_NAVBAR_SETTINGS")});
+        let galleryNavbarDefaultColorSetting: Setting, galleryNavbarHoverColorSetting: Setting,
+            galleryImgBorderToggleSetting: Setting, galleryImgBorderActiveColorSetting: Setting;
 
+        createEl('h3', {text: t("GALLERY_NAVBAR_SETTINGS")});
         new Setting(containerEl)
             .setName(t("GALLERY_NAVBAR_TOGGLE_NAME"))
             .setDesc(t("GALLERY_NAVBAR_TOGGLE_DESC"))
@@ -270,13 +276,15 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.galleryNavbarToggle)
                 .onChange(async (value) => {
                     this.plugin.settings.galleryNavbarToggle = value;
+                    this.switchSettingsDisabled(!value, galleryNavbarDefaultColorSetting, galleryNavbarHoverColorSetting,
+                        galleryImgBorderToggleSetting, galleryImgBorderActiveColorSetting);
                     await this.plugin.saveSettings();
                 }));
 
-        this.createPickrSetting(containerEl, 'GALLERY_NAVBAR_DEFAULT_COLOR_NAME', GALLERY_NAVBAR_DEFAULT_COLOR);
-        this.createPickrSetting(containerEl, 'GALLERY_NAVBAR_HOVER_COLOR_NAME', GALLERY_NAVBAR_HOVER_COLOR);
+        galleryNavbarDefaultColorSetting = this.createPickrSetting(containerEl, 'GALLERY_NAVBAR_DEFAULT_COLOR_NAME', GALLERY_NAVBAR_DEFAULT_COLOR);
+        galleryNavbarHoverColorSetting = this.createPickrSetting(containerEl, 'GALLERY_NAVBAR_HOVER_COLOR_NAME', GALLERY_NAVBAR_HOVER_COLOR);
 
-        new Setting(containerEl)
+        galleryImgBorderToggleSetting = new Setting(containerEl)
             .setName(t("GALLERY_IMG_BORDER_TOGGLE_NAME"))
             .setDesc(t("GALLERY_IMG_BORDER_TOGGLE_DESC"))
             .addToggle(toggle => toggle
@@ -285,7 +293,10 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     this.plugin.settings.galleryImgBorderActive = value;
                     await this.plugin.saveSettings();
                 }));
-        this.createPickrSetting(containerEl, 'GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME', GALLERY_IMG_BORDER_ACTIVE_COLOR);
+        galleryImgBorderActiveColorSetting = this.createPickrSetting(containerEl, 'GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME', GALLERY_IMG_BORDER_ACTIVE_COLOR);
+
+        this.switchSettingsDisabled(!this.plugin.settings.galleryNavbarToggle, galleryNavbarDefaultColorSetting,
+            galleryNavbarHoverColorSetting, galleryImgBorderToggleSetting, galleryImgBorderActiveColorSetting);
         //endregion
 
         //region >>> HOTKEYS_SETTINGS
@@ -348,7 +359,13 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
 
     }
 
-    createPickrSetting(containerEl: HTMLElement, name: string, defaultColor: string): void {
+    switchSettingsDisabled(disabled: boolean, ...settings: Setting[]) {
+        for (const setting of settings) {
+            setting?.setDisabled(disabled)
+        }
+    }
+
+    createPickrSetting(containerEl: HTMLElement, name: string, defaultColor: string): Setting {
         let pickrDefault: string;
         if ('GALLERY_NAVBAR_DEFAULT_COLOR_NAME' === name) {
             pickrDefault = this.plugin.settings.galleryNavbarDefaultColor;
@@ -363,7 +380,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         }
 
         let pickr: Pickr;
-        new Setting(containerEl)
+        return new Setting(containerEl)
             // @ts-ignore
             .setName(t(name))
             .then((setting) => {
@@ -389,6 +406,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                     }
                 })
                     .on('show', (color: Pickr.HSVaColor, instance: Pickr) => { // Pickr got opened
+                        if (!this.plugin.settings.galleryNavbarToggle) pickr?.hide();
                         const {result} = (pickr.getRoot() as any).interaction;
                         requestAnimationFrame(() =>
                             requestAnimationFrame(() => result.select())
@@ -424,8 +442,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             this.plugin.settings.galleryImgBorderActiveColor = savedColor;
         } else if ('IMG_VIEW_BACKGROUND_COLOR_NAME' === name) {
             this.plugin.settings.imgViewBackgroundColor = savedColor;
-            this.plugin.mainContainerView?.setImgViewDefaultBackgroundForImgList();
-            this.plugin.pinContainerView?.setImgViewDefaultBackgroundForImgList();
+            this.plugin.containerView?.setImgViewDefaultBackgroundForImgList();
         }
         this.plugin.saveSettings();
     }

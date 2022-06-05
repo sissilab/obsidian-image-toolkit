@@ -1,3 +1,5 @@
+import tr from "../lang/locale/tr";
+
 export const ZOOM_FACTOR = 0.8;
 
 export const IMG_VIEW_MIN = 30;
@@ -49,49 +51,67 @@ export const IMG_TOOLBAR_ICONS = [{
 }];
 
 export const MENU_ITEM_CONF = [{
-    key: 'zoom_to_100',
     title: "ZOOM_TO_100",
-    class: 'toolbar_zoom_to_100'
+    class: 'toolbar_zoom_to_100',
+    icon: 'zoom-to-100',
+    enable: true
 }, {
-    key: 'zoom_in',
     title: "ZOOM_IN",
-    class: 'toolbar_zoom_in'
+    class: 'toolbar_zoom_in',
+    icon: 'zoom-in',
+    enable: false
 }, {
-    key: 'zoom_out',
     title: "ZOOM_OUT",
-    class: 'toolbar_zoom_out'
+    class: 'toolbar_zoom_out',
+    icon: 'zoom-out',
+    enable: false
 }, {
-    key: 'full_screen',
     title: "FULL_SCREEN",
-    class: 'toolbar_full_screen'
+    class: 'toolbar_full_screen',
+    icon: 'expand',
+    enable: true
 }, {
-    key: 'refresh',
     title: "REFRESH",
-    class: 'toolbar_refresh'
+    class: 'toolbar_refresh',
+    icon: 'refresh-ccw',
+    enable: true
 }, {
-    key: 'rotate_left',
     title: "ROTATE_LEFT",
-    class: 'toolbar_rotate_left'
+    class: 'toolbar_rotate_left',
+    icon: 'rotate-ccw',
+    enable: true
 }, {
-    key: 'rotate_right',
     title: "ROTATE_RIGHT",
-    class: 'toolbar_rotate_right'
+    class: 'toolbar_rotate_right',
+    icon: 'rotate-cw',
+    enable: true
 }, {
-    key: 'scale_x',
     title: "SCALE_X",
-    class: 'toolbar_scale_x'
+    class: 'toolbar_scale_x',
+    icon: 'move-horizontal',
+    enable: true
 }, {
-    key: 'scale_y',
     title: "SCALE_Y",
-    class: 'toolbar_scale_y'
+    class: 'toolbar_scale_y',
+    icon: 'move-vertical',
+    enable: true
 }, {
-    key: 'invert_color',
     title: "INVERT_COLOR",
-    class: 'toolbar_invert_color'
+    class: 'toolbar_invert_color',
+    icon: 'droplet',
+    enable: true
 }, {
-    key: 'copy',
     title: "COPY",
-    class: 'toolbar_copy'
+    class: 'toolbar_copy',
+    icon: 'copy',
+    enable: true
+}, {
+    title: "---"
+}, {
+    title: "CLOSE",
+    class: 'toolbar_close',
+    icon: 'trash',
+    enable: true
 }];
 
 export const IMG_FULL_SCREEN_MODE = {

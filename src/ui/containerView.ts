@@ -3,15 +3,14 @@ import ImageToolkitPlugin from "src/main";
 import {ImgCto, ImgInfoCto, ImgStatusCto} from "src/to/imgTo";
 import {ImgUtil} from "src/util/imgUtil";
 import {OffsetSizeIto} from "../to/commonTo";
-import {Menu, MenuItem} from "obsidian";
+import {MenuView} from "./menuView";
+import tr from "../lang/locale/tr";
 
 export abstract class ContainerView {
 
     private readonly containerType: keyof typeof CONTAINER_TYPE;
 
     protected readonly plugin: ImageToolkitPlugin;
-
-    protected menu: Menu = new Menu();
 
     // the clicked original image element
     protected lastClickedImgEl: HTMLImageElement;
@@ -27,20 +26,15 @@ export abstract class ContainerView {
 
     protected pinMaximum: number;
 
+    protected menuView: MenuView;
 
     protected constructor(plugin: ImageToolkitPlugin, containerType: keyof typeof CONTAINER_TYPE, pinMaximum: number) {
         this.plugin = plugin;
         this.containerType = containerType;
         this.pinMaximum = pinMaximum;
-
-        // let item: MenuItem = new MenuItem(this.menu);
-        // item.setTitle("aaa")
-        this.menu.addItem(item => {
-            item.setTitle("aaa")
-        });
-        this.menu.addItem(item => {
-            item.setTitle("bbb")
-        });
+        if (this.containerType === 'PIN') {
+            this.menuView = new MenuView(this);
+        }
     }
 
     public getPlugin = (): ImageToolkitPlugin => {
@@ -105,7 +99,7 @@ export abstract class ContainerView {
         this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'block');
     }
 
-    abstract closeContainerView(event?: MouseEvent): void;
+    abstract closeContainerView(event?: MouseEvent, activeImg?: ImgCto): void;
 
     public removeOitContainerView = () => {
         this.restoreBorderForLastClickedImg();
@@ -242,6 +236,7 @@ export abstract class ContainerView {
             // <div class="img-container"> <img class='img-view' data-index='0' src='' alt=''> </div>
             imgViewEl = createEl('img');
             imgViewEl.addClass('img-view');
+            imgViewEl.hidden = true; // hide 'img-view' for now
             imgViewEl.dataset.index = i + ''; // set data-index
             this.setImgViewDefaultBackground(imgViewEl);
             this.imgInfoCto.imgContainerEl.appendChild(imgViewEl);
@@ -289,7 +284,7 @@ export abstract class ContainerView {
                     imgCto.refreshImgInterval = null;
                     this.setImgViewPosition(ImgUtil.calculateImgZoomSize(realImg, imgCto), 0);
                     this.renderImgView(imgCto.imgViewEl, imgSrc, imgAlt);
-                    this.renderImgTip();
+                    this.renderImgTip(imgCto);
                     imgCto.imgViewEl.style.setProperty('transform', imgCto.defaultImgStyle.transform);
                     imgCto.imgViewEl.style.setProperty('filter', imgCto.defaultImgStyle.filter);
                     imgCto.imgViewEl.style.setProperty('mix-blend-mode', imgCto.defaultImgStyle.mixBlendMode);
@@ -318,27 +313,36 @@ export abstract class ContainerView {
         if (!imgViewEl) return;
         imgViewEl.setAttribute('src', src);
         imgViewEl.setAttribute('alt', alt);
-        if (!src && !alt) {
-
-        }
         imgViewEl.hidden = !src && !alt;
     }
 
-    public renderImgTip = () => {
-        const activeImg = this.imgGlobalStatus.activeImg;
-        if (activeImg && activeImg.imgTipEl && activeImg.realWidth > 0 && activeImg.curWidth > 0) {
-            if (activeImg.imgTipTimeout) {
-                clearTimeout(activeImg.imgTipTimeout);
+    public renderImgTip = (activeImg?: ImgCto) => {
+        if (!activeImg)
+            activeImg = this.imgGlobalStatus.activeImg;
+        if (activeImg && this.imgInfoCto.imgTipEl && activeImg.realWidth > 0 && activeImg.curWidth > 0) {
+            if (this.imgInfoCto.imgTipTimeout) {
+                clearTimeout(this.imgInfoCto.imgTipTimeout);
             }
             if (this.plugin.settings.imgTipToggle) {
-                activeImg.imgTipEl.hidden = false; // display 'img-tip'
-                activeImg.imgTipEl.setText(parseInt(activeImg.curWidth * 100 / activeImg.realWidth + '') + '%');
-                activeImg.imgTipTimeout = setTimeout(() => {
-                    activeImg.imgTipEl.hidden = true;
+                this.imgInfoCto.imgTipEl.hidden = false; // display 'img-tip'
+                const ratio = activeImg.curWidth * 100 / activeImg.realWidth;
+                const isSingleDigit: boolean = 10 > ratio;
+                const width = isSingleDigit ? 20 : 40;
+                const left = activeImg.left + activeImg.curWidth / 2 - width / 2;
+                const top = activeImg.top + activeImg.curHeight / 2 - 10;
+
+                this.imgInfoCto.imgTipEl.style.setProperty("width", width + 'px');
+                this.imgInfoCto.imgTipEl.style.setProperty("font-size", isSingleDigit || 100 >= activeImg.curWidth ? 'xx-small' : 'x-small');
+                this.imgInfoCto.imgTipEl.style.setProperty("left", left + 'px');
+                this.imgInfoCto.imgTipEl.style.setProperty("top", top + 'px');
+                this.imgInfoCto.imgTipEl.setText(parseInt(ratio + '') + '%');
+
+                this.imgInfoCto.imgTipTimeout = setTimeout(() => {
+                    this.imgInfoCto.imgTipEl.hidden = true;
                 }, 1000);
             } else {
-                activeImg.imgTipEl.hidden = true; // hide 'img-tip'
-                activeImg.imgTipTimeout = null;
+                this.imgInfoCto.imgTipEl.hidden = true; // hide 'img-tip'
+                this.imgInfoCto.imgTipTimeout = null;
             }
         }
     }
@@ -377,15 +381,16 @@ export abstract class ContainerView {
     /**
      * full-screen mode
      */
-    protected showPlayerImg = () => {
-        const activeImg = this.imgGlobalStatus.activeImg;
+    protected showPlayerImg = (activeImg: ImgCto) => {
+        if (!activeImg && !(activeImg = this.imgGlobalStatus.activeImg)) return;
         this.imgGlobalStatus.fullScreen = true;
         activeImg.fullScreen = true;
-        activeImg.imgViewEl.style.setProperty('display', 'none', 'important'); // hide imgViewEl
-        activeImg.imgFooterEl.style.setProperty('display', 'none'); // hide 'img-footer'
+        // activeImg.imgViewEl.style.setProperty('display', 'none', 'important'); // hide imgViewEl
+        // this.imgInfoCto.imgFooterEl?.style.setProperty('display', 'none'); // hide 'img-footer'
+
         // show the img-player
-        activeImg.imgPlayerEl.style.setProperty('display', 'block'); // display 'img-player'
-        activeImg.imgPlayerEl.addEventListener('click', this.closePlayerImg);
+        this.imgInfoCto.imgPlayerEl.style.setProperty('display', 'block');
+        this.imgInfoCto.imgPlayerEl.addEventListener('click', this.closePlayerImg);
 
         const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
         const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
@@ -413,13 +418,16 @@ export abstract class ContainerView {
             newWidth = newWidth + 'px';
             newHeight = newHeight + 'px';
         }
-        activeImg.imgPlayerImgViewEl.setAttribute('src', activeImg.imgViewEl.src);
-        activeImg.imgPlayerImgViewEl.setAttribute('alt', activeImg.imgViewEl.alt);
-        activeImg.imgPlayerImgViewEl.setAttribute('width', newWidth);
-        activeImg.imgPlayerImgViewEl.setAttribute('height', newHeight);
-        activeImg.imgPlayerImgViewEl.style.setProperty('margin-top', top + 'px');
-        //this.imgInfo.imgPlayerImgViewEl.style.setProperty('margin-left', left + 'px');
-        this.setImgViewDefaultBackground(activeImg.imgPlayerImgViewEl);
+        const imgPlayerImgViewEl = this.imgInfoCto.imgPlayerImgViewEl;
+        if (imgPlayerImgViewEl) {
+            imgPlayerImgViewEl.setAttribute('src', activeImg.imgViewEl.src);
+            imgPlayerImgViewEl.setAttribute('alt', activeImg.imgViewEl.alt);
+            imgPlayerImgViewEl.setAttribute('width', newWidth);
+            imgPlayerImgViewEl.setAttribute('height', newHeight);
+            imgPlayerImgViewEl.style.setProperty('margin-top', top + 'px');
+            //this.imgInfo.imgPlayerImgViewEl.style.setProperty('margin-left', left + 'px');
+            this.setImgViewDefaultBackground(imgPlayerImgViewEl);
+        }
     }
 
     /**
@@ -428,19 +436,18 @@ export abstract class ContainerView {
     protected closePlayerImg = () => {
         for (const imgCto of this.imgInfoCto.imgList) {
             if (!imgCto.fullScreen) continue;
-            // hide full screen
-            if (imgCto.imgPlayerEl) {
-                imgCto.imgPlayerEl?.style.setProperty('display', 'none'); // hide 'img-player'
-                imgCto.imgPlayerEl.removeEventListener('click', this.closePlayerImg);
-            }
-            if (imgCto.imgPlayerImgViewEl) {
-                imgCto.imgPlayerImgViewEl.setAttribute('src', '');
-                imgCto.imgPlayerImgViewEl.setAttribute('alt', '');
-            }
             // show the popped up image
-            imgCto.imgViewEl?.style.setProperty('display', 'block', 'important');
-            // show 'img-footer'
-            imgCto.imgFooterEl?.style.setProperty('display', 'block');
+            // imgCto.imgViewEl?.style.setProperty('display', 'block', 'important');
+            // this.imgInfoCto.imgFooterEl?.style.setProperty('display', 'block');
+        }
+        // hide full screen
+        if (this.imgInfoCto.imgPlayerEl) {
+            this.imgInfoCto.imgPlayerEl.style.setProperty('display', 'none'); // hide 'img-player'
+            this.imgInfoCto.imgPlayerEl.removeEventListener('click', this.closePlayerImg);
+        }
+        if (this.imgInfoCto.imgPlayerImgViewEl) {
+            this.imgInfoCto.imgPlayerImgViewEl.setAttribute('src', '');
+            this.imgInfoCto.imgPlayerImgViewEl.setAttribute('alt', '');
         }
         this.imgGlobalStatus.fullScreen = false;
     }
@@ -459,7 +466,6 @@ export abstract class ContainerView {
             }
             matchedImg.imgViewEl.addEventListener('mouseenter', this.mouseenterImgView);
             matchedImg.imgViewEl.addEventListener('mouseleave', this.mouseleaveImgView);
-
             // drag the image via mouse
             matchedImg.imgViewEl.addEventListener('mousedown', this.mousedownImgView);
             // zoom the image via mouse wheel
@@ -485,11 +491,13 @@ export abstract class ContainerView {
 
     protected triggerKeyup = (event: KeyboardEvent) => {
         // console.log('keyup', event, event.key);
-        if ('PIN' !== this.containerType) {
+        const key = event.key;
+        if (!key) return;
+        if (!('Escape' === key)) {
             event.preventDefault();
             event.stopPropagation();
         }
-        switch (event.key) {
+        switch (key) {
             case 'Escape':
                 // close full screen, hide container view
                 this.imgGlobalStatus.fullScreen ? this.closePlayerImg() : this.closeContainerView();
@@ -521,10 +529,9 @@ export abstract class ContainerView {
      */
     protected triggerKeydown = (event: KeyboardEvent) => {
         //console.log('keydown', event, event.key, this.imgStatus);
-        if ('PIN' !== this.containerType) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
+        if ('PIN' === this.containerType) return;
+        event.preventDefault();
+        event.stopPropagation();
         if (this.imgGlobalStatus.arrowUp && this.imgGlobalStatus.arrowLeft) {
             this.moveImgViewByHotkey(event, 'UP_LEFT');
             return;
@@ -611,7 +618,7 @@ export abstract class ContainerView {
         event.stopPropagation();
         event.preventDefault();
         this.getAndUpdateActiveImg(event);
-        console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
+        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
     }
 
     protected mousedownImgView = (event: MouseEvent) => {
@@ -630,9 +637,9 @@ export abstract class ContainerView {
             activeImg.imgViewEl.onmouseup = this.mouseupImgView;
             // activeImg.imgViewEl.onmouseleave = this.mouseleaveImgView;
         } else if (2 == event.button) { // right click
-            this.menu.showAtPosition({x: 20, y: 20});
+            this.menuView?.show(event, activeImg);
         }
-        console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg, event.button);
+        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg, event.button);
     }
 
     /**
@@ -641,7 +648,7 @@ export abstract class ContainerView {
      * @param offsetSize
      */
     protected mousemoveImgView = (event: MouseEvent, offsetSize?: OffsetSizeIto) => {
-        console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
+        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
         const activeImg = this.imgGlobalStatus.activeImg;
         if (!this.imgGlobalStatus.dragging && !offsetSize && !activeImg) return;
         if (event) {
@@ -659,7 +666,7 @@ export abstract class ContainerView {
     }
 
     protected mouseupImgView = (event: MouseEvent) => {
-        console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
+        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
         event.preventDefault();
         event.stopPropagation();
         const activeImg = this.imgGlobalStatus.activeImg;
@@ -671,7 +678,7 @@ export abstract class ContainerView {
     }
 
     protected mouseleaveImgView = (event: MouseEvent) => {
-        console.log('mouseleaveImgView', event, this.imgGlobalStatus.activeImg, '>>> set null');
+        // console.log('mouseleaveImgView', event, this.imgGlobalStatus.activeImg, '>>> set null');
         event.preventDefault();
         event.stopPropagation();
         const activeImg = this.imgGlobalStatus.activeImg;
@@ -684,7 +691,7 @@ export abstract class ContainerView {
         this.imgGlobalStatus.dragging = false;
     }
 
-    private getAndUpdateActiveImg = (event: MouseEvent): ImgCto => {
+    private getAndUpdateActiveImg = (event: MouseEvent | KeyboardEvent): ImgCto => {
         const targetEl = (<HTMLImageElement>event.target);
         let index: string;
         if (!targetEl || !(index = targetEl.dataset.index)) return;
@@ -692,6 +699,7 @@ export abstract class ContainerView {
         if (activeImg && (!this.imgGlobalStatus.activeImg || activeImg.index !== this.imgGlobalStatus.activeImg.index)) {
             this.setActiveImgForMouseEvent(activeImg); // update activeImg
         }
+        // console.log('getAndUpdateActiveImg: ', activeImg)
         return activeImg;
     }
 
@@ -702,8 +710,10 @@ export abstract class ContainerView {
         this.zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);
     }
 
-    protected zoomAndRender = (ratio: number, event?: WheelEvent, actualSize?: boolean) => {
-        const activeImg = this.imgGlobalStatus.activeImg;
+    protected zoomAndRender = (ratio: number, event?: WheelEvent, actualSize?: boolean, activeImg?: ImgCto) => {
+        if (!activeImg) {
+            activeImg = this.imgGlobalStatus.activeImg;
+        }
         let activeImgViewEl: HTMLImageElement;
         if (!activeImg || !(activeImgViewEl = activeImg.imgViewEl)) return;
         let offsetSize: OffsetSizeIto = {offsetX: 0, offsetY: 0};
@@ -715,10 +725,63 @@ export abstract class ContainerView {
             offsetSize.offsetY = activeImg.curHeight / 2;
         }
         const zoomData: ImgCto = ImgUtil.zoom(ratio, activeImg, offsetSize, actualSize);
-        this.renderImgTip();
+        this.renderImgTip(activeImg);
         activeImgViewEl.setAttribute('width', zoomData.curWidth + 'px');
         activeImgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
         activeImgViewEl.style.setProperty('margin-left', zoomData.left + 'px', 'important');
+    }
+
+    public clickImgToolbar = (event: MouseEvent, targetElClass?: string, activeImg?: ImgCto): void => {
+        if (!targetElClass && !activeImg) {
+            // comes from clicking toolbar
+            targetElClass = (<HTMLElement>event.target).className;
+            activeImg = this.imgGlobalStatus.activeImg;
+        }
+        switch (targetElClass) {
+            case 'toolbar_zoom_to_100':
+                this.zoomAndRender(null, null, true, activeImg);
+                break;
+            case 'toolbar_zoom_in':
+                this.zoomAndRender(0.1);
+                break;
+            case 'toolbar_zoom_out':
+                this.zoomAndRender(-0.1);
+                break;
+            case 'toolbar_full_screen':
+                this.showPlayerImg(activeImg);
+                break;
+            case 'toolbar_refresh':
+                this.refreshImg(activeImg);
+                break;
+            case 'toolbar_rotate_left':
+                activeImg.rotate -= 90;
+                ImgUtil.transform(activeImg);
+                break;
+            case 'toolbar_rotate_right':
+                activeImg.rotate += 90;
+                ImgUtil.transform(activeImg);
+                break;
+            case 'toolbar_scale_x':
+                activeImg.scaleX = !activeImg.scaleX;
+                ImgUtil.transform(activeImg);
+                break;
+            case 'toolbar_scale_y':
+                activeImg.scaleY = !activeImg.scaleY;
+                ImgUtil.transform(activeImg);
+                break;
+            case 'toolbar_invert_color':
+                activeImg.invertColor = !activeImg.invertColor;
+                ImgUtil.invertImgColor(activeImg.imgViewEl, activeImg.invertColor);
+                break;
+            case 'toolbar_copy':
+                ImgUtil.copyImage(activeImg.imgViewEl, activeImg.curWidth, activeImg.curHeight);
+                break;
+            case 'toolbar_close':
+                this.closeContainerView(event, activeImg);
+                break
+            default:
+                break;
+        }
     }
     //endregion
 

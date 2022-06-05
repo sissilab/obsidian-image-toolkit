@@ -102,7 +102,7 @@ export default {
   NONE: "无",
 
   // toolbar icon title
-  ZOOM_TO_100: "缩放至实际大小",
+  ZOOM_TO_100: "缩放至100%",
   ZOOM_IN: "放大",
   ZOOM_OUT: "缩小",
   FULL_SCREEN: "全屏",

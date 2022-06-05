@@ -69,6 +69,13 @@ export class ImgInfoCto {
     oitContainerViewEl: HTMLDivElement; // 'oit-main-container-view', 'oit-pin-container-view'
     imgContainerEl: HTMLDivElement; // 'img-container': including <img class='img-view' src='' alt=''>
 
+    imgTitleEl: HTMLDivElement; // 'img-title'
+    imgTipEl: HTMLDivElement; // 'img-tip': show the zoom ratio
+    imgTipTimeout?: NodeJS.Timeout; // timer: control the display time of 'img-tip'
+    imgFooterEl: HTMLElement; // 'img-footer': including 'img-title', 'img-toolbar', 'gallery-navbar'
+    imgPlayerEl: HTMLDivElement; // 'img-player': including <img class="img-fullscreen" src='' alt=''>
+    imgPlayerImgViewEl: HTMLImageElement; // 'img-fullscreen'
+
     imgList: Array<ImgCto> = new Array<ImgCto>();
 
     public getPopupImgNum = (): number => {
@@ -87,15 +94,8 @@ export class ImgCto {
 
     targetOriginalImgEl: HTMLImageElement;
 
-    refreshImgInterval: NodeJS.Timeout;
-
     imgViewEl: HTMLImageElement; // 'img-view'
-    imgTitleEl: HTMLDivElement; // 'img-title'
-    imgTipEl: HTMLDivElement; // 'img-tip': show the zoom ratio
-    imgTipTimeout?: NodeJS.Timeout; // timer: control the display time of 'img-tip'
-    imgFooterEl: HTMLElement; // 'img-footer': including 'img-title', 'img-toolbar', 'gallery-navbar'
-    imgPlayerEl: HTMLDivElement; // 'img-player': including <img class="img-fullscreen" src='' alt=''>
-    imgPlayerImgViewEl: HTMLImageElement; // 'img-fullscreen'
+    refreshImgInterval: NodeJS.Timeout;
 
     curWidth: number = 0; // image's current width
     curHeight: number = 0;
