@@ -22,7 +22,7 @@ export default {
     // >>> PIN_MODE_SETTINGS
     PIN_MODE_SETTINGS: "Pin Mode Settings:",
     PIN_MODE_NAME: "📌 Pin an image",
-    PIN_MODE_DESC: "You can pin an image onto the top of the screen. (press Esc to close the image where your mouse cursor is hovering)",
+    PIN_MODE_DESC: "You can pin an image onto the top of the screen. And have more options by right click. (press Esc to close the image where your mouse cursor is hovering)",
     PIN_MAXIMUM_NAME: "The maximum image you can pin",
     PIN_COVER_NAME: "Cover mode",
     PIN_COVER_DESC: "After those pinned images reach maximum, you can cover the earliest pinned image when you click an image once again.",

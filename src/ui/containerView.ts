@@ -4,7 +4,6 @@ import {ImgCto, ImgInfoCto, ImgStatusCto} from "src/to/imgTo";
 import {ImgUtil} from "src/util/imgUtil";
 import {OffsetSizeIto} from "../to/commonTo";
 import {MenuView} from "./menuView";
-import tr from "../lang/locale/tr";
 
 export abstract class ContainerView {
 
@@ -32,9 +31,10 @@ export abstract class ContainerView {
         this.plugin = plugin;
         this.containerType = containerType;
         this.pinMaximum = pinMaximum;
-        if (this.containerType === 'PIN') {
-            this.menuView = new MenuView(this);
-        }
+    }
+
+    protected setMenuView = (menuView: MenuView) => {
+        this.menuView = menuView
     }
 
     public getPlugin = (): ImageToolkitPlugin => {
@@ -94,7 +94,13 @@ export abstract class ContainerView {
             return;
         }
         matchedImg.popup = true;
-        this.imgGlobalStatus.popup = true;
+        if (!this.imgGlobalStatus.popup) {
+            this.imgGlobalStatus.activeImgZIndex = 0;
+            this.imgInfoCto.imgList.forEach(value => {
+                value.zIndex = 0;
+            });
+            this.imgGlobalStatus.popup = true;
+        }
         // // display 'oit-main-container-view' or 'oit-pin-container-view'
         this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'block');
     }
@@ -111,6 +117,7 @@ export abstract class ContainerView {
 
         this.imgGlobalStatus.dragging = false;
         this.imgGlobalStatus.popup = false;
+        this.imgGlobalStatus.activeImgZIndex = 0;
         this.imgGlobalStatus.fullScreen = false;
         this.imgGlobalStatus.activeImg = null;
 
@@ -335,6 +342,7 @@ export abstract class ContainerView {
                 this.imgInfoCto.imgTipEl.style.setProperty("font-size", isSingleDigit || 100 >= activeImg.curWidth ? 'xx-small' : 'x-small');
                 this.imgInfoCto.imgTipEl.style.setProperty("left", left + 'px');
                 this.imgInfoCto.imgTipEl.style.setProperty("top", top + 'px');
+                this.imgInfoCto.imgTipEl.style.setProperty("z-index", activeImg.zIndex + '');
                 this.imgInfoCto.imgTipEl.setText(parseInt(ratio + '') + '%');
 
                 this.imgInfoCto.imgTipTimeout = setTimeout(() => {
@@ -364,6 +372,8 @@ export abstract class ContainerView {
         }
     }
 
+    protected setActiveImgZIndex = (activeImg: ImgCto) => {
+    }
     //endregion
 
     //region ================== Gallery NavBar ========================
@@ -390,6 +400,7 @@ export abstract class ContainerView {
 
         // show the img-player
         this.imgInfoCto.imgPlayerEl.style.setProperty('display', 'block');
+        this.imgInfoCto.imgPlayerEl.style.setProperty('z-index', (this.imgGlobalStatus.activeImgZIndex + 10) + '');
         this.imgInfoCto.imgPlayerEl.addEventListener('click', this.closePlayerImg);
 
         const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
@@ -468,6 +479,7 @@ export abstract class ContainerView {
             matchedImg.imgViewEl.addEventListener('mouseleave', this.mouseleaveImgView);
             // drag the image via mouse
             matchedImg.imgViewEl.addEventListener('mousedown', this.mousedownImgView);
+            matchedImg.imgViewEl.addEventListener('mouseup', this.mouseupImgView);
             // zoom the image via mouse wheel
             matchedImg.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer, {passive: true});
         } else {
@@ -481,6 +493,7 @@ export abstract class ContainerView {
             matchedImg.imgViewEl.removeEventListener('mouseenter', this.mouseenterImgView);
             matchedImg.imgViewEl.removeEventListener('mouseleave', this.mouseleaveImgView);
             matchedImg.imgViewEl.removeEventListener('mousedown', this.mousedownImgView);
+            matchedImg.imgViewEl.removeEventListener('mouseup', this.mouseupImgView);
             matchedImg.imgViewEl.removeEventListener('mousewheel', this.mousewheelViewContainer);
             if (matchedImg.refreshImgInterval) {
                 clearInterval(matchedImg.refreshImgInterval);
@@ -622,24 +635,24 @@ export abstract class ContainerView {
     }
 
     protected mousedownImgView = (event: MouseEvent) => {
+        // console.log('mousedownImgView', event, this.imgGlobalStatus.activeImg, event.button);
         event.stopPropagation();
         event.preventDefault();
         const activeImg = this.getAndUpdateActiveImg(event);
         if (!activeImg) return;
         if (0 == event.button) { // left click
+            this.setActiveImgZIndex(activeImg);
             this.imgGlobalStatus.dragging = true;
             // 鼠标相对于图片的位置
             activeImg.moveX = activeImg.imgViewEl.offsetLeft - event.clientX;
             activeImg.moveY = activeImg.imgViewEl.offsetTop - event.clientY;
             // 鼠标按下时持续触发/移动事件
             activeImg.imgViewEl.onmousemove = this.mousemoveImgView;
+
             // 鼠标松开/回弹触发事件
-            activeImg.imgViewEl.onmouseup = this.mouseupImgView;
+            // activeImg.imgViewEl.onmouseup = this.mouseupImgView;
             // activeImg.imgViewEl.onmouseleave = this.mouseleaveImgView;
-        } else if (2 == event.button) { // right click
-            this.menuView?.show(event, activeImg);
         }
-        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg, event.button);
     }
 
     /**
@@ -648,7 +661,7 @@ export abstract class ContainerView {
      * @param offsetSize
      */
     protected mousemoveImgView = (event: MouseEvent, offsetSize?: OffsetSizeIto) => {
-        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
+        // console.log('mousemoveImgView', event, this.imgGlobalStatus.activeImg);
         const activeImg = this.imgGlobalStatus.activeImg;
         if (!this.imgGlobalStatus.dragging && !offsetSize && !activeImg) return;
         if (event) {
@@ -666,15 +679,17 @@ export abstract class ContainerView {
     }
 
     protected mouseupImgView = (event: MouseEvent) => {
-        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
+        // console.log('mouseupImgView', event, this.imgGlobalStatus.activeImg);
         event.preventDefault();
         event.stopPropagation();
         const activeImg = this.imgGlobalStatus.activeImg;
         if (activeImg) {
             activeImg.imgViewEl.onmousemove = null;
-            activeImg.imgViewEl.onmouseup = null;
         }
         this.imgGlobalStatus.dragging = false;
+        if (2 == event.button) { // right click
+            this.menuView?.show(event, activeImg);
+        }
     }
 
     protected mouseleaveImgView = (event: MouseEvent) => {

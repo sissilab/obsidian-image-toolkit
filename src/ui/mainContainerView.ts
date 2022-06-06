@@ -4,7 +4,6 @@ import ImageToolkitPlugin from 'src/main';
 import {ImgCto} from 'src/to/imgTo';
 import {ContainerView} from './containerView';
 import {GalleryNavbarView} from './galleryNavbarView';
-import tr from "../lang/locale/tr";
 
 export class MainContainerView extends ContainerView {
 

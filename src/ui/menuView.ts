@@ -1,4 +1,4 @@
-import {MENU_ITEM_CONF} from "../conf/constants";
+import {MENU_ITEM_CONF, SEPARATOR_SYMBOL} from "../conf/constants";
 import {Menu} from "obsidian";
 import {t} from "../lang/helpers";
 import {PinContainerView} from "./pinContainerView";
@@ -20,10 +20,12 @@ export class MenuView {
         if (this.menu) return;
         this.menu = new Menu();
         for (const itemConf of MENU_ITEM_CONF) {
-            if ("---" === itemConf.title)
-                this.menu.addSeparator();
             if (!itemConf.enable)
                 continue;
+            if (SEPARATOR_SYMBOL === itemConf.title) {
+                this.menu.addSeparator();
+                continue;
+            }
             this.menu.addItem(item => {
                 if (itemConf.icon)
                     item.setIcon(itemConf.icon);
@@ -39,6 +41,6 @@ export class MenuView {
     public show = (event: MouseEvent, activeImg: ImgCto) => {
         MenuView.activeImg = activeImg;
         this.init();
-        this.menu?.showAtPosition({x: event.clientX, y: event.clientY});
+        this.menu.showAtPosition({x: event.clientX, y: event.clientY});
     }
 }

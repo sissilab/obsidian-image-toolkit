@@ -338,9 +338,3 @@ body {
     margin: 0 10px;
     font-size: x-large;
 }
-
-.menu-item-icon .zoom-to-100 {
-    filter: invert(79%) sepia(34%) saturate(5757%);
-    background-image: url("https://raw.githubusercontent.com/FortAwesome/Font-Awesome/951a0d011f8c832991750c16136f8e260efa60b5/svgs/solid/file-medical.svg");
-    background-size: 16px 16px;
-}

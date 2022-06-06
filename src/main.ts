@@ -1,6 +1,6 @@
-import {Plugin} from 'obsidian';
+import {addIcon, Plugin} from 'obsidian';
 import {DEFAULT_SETTINGS, ImageToolkitSettingTab,} from './conf/settings'
-import {VIEW_IMG_SELECTOR} from './conf/constants'
+import {ICONS, VIEW_IMG_SELECTOR} from './conf/constants'
 import {MainContainerView} from './ui/mainContainerView';
 import {PinContainerView} from './ui/pinContainerView';
 import {ImgSettingIto} from "./to/imgTo";
@@ -38,6 +38,7 @@ export default class ImageToolkitPlugin extends Plugin {
 
     async loadSettings() {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        this.addIcons();
     }
 
     async saveSettings() {
@@ -54,6 +55,12 @@ export default class ImageToolkitPlugin extends Plugin {
                 this.containerView.moveImgViewByHotkey('UP');
             },
         }); */
+    }
+
+    private addIcons = () => {
+        for (const icon of ICONS) {
+            addIcon(icon.id, icon.svg);
+        }
     }
 
     private initContainerView = (pinMode: boolean) => {

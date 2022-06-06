@@ -2,7 +2,7 @@ import {CONTAINER_TYPE} from "src/conf/constants";
 import ImageToolkitPlugin from "src/main";
 import {ContainerView} from "./containerView";
 import {ImgCto} from "../to/imgTo";
-import tr from "../lang/locale/tr";
+import {MenuView} from "./menuView";
 
 /**
  * PinContainerView: Pin an image on the top
@@ -13,6 +13,7 @@ export class PinContainerView extends ContainerView {
 
     constructor(plugin: ImageToolkitPlugin, containerType: keyof typeof CONTAINER_TYPE) {
         super(plugin, containerType, plugin.settings.pinMaximum);
+        this.setMenuView(new MenuView(this));
     }
 
     public setActiveImgForMouseEvent(imgCto: ImgCto): void {
@@ -47,7 +48,12 @@ export class PinContainerView extends ContainerView {
         }
         // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
         this.updateImgViewElAndList(this.pinMaximum);
-        return this.getMatchedImg();
+        const matchedImg = this.getMatchedImg();
+        if (matchedImg) {
+            matchedImg.zIndex = (++this.imgGlobalStatus.activeImgZIndex);
+            matchedImg.imgViewEl.style.setProperty('z-index', matchedImg.zIndex + '')
+        }
+        return matchedImg;
     }
 
     /**
@@ -76,6 +82,10 @@ export class PinContainerView extends ContainerView {
         }
         if (!globalPopupFlag) {
             this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'none'); // hide 'oit-pin-container-view'
+            this.imgGlobalStatus.activeImgZIndex = 0;
+            this.imgInfoCto.imgList.forEach(value => {
+                value.zIndex = 0;
+            });
         }
         this.imgGlobalStatus.popup = globalPopupFlag;
         this.addOrRemoveEvents(activeImg, false);
@@ -84,6 +94,20 @@ export class PinContainerView extends ContainerView {
 
     public checkHotkeySettings = (event: KeyboardEvent, hotkey: string): boolean => {
         return false;
+    }
+
+    protected setActiveImgZIndex = (activeImg: ImgCto) => {
+        let isUpdate: boolean = false;
+        for (const imgCto of this.imgInfoCto.imgList) {
+            if (activeImg.index !== imgCto.index && activeImg.zIndex <= imgCto.zIndex) {
+                isUpdate = true;
+                break;
+            }
+        }
+        if (isUpdate) {
+            activeImg.zIndex = (++this.imgGlobalStatus.activeImgZIndex);
+            activeImg.imgViewEl?.style.setProperty("z-index", activeImg.zIndex + '');
+        }
     }
 
 }

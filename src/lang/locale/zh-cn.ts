@@ -19,8 +19,13 @@ export default {
   VIEW_IMAGE_OTHER_NAME: '支持除上述其他地方来预览图片',
   VIEW_IMAGE_OTHER_DESC: '除上述支持范围外，还支持一些其他区域，如flashcards。',
 
+  // >>> PIN_MODE_SETTINGS
+  PIN_MODE_SETTINGS: "贴图模式设置：",
   PIN_MODE_NAME: "📌 将所点击的图片贴到屏幕上",
-  PIN_MODE_DESC: "你可以将当前所点击的图片贴到屏幕上 (1. 按 Esc 关闭已贴图片的展示 2. 目前仅能贴一张图片)",
+  PIN_MODE_DESC: "你可以将当前所点击的图片贴到屏幕上，并且可以通过右击图片选择更多操作（按 Esc 关闭已贴图片的展示）",
+  PIN_MAXIMUM_NAME: "最大贴图数量",
+  PIN_COVER_NAME: "覆盖模式",
+  PIN_COVER_DESC: "当贴图数量达到最大值后，此时再次点击图片，该图片会覆盖最早弹出的那个贴图。",
 
   // >>>查看细节设置：
   VIEW_DETAILS_SETTINGS: '查看细节设置：',
@@ -113,6 +118,7 @@ export default {
   SCALE_Y: 'y轴翻转',
   INVERT_COLOR: '反色',
   COPY: '复制',
+  CLOSE: '关闭',
 
   // tip:
   COPY_IMAGE_SUCCESS: '拷贝图片成功！',

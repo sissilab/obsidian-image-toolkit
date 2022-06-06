@@ -32,6 +32,7 @@ export class ImgStatusCto {
 
     // being dragged
     activeImg: ImgCto;
+    activeImgZIndex: number = 0;
 }
 
 /**
@@ -96,6 +97,7 @@ export class ImgCto {
 
     imgViewEl: HTMLImageElement; // 'img-view'
     refreshImgInterval: NodeJS.Timeout;
+    zIndex: number = 0;
 
     curWidth: number = 0; // image's current width
     curHeight: number = 0;
