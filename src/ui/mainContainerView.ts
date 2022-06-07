@@ -28,7 +28,6 @@ export class MainContainerView extends ContainerView {
 
             // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
             this.updateImgViewElAndList(this.pinMaximum);
-            // imgCto = this.imgInfoCto.imgList[0];
 
             // <div class="img-tip"></div>
             this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgTipEl = createDiv()); // img-tip
@@ -64,9 +63,8 @@ export class MainContainerView extends ContainerView {
             this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgPlayerEl = createDiv('img-player')); // img-player for full screen mode
             this.imgInfoCto.imgPlayerEl.appendChild(this.imgInfoCto.imgPlayerImgViewEl = createEl('img'));
             this.imgInfoCto.imgPlayerImgViewEl.addClass('img-fullscreen');
-        } else {
-            imgCto = this.imgInfoCto.imgList[0];
         }
+        imgCto = this.imgInfoCto.imgList[0];
         this.imgGlobalStatus.activeImg = imgCto;
         return imgCto;
     }

@@ -38,7 +38,7 @@ export default {
     FIT: 'Fit',
     FILL: 'Fill',
     STRETCH: 'Stretch',
-    IMG_VIEW_BACKGROUND_COLOR_NAME: "Set the background color of the previewed image",
+    IMG_VIEW_BACKGROUND_COLOR_NAME: "Set the background color of the previewed image (Only support the image with transparent background)",
 
     // >>>Image Border Settings:
     IMAGE_BORDER_SETTINGS: 'Image Border Settings:',
