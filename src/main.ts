@@ -76,13 +76,16 @@ export default class ImageToolkitPlugin extends Plugin {
 
     private clickImage = (event: MouseEvent) => {
         const targetEl = (<HTMLImageElement>event.target);
-        if (!targetEl || 'IMG' !== targetEl.tagName) return;
+        if (!targetEl || 'IMG' !== targetEl.tagName
+            || !this.containerView.checkHotkeySettings(event, this.settings.viewTriggerHotkey))
+            return;
         this.containerView.renderContainerView(targetEl);
     }
 
     private mouseoverImg = (event: MouseEvent) => {
         const targetEl = (<HTMLImageElement>event.target);
-        if (!targetEl || 'IMG' !== targetEl.tagName) return;
+        if (!targetEl || 'IMG' !== targetEl.tagName)
+            return;
         // console.log('mouseoverImg......');
         const defaultCursor = targetEl.getAttribute('data-oit-default-cursor');
         if (null === defaultCursor) {

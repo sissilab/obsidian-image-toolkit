@@ -157,4 +157,5 @@ export interface ImgSettingIto {
     moveTheImageHotkey: string;
     switchTheImageHotkey: string;
     doubleClickToolbar: string;
+    viewTriggerHotkey: string;
 }

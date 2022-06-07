@@ -33,6 +33,10 @@ export abstract class ContainerView {
         this.pinMaximum = pinMaximum;
     }
 
+    public isPinMode = (): boolean => {
+        return 'PIN' === this.containerType;
+    }
+
     protected setMenuView = (menuView: MenuView) => {
         this.menuView = menuView
     }
@@ -151,7 +155,7 @@ export abstract class ContainerView {
                 this.removeOitContainerView();
             }
         }
-        if ('PIN' === this.containerType && this.plugin.settings.pinCoverMode) {
+        if (this.isPinMode() && this.plugin.settings.pinCoverMode) {
             return true;
         }
         if (!this.imgGlobalStatus.popup) return true;
@@ -472,8 +476,8 @@ export abstract class ContainerView {
     protected addOrRemoveEvents = (matchedImg: ImgCto, isAdd: boolean) => {
         if (isAdd) {
             if (!this.imgGlobalStatus.popup) {
-                document.addEventListener('keyup', this.triggerKeyup);
                 document.addEventListener('keydown', this.triggerKeydown);
+                document.addEventListener('keyup', this.triggerKeyup);
             }
             if ('MAIN' === this.containerType) {
                 // click event: hide container view
@@ -488,8 +492,8 @@ export abstract class ContainerView {
             matchedImg.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer, {passive: true});
         } else {
             if (!this.imgGlobalStatus.popup) {
-                document.removeEventListener('keyup', this.triggerKeyup);
                 document.removeEventListener('keydown', this.triggerKeydown);
+                document.removeEventListener('keyup', this.triggerKeyup);
 
                 if (this.imgGlobalStatus.clickTimer) {
                     clearTimeout(this.imgGlobalStatus.clickTimer);
@@ -552,7 +556,7 @@ export abstract class ContainerView {
      */
     protected triggerKeydown = (event: KeyboardEvent) => {
         //console.log('keydown', event, event.key, this.imgStatus);
-        if ('PIN' === this.containerType) return;
+        if (this.isPinMode()) return;
         event.preventDefault();
         event.stopPropagation();
         if (this.imgGlobalStatus.arrowUp && this.imgGlobalStatus.arrowLeft) {
@@ -635,14 +639,34 @@ export abstract class ContainerView {
         }
     }
 
-    abstract checkHotkeySettings(event: KeyboardEvent, hotkey: string): boolean;
+    public checkHotkeySettings = (event: KeyboardEvent | MouseEvent, hotkey: string): boolean => {
+        switch (hotkey) {
+            case "NONE":
+                return !event.ctrlKey && !event.altKey && !event.shiftKey;
+            case "CTRL":
+                return event.ctrlKey && !event.altKey && !event.shiftKey;
+            case "ALT":
+                return !event.ctrlKey && event.altKey && !event.shiftKey;
+            case "SHIFT":
+                return !event.ctrlKey && !event.altKey && event.shiftKey;
+            case "CTRL_ALT":
+                return event.ctrlKey && event.altKey && !event.shiftKey;
+            case "CTRL_SHIFT":
+                return event.ctrlKey && !event.altKey && event.shiftKey;
+            case "SHIFT_ALT":
+                return !event.ctrlKey && event.altKey && event.shiftKey;
+            case "CTRL_SHIFT_ALT":
+                return event.ctrlKey && event.altKey && event.shiftKey;
+        }
+        return false;
+    }
 
     protected mouseenterImgView = (event: MouseEvent) => {
         this.resetClickTimer();
         event.stopPropagation();
         event.preventDefault();
         this.getAndUpdateActiveImg(event);
-        console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
+        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
     }
 
     protected mousedownImgView = (event: MouseEvent) => {
@@ -705,7 +729,7 @@ export abstract class ContainerView {
     }
 
     protected mouseleaveImgView = (event: MouseEvent) => {
-        console.log('mouseleaveImgView', event, this.imgGlobalStatus.activeImg, '>>> set null');
+        // console.log('mouseleaveImgView', event, this.imgGlobalStatus.activeImg, '>>> set null');
         this.resetClickTimer();
         event.preventDefault();
         event.stopPropagation();
@@ -726,7 +750,7 @@ export abstract class ContainerView {
             this.resetClickTimer();
             if (2 === clickCount) { // double click
                 if (!activeImg) activeImg = this.imgGlobalStatus.activeImg;
-                console.log('mousedownImgView: double click...', activeImg.index);
+                // console.log('mousedownImgView: double click...', activeImg.index);
                 this.clickImgToolbar(null, this.plugin.settings.doubleClickToolbar, activeImg);
             }
         }, 200);

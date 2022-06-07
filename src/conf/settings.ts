@@ -47,6 +47,7 @@ export const DEFAULT_SETTINGS: ImgSettingIto = {
     moveTheImageHotkey: MOVE_THE_IMAGE.DEFAULT_HOTKEY,
     switchTheImageHotkey: SWITCH_THE_IMAGE.DEFAULT_HOTKEY,
     doubleClickToolbar: TOOLBAR_CONF[3].class, // FULL_SCREEN
+    viewTriggerHotkey: MODIFIER_HOTKEYS.NONE
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -372,6 +373,17 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 });
             });
 
+        new Setting(containerEl)
+            .setName(t("VIEW_TRIGGER_HOTKEY_NAME"))
+            .setDesc(t("VIEW_TRIGGER_HOTKEY_DESC"))
+            .addDropdown(async (dropdown) => {
+                dropdown.addOptions(this.getDropdownOptions());
+                dropdown.setValue(this.plugin.settings.viewTriggerHotkey);
+                dropdown.onChange(async (option) => {
+                    this.plugin.settings.viewTriggerHotkey = option;
+                    await this.plugin.saveSettings();
+                });
+            });
         //endregion
 
     }

@@ -117,26 +117,4 @@ export class MainContainerView extends ContainerView {
         this.galleryNavbarView?.switchImage(next);
     }
 
-    public checkHotkeySettings = (event: KeyboardEvent, hotkey: string): boolean => {
-        switch (hotkey) {
-            case "NONE":
-                return !event.ctrlKey && !event.altKey && !event.shiftKey;
-            case "CTRL":
-                return event.ctrlKey && !event.altKey && !event.shiftKey;
-            case "ALT":
-                return !event.ctrlKey && event.altKey && !event.shiftKey;
-            case "SHIFT":
-                return !event.ctrlKey && !event.altKey && event.shiftKey;
-            case "CTRL_ALT":
-                return event.ctrlKey && event.altKey && !event.shiftKey;
-            case "CTRL_SHIFT":
-                return event.ctrlKey && !event.altKey && event.shiftKey;
-            case "SHIFT_ALT":
-                return !event.ctrlKey && event.altKey && event.shiftKey;
-            case "CTRL_SHIFT_ALT":
-                return event.ctrlKey && event.altKey && event.shiftKey;
-        }
-        return false;
-    }
-
 }

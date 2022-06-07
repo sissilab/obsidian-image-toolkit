@@ -92,10 +92,6 @@ export class PinContainerView extends ContainerView {
     }
     //endregion
 
-    public checkHotkeySettings = (event: KeyboardEvent, hotkey: string): boolean => {
-        return false;
-    }
-
     protected setActiveImgZIndex = (activeImg: ImgCto) => {
         let isUpdate: boolean = false;
         for (const imgCto of this.imgInfoCto.imgList) {

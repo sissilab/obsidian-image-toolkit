@@ -103,6 +103,8 @@ export default {
   SWITCH_THE_IMAGE_NAME: "为切换图片设置快捷键",
   SWITCH_THE_IMAGE_DESC: "你可以利用快捷键来切换在图片导航栏上的图片至上一张/下一张。(注意: 仅当开启“展示图片导航”后，才能使用该快捷键来控制切换图片。)",
   DOUBLE_CLICK_TOOLBAR_NAME: "双击",
+  VIEW_TRIGGER_HOTKEY_NAME: "为触发弹出查看图片设置快捷键",
+  VIEW_TRIGGER_HOTKEY_DESC: "当你设置为“无”，你可以直接点击预览图片；否则，须按住已配置的修改键（Ctrl、Alt、Shift）才能点击查看某个图片。",
 
   // MODIFIER_HOTKEYS
   NONE: "无",
