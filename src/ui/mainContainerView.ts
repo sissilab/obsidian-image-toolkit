@@ -1,4 +1,4 @@
-import {CONTAINER_TYPE, IMG_TOOLBAR_ICONS} from 'src/conf/constants';
+import {CONTAINER_TYPE, TOOLBAR_CONF} from 'src/conf/constants';
 import {t} from 'src/lang/helpers';
 import ImageToolkitPlugin from 'src/main';
 import {ImgCto} from 'src/to/imgTo';
@@ -46,10 +46,11 @@ export class MainContainerView extends ContainerView {
             imgToolbarUlEL.addClass('img-toolbar');
             this.imgInfoCto.imgFooterEl.appendChild(imgToolbarUlEL);
             let toolbarLi: HTMLLIElement;
-            for (const toolbar of IMG_TOOLBAR_ICONS) {
+            for (const toolbar of TOOLBAR_CONF) {
+                if (!toolbar.enableToolbarIcon) continue;
                 imgToolbarUlEL.appendChild(toolbarLi = createEl('li'));
                 toolbarLi.addClass(toolbar.class);
-                toolbarLi.setAttribute('alt', toolbar.key);
+                toolbarLi.setAttribute('alt', toolbar.title);
                 // @ts-ignore
                 toolbarLi.setAttribute('title', t(toolbar.title));
             }

@@ -7,116 +7,97 @@ export const ICONS = [{
     svg: `<g> <path id="svg_1" d="m42,6c-18.8,0 -34,15.2 -34,34s15.2,34 34,34c7.4,0 14.3,-2.4 19.9,-6.4l26.3,26.3l5.6,-5.6l-26,-26.1c5.1,-6 8.2,-13.7 8.2,-22.1c0,-18.9 -15.2,-34.1 -34,-34.1zm0,4c16.6,0 30,13.4 30,30s-13.4,30 -30,30s-30,-13.4 -30,-30s13.4,-30 30,-30z" stroke-width="2" stroke="currentColor" fill="currentColor"/> <text font-weight="bold" xml:space="preserve" text-anchor="start" font-family="Noto Sans JP" font-size="24" id="svg_2" y="48.5" x="24" stroke-width="0" stroke="#000" fill="#000000">1:1</text> </g>`
 }]
 
-export const IMG_TOOLBAR_ICONS = [{
-    key: 'zoom_to_100',
-    title: "ZOOM_TO_100",
-    class: 'toolbar_zoom_to_100'
-}, {
-    key: 'zoom_in',
-    title: "ZOOM_IN",
-    class: 'toolbar_zoom_in'
-}, {
-    key: 'zoom_out',
-    title: "ZOOM_OUT",
-    class: 'toolbar_zoom_out'
-}, {
-    key: 'full_screen',
-    title: "FULL_SCREEN",
-    class: 'toolbar_full_screen'
-}, {
-    key: 'refresh',
-    title: "REFRESH",
-    class: 'toolbar_refresh'
-}, {
-    key: 'rotate_left',
-    title: "ROTATE_LEFT",
-    class: 'toolbar_rotate_left'
-}, {
-    key: 'rotate_right',
-    title: "ROTATE_RIGHT",
-    class: 'toolbar_rotate_right'
-}, {
-    key: 'scale_x',
-    title: "SCALE_X",
-    class: 'toolbar_scale_x'
-}, {
-    key: 'scale_y',
-    title: "SCALE_Y",
-    class: 'toolbar_scale_y'
-}, {
-    key: 'invert_color',
-    title: "INVERT_COLOR",
-    class: 'toolbar_invert_color'
-}, {
-    key: 'copy',
-    title: "COPY",
-    class: 'toolbar_copy'
-}];
-
 export const SEPARATOR_SYMBOL = "---";
-export const MENU_ITEM_CONF = [{
+
+export const TOOLBAR_CONF = [{
     title: "ZOOM_TO_100",
     class: 'toolbar_zoom_to_100',
     icon: 'zoom-to-100',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: "ZOOM_IN",
     class: 'toolbar_zoom_in',
     icon: 'zoom-in',
-    enable: false
+    enableToolbarIcon: true,
+    enableMenu: false,
+    enableHotKey: true
 }, {
     title: "ZOOM_OUT",
     class: 'toolbar_zoom_out',
     icon: 'zoom-out',
-    enable: false
+    enableToolbarIcon: true,
+    enableMenu: false,
+    enableHotKey: true
 }, {
     title: "FULL_SCREEN",
     class: 'toolbar_full_screen',
     icon: 'expand',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: "REFRESH",
     class: 'toolbar_refresh',
     icon: 'refresh-ccw',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: "ROTATE_LEFT",
     class: 'toolbar_rotate_left',
     icon: 'rotate-ccw',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: "ROTATE_RIGHT",
     class: 'toolbar_rotate_right',
     icon: 'rotate-cw',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: "SCALE_X",
     class: 'toolbar_scale_x',
     icon: 'move-horizontal',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: "SCALE_Y",
     class: 'toolbar_scale_y',
     icon: 'move-vertical',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: "INVERT_COLOR",
     class: 'toolbar_invert_color',
     icon: 'droplet',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: "COPY",
     class: 'toolbar_copy',
     icon: 'copy',
-    enable: true
+    enableToolbarIcon: true,
+    enableMenu: true,
+    enableHotKey: true
 }, {
     title: SEPARATOR_SYMBOL,
-    enable: true
+    enableToolbarIcon: false,
+    enableMenu: true,
+    enableHotKey: false
 }, {
     title: "CLOSE",
     class: 'toolbar_close',
     icon: 'trash',
-    enable: true
+    enableToolbarIcon: false,
+    enableMenu: true,
+    enableHotKey: true
 }];
 
 export const IMG_FULL_SCREEN_MODE = {

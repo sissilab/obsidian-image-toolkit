@@ -1,4 +1,4 @@
-import {MENU_ITEM_CONF, SEPARATOR_SYMBOL} from "../conf/constants";
+import {SEPARATOR_SYMBOL, TOOLBAR_CONF} from "../conf/constants";
 import {Menu} from "obsidian";
 import {t} from "../lang/helpers";
 import {PinContainerView} from "./pinContainerView";
@@ -19,8 +19,8 @@ export class MenuView {
     private init = () => {
         if (this.menu) return;
         this.menu = new Menu();
-        for (const itemConf of MENU_ITEM_CONF) {
-            if (!itemConf.enable)
+        for (const itemConf of TOOLBAR_CONF) {
+            if (!itemConf.enableMenu)
                 continue;
             if (SEPARATOR_SYMBOL === itemConf.title) {
                 this.menu.addSeparator();

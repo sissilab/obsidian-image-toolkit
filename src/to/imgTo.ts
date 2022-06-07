@@ -1,18 +1,3 @@
-import {
-    GALLERY_IMG_BORDER_ACTIVE_COLOR,
-    GALLERY_NAVBAR_DEFAULT_COLOR,
-    GALLERY_NAVBAR_HOVER_COLOR,
-    IMG_BORDER_COLOR,
-    IMG_BORDER_STYLE,
-    IMG_BORDER_WIDTH,
-    IMG_DEFAULT_BACKGROUND_COLOR,
-    IMG_FULL_SCREEN_MODE,
-    MOVE_THE_IMAGE,
-    SWITCH_THE_IMAGE
-} from "../conf/constants";
-import tr from "../lang/locale/tr";
-
-
 /**
  * typescript class object for defining operating status of the image
  */
@@ -33,6 +18,9 @@ export class ImgStatusCto {
     // being dragged
     activeImg: ImgCto;
     activeImgZIndex: number = 0;
+
+    clickCount: number = 0;
+    clickTimer: NodeJS.Timeout;
 }
 
 /**
@@ -143,10 +131,12 @@ export interface ImgSettingIto {
     viewImageWithALink: boolean;
     viewImageOther: boolean;
 
+    // PIN MODE
     pinMode: boolean;
     pinMaximum: number;
     pinCoverMode: boolean; // cover the earliest image which is being popped up
 
+    // VIEW DETAIL
     imageMoveSpeed: number;
     imgTipToggle: boolean;
     imgFullScreenMode: string;
@@ -166,4 +156,5 @@ export interface ImgSettingIto {
     // hotkeys conf
     moveTheImageHotkey: string;
     switchTheImageHotkey: string;
+    doubleClickToolbar: string;
 }

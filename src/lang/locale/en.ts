@@ -102,6 +102,7 @@ export default {
     MOVE_THE_IMAGE_DESC: "You can move the image on the popup layer by hotkey.",
     SWITCH_THE_IMAGE_NAME: "Set the hotkey for switching the image",
     SWITCH_THE_IMAGE_DESC: "You can switch to the previous/next image on the gallery navbar by hotkey. (NOTE: You need to turn on 'Display gallery navbar' first, if you wanna use this hotkey.)",
+    DOUBLE_CLICK_TOOLBAR_NAME: "Double click",
 
     // MODIFIER_HOTKEYS
     NONE: "None",

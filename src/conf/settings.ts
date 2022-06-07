@@ -12,7 +12,7 @@ import {
     IMG_FULL_SCREEN_MODE,
     MODIFIER_HOTKEYS,
     MOVE_THE_IMAGE,
-    SWITCH_THE_IMAGE
+    SWITCH_THE_IMAGE, TOOLBAR_CONF
 } from './constants';
 import Pickr from '@simonwep/pickr';
 import {ImgSettingIto} from "../to/imgTo";
@@ -46,6 +46,7 @@ export const DEFAULT_SETTINGS: ImgSettingIto = {
     // hotkeys conf
     moveTheImageHotkey: MOVE_THE_IMAGE.DEFAULT_HOTKEY,
     switchTheImageHotkey: SWITCH_THE_IMAGE.DEFAULT_HOTKEY,
+    doubleClickToolbar: TOOLBAR_CONF[3].class, // FULL_SCREEN
 }
 
 export class ImageToolkitSettingTab extends PluginSettingTab {
@@ -355,6 +356,22 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         if (moveTheImageSetting) {
             this.checkDropdownOptions(SWITCH_THE_IMAGE.CODE, moveTheImageSetting);
         }
+
+        new Setting(containerEl)
+            .setName(t("DOUBLE_CLICK_TOOLBAR_NAME"))
+            .addDropdown(async (dropdown) => {
+                for (const conf of TOOLBAR_CONF) {
+                    if (!conf.enableHotKey) continue;
+                    // @ts-ignore
+                    dropdown.addOption(conf.class, t(conf.title));
+                }
+                dropdown.setValue(this.plugin.settings.doubleClickToolbar);
+                dropdown.onChange(async (option) => {
+                    this.plugin.settings.doubleClickToolbar = option;
+                    await this.plugin.saveSettings();
+                });
+            });
+
         //endregion
 
     }

@@ -183,6 +183,10 @@ export abstract class ContainerView {
         matchedImg.scaleX = false;
         matchedImg.scaleY = false;
         matchedImg.fullScreen = false;
+
+        if (!this.imgGlobalStatus.popup) {
+            this.resetClickTimer();
+        }
     }
 
     /**
@@ -486,6 +490,12 @@ export abstract class ContainerView {
             if (!this.imgGlobalStatus.popup) {
                 document.removeEventListener('keyup', this.triggerKeyup);
                 document.removeEventListener('keydown', this.triggerKeydown);
+
+                if (this.imgGlobalStatus.clickTimer) {
+                    clearTimeout(this.imgGlobalStatus.clickTimer);
+                    this.imgGlobalStatus.clickTimer = null;
+                    this.imgGlobalStatus.clickCount = 0;
+                }
             }
             if ('MAIN' === this.containerType) {
                 this.imgInfoCto.oitContainerViewEl.removeEventListener('click', this.closeContainerView);
@@ -628,10 +638,11 @@ export abstract class ContainerView {
     abstract checkHotkeySettings(event: KeyboardEvent, hotkey: string): boolean;
 
     protected mouseenterImgView = (event: MouseEvent) => {
+        this.resetClickTimer();
         event.stopPropagation();
         event.preventDefault();
         this.getAndUpdateActiveImg(event);
-        // console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
+        console.log('mouseenterImgView', event, this.imgGlobalStatus.activeImg);
     }
 
     protected mousedownImgView = (event: MouseEvent) => {
@@ -641,6 +652,7 @@ export abstract class ContainerView {
         const activeImg = this.getAndUpdateActiveImg(event);
         if (!activeImg) return;
         if (0 == event.button) { // left click
+            this.setClickTimer(activeImg);
             this.setActiveImgZIndex(activeImg);
             this.imgGlobalStatus.dragging = true;
             // 鼠标相对于图片的位置
@@ -693,17 +705,36 @@ export abstract class ContainerView {
     }
 
     protected mouseleaveImgView = (event: MouseEvent) => {
-        // console.log('mouseleaveImgView', event, this.imgGlobalStatus.activeImg, '>>> set null');
+        console.log('mouseleaveImgView', event, this.imgGlobalStatus.activeImg, '>>> set null');
+        this.resetClickTimer();
         event.preventDefault();
         event.stopPropagation();
         const activeImg = this.imgGlobalStatus.activeImg;
         if (activeImg) {
             activeImg.imgViewEl.onmousemove = null;
             activeImg.imgViewEl.onmouseup = null;
-            // activeImg.imgViewEl.onmouseleave = null;
             this.setActiveImgForMouseEvent(null);
         }
         this.imgGlobalStatus.dragging = false;
+    }
+
+    private setClickTimer = (activeImg?: ImgCto) => {
+        ++this.imgGlobalStatus.clickCount;
+        clearTimeout(this.imgGlobalStatus.clickTimer);
+        this.imgGlobalStatus.clickTimer = setTimeout(() => {
+            const clickCount = this.imgGlobalStatus.clickCount;
+            this.resetClickTimer();
+            if (2 === clickCount) { // double click
+                if (!activeImg) activeImg = this.imgGlobalStatus.activeImg;
+                console.log('mousedownImgView: double click...', activeImg.index);
+                this.clickImgToolbar(null, this.plugin.settings.doubleClickToolbar, activeImg);
+            }
+        }, 200);
+    }
+
+    private resetClickTimer = () => {
+        this.imgGlobalStatus.clickTimer = null;
+        this.imgGlobalStatus.clickCount = 0;
     }
 
     private getAndUpdateActiveImg = (event: MouseEvent | KeyboardEvent): ImgCto => {
@@ -748,6 +779,7 @@ export abstract class ContainerView {
 
     public clickImgToolbar = (event: MouseEvent, targetElClass?: string, activeImg?: ImgCto): void => {
         if (!targetElClass && !activeImg) {
+            if (!event) return;
             // comes from clicking toolbar
             targetElClass = (<HTMLElement>event.target).className;
             activeImg = this.imgGlobalStatus.activeImg;

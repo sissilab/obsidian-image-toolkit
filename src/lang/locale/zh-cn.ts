@@ -102,6 +102,7 @@ export default {
   MOVE_THE_IMAGE_DESC: "你可以利用快捷键来移动弹出层上的图片。",
   SWITCH_THE_IMAGE_NAME: "为切换图片设置快捷键",
   SWITCH_THE_IMAGE_DESC: "你可以利用快捷键来切换在图片导航栏上的图片至上一张/下一张。(注意: 仅当开启“展示图片导航”后，才能使用该快捷键来控制切换图片。)",
+  DOUBLE_CLICK_TOOLBAR_NAME: "双击",
 
   // MODIFIER_HOTKEYS
   NONE: "无",
