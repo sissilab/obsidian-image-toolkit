@@ -154,7 +154,8 @@ body {
     color: #fff;
     font-size: 15px;
     background-color: rgba(0, 0, 0, .3);
-    border-radius: 12px;
+    border-radius: 8px;
+    line-height: 1.5;
     /* filter: alpha(opacity=100) */
 }
 

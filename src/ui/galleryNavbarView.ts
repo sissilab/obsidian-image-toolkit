@@ -61,9 +61,10 @@ export class GalleryNavbarView {
         const imgList: Array<GalleryImgCto> = galleryImg.galleryImgList;
         const imgContextHash: string[] = this.getTargetImgContextHash(this.mainContainerView.getLastClickedImgEl(), activeView.containerEl, this.plugin.imgSelector);
         let liEl: HTMLLIElement, imgEl, liElActive: HTMLLIElement;
-        let targetImageIdx = -1;
+        let imgListEl: Array<HTMLImageElement> = new Array<HTMLImageElement>();
+        let targetImageIdx = -1, targetRealIdx = 0;
         let isAddGalleryActive: boolean = false;
-        let prevHash: string, nextHash: string;
+        let prevHash: string, nextHash: string, dataIndex: string;
         const viewImageWithALink: boolean = this.plugin.settings.viewImageWithALink;
         for (let i = 0, len = imgList.length; i < len; i++) {
             const img = imgList[i];
@@ -74,6 +75,7 @@ export class GalleryNavbarView {
             imgEl.addClass('gallery-img');
             imgEl.setAttr('alt', img.alt);
             imgEl.setAttr('src', img.src);
+            imgListEl.push(imgEl);
             this.mainContainerView.setImgViewDefaultBackground(imgEl);
             // find the target image (which image is just clicked)
             if (!imgContextHash || isAddGalleryActive) continue;
@@ -81,6 +83,7 @@ export class GalleryNavbarView {
                 if (0 > targetImageIdx) {
                     targetImageIdx = i;
                     liElActive = liEl;
+                    targetRealIdx = imgListEl.length;
                 }
                 if (0 == i) {
                     prevHash = null;
@@ -98,6 +101,13 @@ export class GalleryNavbarView {
                 }
             }
         }
+
+        const realTotalNum = imgListEl.length;
+        this.mainContainerView.renderImgTitle(null, '[' + targetRealIdx + '/' + realTotalNum + ']');
+        imgListEl.forEach((value, index) => {
+            value.dataset.index = '[' + (index + 1) + '/' + realTotalNum + ']';
+        });
+
         if (0 <= targetImageIdx) {
             if (liElActive) {
                 liElActive.addClass('gallery-active');
@@ -184,7 +194,7 @@ export class GalleryNavbarView {
         // console.log('IMAGE_SELECTOR>>', imageSelector, imgs);
         const len = imgs.length;
         for (let i = 0; i < len; i++) {
-            if (imgEl = imgs[i]) {
+            if ((imgEl = imgs[i])) {
                 if ('1' == imgEl.getAttribute('data-oit-target')) {
                     targetIdx = i;
                     targetImgHash = md5Img(imgEl.alt, imgEl.src);
@@ -218,7 +228,7 @@ export class GalleryNavbarView {
         if (imgEL) {
             const activeImg = this.mainContainerView.getActiveImg();
             this.mainContainerView.initDefaultData(activeImg, imgEL.style);
-            this.mainContainerView.refreshImg(activeImg, imgEL.src, imgEL.alt ? imgEL.alt : ' ');
+            this.mainContainerView.refreshImg(activeImg, imgEL.src, imgEL.alt || '', imgEL.dataset.index);
         }
 
         liEl.addClass('gallery-active');

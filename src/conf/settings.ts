@@ -270,7 +270,8 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         let galleryNavbarDefaultColorSetting: Setting, galleryNavbarHoverColorSetting: Setting,
             galleryImgBorderToggleSetting: Setting, galleryImgBorderActiveColorSetting: Setting;
 
-        createEl('h3', {text: t("GALLERY_NAVBAR_SETTINGS")});
+        containerEl.createEl('h3', {text: t("GALLERY_NAVBAR_SETTINGS")});
+
         new Setting(containerEl)
             .setName(t("GALLERY_NAVBAR_TOGGLE_NAME"))
             .setDesc(t("GALLERY_NAVBAR_TOGGLE_DESC"))

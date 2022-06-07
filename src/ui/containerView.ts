@@ -281,11 +281,12 @@ export abstract class ContainerView {
      * @param imgCto
      * @param imgSrc
      * @param imgAlt
+     * @param imgTitleIndex
      */
-    public refreshImg = (imgCto: ImgCto, imgSrc?: string, imgAlt?: string) => {
+    public refreshImg = (imgCto: ImgCto, imgSrc?: string, imgAlt?: string, imgTitleIndex?: string) => {
         if (!imgSrc) imgSrc = imgCto.imgViewEl.src;
         if (!imgAlt) imgAlt = imgCto.imgViewEl.alt;
-        this.renderImgTitle(imgAlt);
+        this.renderImgTitle(imgAlt, imgTitleIndex);
         if (imgSrc) {
             if (imgCto.refreshImgInterval) {
                 clearInterval(imgCto.refreshImgInterval);
@@ -308,7 +309,7 @@ export abstract class ContainerView {
         }
     }
 
-    protected renderImgTitle = (alt: string): void => {
+    public renderImgTitle = (name?: string, index?: string): void => {
     }
 
     protected setImgViewPosition = (imgZoomSize: ImgCto, rotate?: number) => {

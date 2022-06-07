@@ -38,9 +38,12 @@ export class MainContainerView extends ContainerView {
             // <div class="img-footer"> ... <div>
             this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgFooterEl = createDiv()); // img-footer
             this.imgInfoCto.imgFooterEl.addClass('img-footer');
+
             // <div class="img-title"></div>
-            this.imgInfoCto.imgFooterEl.appendChild(this.imgInfoCto.imgTitleEl = createDiv()); // img-title
-            this.imgInfoCto.imgTitleEl.addClass('img-title');
+            this.imgInfoCto.imgFooterEl.appendChild(this.imgInfoCto.imgTitleEl = createDiv('img-title')); // img-title
+            this.imgInfoCto.imgTitleEl.appendChild(this.imgInfoCto.imgTitleNameEl = createSpan('img-title-name'));
+            this.imgInfoCto.imgTitleEl.appendChild(this.imgInfoCto.imgTitleIndexEl = createSpan('img-title-index'));
+
             // <ul class="img-toolbar">
             const imgToolbarUlEL = createEl('ul'); // img-toolbar
             imgToolbarUlEL.addClass('img-toolbar');
@@ -76,7 +79,7 @@ export class MainContainerView extends ContainerView {
         if (!activeImg && !(activeImg = this.imgGlobalStatus.activeImg)) return;
         if (this.imgInfoCto.oitContainerViewEl) {
             this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'none'); // hide 'oit-main-container-view'
-            this.renderImgTitle('');
+            this.renderImgTitle('', '');
             this.renderImgView(activeImg.imgViewEl, '', '');
             // remove events
             this.imgGlobalStatus.popup = false;
@@ -107,8 +110,11 @@ export class MainContainerView extends ContainerView {
     }
     //endregion
 
-    protected renderImgTitle = (alt: string): void => {
-        this.imgInfoCto.imgTitleEl?.setText(alt);
+    public renderImgTitle = (name?: string, index?: string): void => {
+        if (undefined !== name && null !== name)
+            this.imgInfoCto.imgTitleNameEl?.setText(name);
+        if (undefined !== index && null !== index)
+            this.imgInfoCto.imgTitleIndexEl?.setText(' ' + index);
     }
 
     protected switchImageOnGalleryNavBar = (event: KeyboardEvent, next: boolean) => {

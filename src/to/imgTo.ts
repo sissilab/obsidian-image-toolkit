@@ -59,6 +59,9 @@ export class ImgInfoCto {
     imgContainerEl: HTMLDivElement; // 'img-container': including <img class='img-view' src='' alt=''>
 
     imgTitleEl: HTMLDivElement; // 'img-title'
+    imgTitleNameEl: HTMLSpanElement; // 'img-title-name'
+    imgTitleIndexEl: HTMLSpanElement; // 'img-title-index'
+
     imgTipEl: HTMLDivElement; // 'img-tip': show the zoom ratio
     imgTipTimeout?: NodeJS.Timeout; // timer: control the display time of 'img-tip'
     imgFooterEl: HTMLElement; // 'img-footer': including 'img-title', 'img-toolbar', 'gallery-navbar'
