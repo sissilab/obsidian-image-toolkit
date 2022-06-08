@@ -465,7 +465,7 @@ export abstract class ContainerView {
                 document.addEventListener('keydown', this.triggerKeydown);
                 document.addEventListener('keyup', this.triggerKeyup);
             }
-            if ('MAIN' === this.containerType) {
+            if (!this.isPinMode()) {
                 // click event: hide container view
                 this.imgInfoCto.oitContainerViewEl.addEventListener('click', this.closeContainerView);
             }
@@ -487,7 +487,7 @@ export abstract class ContainerView {
                     this.imgGlobalStatus.clickCount = 0;
                 }
             }
-            if ('MAIN' === this.containerType) {
+            if (!this.isPinMode()) {
                 this.imgInfoCto.oitContainerViewEl.removeEventListener('click', this.closeContainerView);
             }
             matchedImg.imgViewEl.removeEventListener('mouseenter', this.mouseenterImgView);
@@ -670,10 +670,6 @@ export abstract class ContainerView {
             activeImg.moveY = activeImg.imgViewEl.offsetTop - event.clientY;
             // 鼠标按下时持续触发/移动事件
             activeImg.imgViewEl.onmousemove = this.mousemoveImgView;
-
-            // 鼠标松开/回弹触发事件
-            // activeImg.imgViewEl.onmouseup = this.mouseupImgView;
-            // activeImg.imgViewEl.onmouseleave = this.mouseleaveImgView;
         }
     }
 
@@ -685,47 +681,49 @@ export abstract class ContainerView {
     protected mousemoveImgView = (event: MouseEvent, offsetSize?: OffsetSizeIto) => {
         // console.log('mousemoveImgView', event, this.imgGlobalStatus.activeImg);
         const activeImg = this.imgGlobalStatus.activeImg;
-        if (!this.imgGlobalStatus.dragging && !offsetSize && !activeImg) return;
+        if (!activeImg) return;
         if (event) {
+            if (!this.imgGlobalStatus.dragging) return;
+            // drag via mouse cursor (Both Mode)
             activeImg.left = event.clientX + activeImg.moveX;
             activeImg.top = event.clientY + activeImg.moveY;
         } else if (offsetSize) {
+            // move by arrow keys (Normal Mode)
             activeImg.left += offsetSize.offsetX;
             activeImg.top += offsetSize.offsetY;
         } else {
             return;
         }
         // move the image
-        activeImg.imgViewEl.style.setProperty('margin-top', activeImg.top + 'px', 'important');
         activeImg.imgViewEl.style.setProperty('margin-left', activeImg.left + 'px', 'important');
+        activeImg.imgViewEl.style.setProperty('margin-top', activeImg.top + 'px', 'important');
     }
 
     protected mouseupImgView = (event: MouseEvent) => {
         // console.log('mouseupImgView', event, this.imgGlobalStatus.activeImg);
+        this.imgGlobalStatus.dragging = false;
         event.preventDefault();
         event.stopPropagation();
         const activeImg = this.imgGlobalStatus.activeImg;
         if (activeImg) {
             activeImg.imgViewEl.onmousemove = null;
-        }
-        this.imgGlobalStatus.dragging = false;
-        if (2 == event.button) { // right click
-            this.menuView?.show(event, activeImg);
+            if (2 == event.button) { // right click
+                this.menuView?.show(event, activeImg);
+            }
         }
     }
 
     protected mouseleaveImgView = (event: MouseEvent) => {
         // console.log('mouseleaveImgView', event, this.imgGlobalStatus.activeImg, '>>> set null');
+        this.imgGlobalStatus.dragging = false;
         this.resetClickTimer();
         event.preventDefault();
         event.stopPropagation();
         const activeImg = this.imgGlobalStatus.activeImg;
         if (activeImg) {
             activeImg.imgViewEl.onmousemove = null;
-            activeImg.imgViewEl.onmouseup = null;
-            this.setActiveImgForMouseEvent(null);
+            this.setActiveImgForMouseEvent(null); // for pin mode
         }
-        this.imgGlobalStatus.dragging = false;
     }
 
     private setClickTimer = (activeImg?: ImgCto) => {
