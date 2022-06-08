@@ -29,7 +29,7 @@
 
 当你关闭”贴图模式“（将所点击的图片贴到屏幕上），将处于**普通模式**。
 
-![normal_mode_screenshot](example/normal_mode_screenshot.png)
+![normal_mode_screenshot](https://raw.githubusercontent.com/sissilab/obsidian-image-toolkit/master/example/normal_mode_screenshot.png)
 
 **规则**:
 - 当你点击图片后，该图片将会弹出，并且背景为透明遮罩层
@@ -55,7 +55,7 @@
 
 当你打开”贴图模式“（将所点击的图片贴到屏幕上），将处于**贴图模式**。
 
-![pin_mode_screenshot](example/pin_mode_screenshot.png)
+![pin_mode_screenshot](https://raw.githubusercontent.com/sissilab/obsidian-image-toolkit/master/example/pin_mode_screenshot.png)
 
 **规则**:
 - 你可以在同时点击和弹出1指5张图片

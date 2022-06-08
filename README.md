@@ -29,7 +29,7 @@ When you click an image, it will be popped up and you can preview, zoom, move, r
 
 When you turn off 'Pin an image' on the settings page, it's in **Normal Mode**. 
 
-![normal_mode_screenshot](example/normal_mode_screenshot.png)
+![normal_mode_screenshot](https://raw.githubusercontent.com/sissilab/obsidian-image-toolkit/master/example/normal_mode_screenshot.png)
 
 **Rule**:
 - After clicking the image, the image will be popped up with transparent mask layer on the background
@@ -55,7 +55,7 @@ When you turn off 'Pin an image' on the settings page, it's in **Normal Mode**.
 
 When you turn on 'Pin an image' on the settings page, it's in **Pin Mode**.
 
-![pin_mode_screenshot](example/pin_mode_screenshot.png)
+![pin_mode_screenshot](https://raw.githubusercontent.com/sissilab/obsidian-image-toolkit/master/example/pin_mode_screenshot.png)
 
 **Rule**:
 - You can click and popped up 1 to 5 images at a time
