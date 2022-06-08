@@ -37,10 +37,10 @@ export const DEFAULT_SETTINGS: ImgSettingIto = {
     imageBorderStyle: IMG_BORDER_STYLE.SOLID,
     imageBorderColor: IMG_BORDER_COLOR.RED,
 
-    galleryNavbarToggle: false,
+    galleryNavbarToggle: true,
     galleryNavbarDefaultColor: GALLERY_NAVBAR_DEFAULT_COLOR,
     galleryNavbarHoverColor: GALLERY_NAVBAR_HOVER_COLOR,
-    galleryImgBorderActive: false,
+    galleryImgBorderActive: true,
     galleryImgBorderActiveColor: GALLERY_IMG_BORDER_ACTIVE_COLOR,
 
     // hotkeys conf
