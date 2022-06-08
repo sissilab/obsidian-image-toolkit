@@ -69,6 +69,17 @@ export class MainContainerView extends ContainerView {
         return imgCto;
     }
 
+    public openOitContainerView = (matchedImg: ImgCto):void => {
+        if (!this.imgInfoCto.oitContainerViewEl) {
+            console.error('obsidian-image-toolkit: oit-*-container-view has not been initialized!');
+            return;
+        }
+        matchedImg.popup = true;
+        this.imgGlobalStatus.popup = true;
+        // display 'oit-main-container-view'
+        this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'block');
+    }
+
     public closeContainerView = (event?: MouseEvent, activeImg?: ImgCto): void => {
         if (event) {
             const targetClassName = (<HTMLElement>event.target).className;

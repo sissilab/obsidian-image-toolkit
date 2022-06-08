@@ -48,12 +48,27 @@ export class PinContainerView extends ContainerView {
         }
         // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
         this.updateImgViewElAndList(this.pinMaximum);
-        const matchedImg = this.getMatchedImg();
-        if (matchedImg) {
-            matchedImg.zIndex = (++this.imgGlobalStatus.activeImgZIndex);
-            matchedImg.imgViewEl.style.setProperty('z-index', matchedImg.zIndex + '')
+        return  this.getMatchedImg();
+    }
+
+    public openOitContainerView = (matchedImg: ImgCto): void => {
+        if (!this.imgInfoCto.oitContainerViewEl) {
+            console.error('obsidian-image-toolkit: oit-*-container-view has not been initialized!');
+            return;
         }
-        return matchedImg;
+        matchedImg.popup = true;
+        if (!this.imgGlobalStatus.popup) {
+            this.imgGlobalStatus.popup = true;
+            this.imgGlobalStatus.activeImgZIndex = 0;
+            this.imgInfoCto.imgList.forEach(value => {
+                value.zIndex = 0;
+            });
+        } else {
+            matchedImg.zIndex = (++this.imgGlobalStatus.activeImgZIndex);
+        }
+        matchedImg.imgViewEl.style.setProperty('z-index', matchedImg.zIndex + '');
+        // display 'oit-pin-container-view'
+        this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'block');
     }
 
     /**

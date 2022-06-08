@@ -92,22 +92,7 @@ export abstract class ContainerView {
 
     abstract initContainerViewDom(containerEl: HTMLElement): ImgCto;
 
-    protected openOitContainerView = (matchedImg: ImgCto) => {
-        if (!this.imgInfoCto.oitContainerViewEl) {
-            console.error('obsidian-image-toolkit: oit-*-container-view has not been initialized!');
-            return;
-        }
-        matchedImg.popup = true;
-        if (!this.imgGlobalStatus.popup) {
-            this.imgGlobalStatus.activeImgZIndex = 0;
-            this.imgInfoCto.imgList.forEach(value => {
-                value.zIndex = 0;
-            });
-            this.imgGlobalStatus.popup = true;
-        }
-        // // display 'oit-main-container-view' or 'oit-pin-container-view'
-        this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'block');
-    }
+    abstract openOitContainerView(matchedImg: ImgCto): void;
 
     abstract closeContainerView(event?: MouseEvent, activeImg?: ImgCto): void;
 

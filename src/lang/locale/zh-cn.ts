@@ -97,7 +97,7 @@ export default {
 
   // >>>HOTKEYS_SETTINGS:
   HOTKEY_SETTINGS: "快捷键设置:",
-  HOTKEY_SETTINGS_DESC: "📢  你无法为'移动图片'和'切换图片'设置相同的快捷键。",
+  HOTKEY_SETTINGS_DESC: "📢  你无法为'移动图片'和'切换图片'设置相同的快捷键。（不支持贴图模式）",
   MOVE_THE_IMAGE_NAME: "为移动图片设置快捷键",
   MOVE_THE_IMAGE_DESC: "你可以利用快捷键来移动弹出层上的图片。",
   SWITCH_THE_IMAGE_NAME: "为切换图片设置快捷键",

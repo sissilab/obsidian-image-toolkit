@@ -24,7 +24,7 @@ export const DEFAULT_SETTINGS: ImgSettingIto = {
     viewImageOther: true,
 
     pinMode: false,
-    pinMaximum: 5,
+    pinMaximum: 3,
     pinCoverMode: true, // cover the earliest image which is being popped up
 
     imageMoveSpeed: 10,
