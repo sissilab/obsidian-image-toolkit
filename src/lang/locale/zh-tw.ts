@@ -1,7 +1,7 @@
 // 繁體中文
 
 export default {
-  
+
   // settings
   IMAGE_TOOLKIT_SETTINGS_TITLE: "image toolkit 設定",
 

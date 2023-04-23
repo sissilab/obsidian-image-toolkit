@@ -3,14 +3,14 @@
 export default {
 
   // settings
-  IMAGE_TOOLKIT_SETTINGS_TITLE: "Image Toolkit 插件设置",
+  IMAGE_TOOLKIT_SETTINGS_TITLE: "Image Toolkit 设置",
 
   // >>> 预览触发配置：
   VIEW_TRIGGER_SETTINGS: '预览触发配置：',
   VIEW_IMAGE_GLOBAL_NAME: '支持全局预览图片',
   VIEW_IMAGE_GLOBAL_DESC: '开启后，在任何地方点击图片都可以弹出预览界面，可对图片进行缩放、旋转、拖动、和反色等。',
-  VIEW_IMAGE_EDITOR_NAME: '支持在编辑区域预览图片',
-  VIEW_IMAGE_EDITOR_DESC: '开启后，支持在编辑区域，点击图片预览。',
+  VIEW_IMAGE_IN_EDITOR_NAME: '支持在编辑区域预览图片',
+  VIEW_IMAGE_IN_EDITOR_DESC: '开启后，支持在编辑区域，点击图片预览。',
   // CPB = COMMUNITY_PLUGINS_BROWSER
   VIEW_IMAGE_IN_CPB_NAME: '支持在社区插件页面预览图片',
   VIEW_IMAGE_IN_CPB_DESC: '开启后，支持在社区插件页面，点击图片预览。',

@@ -1,4 +1,4 @@
-import { moment } from "obsidian";
+import {moment} from "obsidian";
 import ar from "./locale/ar";
 import cz from "./locale/cz";
 import da from "./locale/da";
