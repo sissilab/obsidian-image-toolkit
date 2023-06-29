@@ -14,3 +14,4 @@ main.js
 data.json
 
 dist
+/doc/*.drawio.bkp
