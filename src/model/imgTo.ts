@@ -17,7 +17,7 @@ export class ImgStatusCto {
 
   // being dragged
   activeImg: ImgCto;
-  activeImgZIndex: number = 0;
+  activeImgZIndex: number = 0; /*--layer-status-bar*/
 
   clickCount: number = 0;
   clickTimer: NodeJS.Timeout;
@@ -27,7 +27,7 @@ export class ImgStatusCto {
  * ts interface object: image information
  */
 export interface ImgInfoIto {
-  oitContainerViewEl: HTMLDivElement; // 'oit-main-container-view', 'oit-pin-container-view'
+  oitContainerViewEl: HTMLDivElement; // 'oit-normal-container-view', 'oit-pin-container-view'
   imgViewEl: HTMLImageElement;
   imgTitleEl: HTMLDivElement;
   imgTipEl: HTMLDivElement;
@@ -55,19 +55,19 @@ export interface ImgInfoIto {
 }
 
 /**
- * ts class object: image information
+ * ts class object: image information including all html elements
  */
 export class ImgInfoCto {
-  oitContainerViewEl: HTMLDivElement; // 'oit-main-container-view', 'oit-pin-container-view'
-  imgContainerEl: HTMLDivElement; // 'img-container': including <img class='img-view' src='' alt=''>
+  oitContainerEl: HTMLDivElement; // 'oit-main', 'oit-pin'
+  imgContainerEl: HTMLDivElement; // 'oit-img-container': including <img class='oit-img-view' src='' alt=''>
 
-  imgTitleEl: HTMLDivElement; // 'img-title'
-  imgTitleNameEl: HTMLSpanElement; // 'img-title-name'
-  imgTitleIndexEl: HTMLSpanElement; // 'img-title-index'
+  imgTitleEl: HTMLDivElement; // 'oit-img-title'
+  imgTitleNameEl: HTMLSpanElement; // 'oit-img-title-name'
+  imgTitleIndexEl: HTMLSpanElement; // 'oit-img-title-index'
 
-  imgTipEl: HTMLDivElement; // 'img-tip': show the zoom ratio
-  imgTipTimeout?: NodeJS.Timeout; // timer: control the display time of 'img-tip'
-  imgFooterEl: HTMLElement; // 'img-footer': including 'img-title', 'img-toolbar', 'gallery-navbar'
+  imgTipEl: HTMLDivElement; // 'oit-img-tip': show the zoom ratio
+  imgTipTimeout?: NodeJS.Timeout; // timer: control the display time of 'oit-img-tip'
+  imgFooterEl: HTMLElement; // 'oit-img-footer': including 'oit-img-title', 'oit-img-toolbar', 'gallery-navbar'
   imgPlayerEl: HTMLDivElement; // 'img-player': including <img class="img-fullscreen" src='' alt=''>
   imgPlayerImgViewEl: HTMLImageElement; // 'img-fullscreen'
 
@@ -89,7 +89,7 @@ export class ImgCto {
 
   targetOriginalImgEl: HTMLImageElement;
 
-  imgViewEl: HTMLImageElement; // 'img-view'
+  imgViewEl: HTMLImageElement; // 'oit-img-view'
   refreshImgInterval: NodeJS.Timeout;
   zIndex: number = 0;
 

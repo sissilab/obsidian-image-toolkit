@@ -3,11 +3,29 @@ export enum ViewMode {
   Pin = 'Pin',
 }
 
-export const DEFAULT_VIEW_MODE: ViewMode = ViewMode.Pin;
+export const DEFAULT_VIEW_MODE: ViewMode = ViewMode.Normal;
 
-export enum ContainerViewClass {
-  Normal = 'oit-normal-container-view',
-  Pin = 'oit-pin-container-view'
+export const OIT_CLASS = {
+  CONTAINER_ROOT: 'oit',
+  CONTAINER_NORMAL: 'oit-normal',
+  CONTAINER_PIN: 'oit-pin',
+
+  // the place for storing images
+  IMG_CONTAINER: 'oit-img-container',
+  IMG_VIEW: 'oit-img-view',
+
+  IMG_TTP: 'oit-img-tip',
+
+  IMG_FOOTER: 'oit-img-footer',
+  IMG_TITLE: 'oit-img-title',
+  IMG_TITLE_NAME: 'oit-img-title-name',
+  IMG_TITLE_INDEX: 'oit-img-title-index',
+
+  IMG_TOOLBAR: 'oit-img-toolbar',
+
+  IMG_PLAYER: 'img-player',
+  IMG_FULLSCREEN: 'img-fullscreen',
+
 }
 
 export const ZOOM_FACTOR = 0.8;

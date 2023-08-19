@@ -32,6 +32,7 @@ export default {
   PIN_MAXIMUM_NAME: "The maximum images you can pin",
   PIN_COVER_NAME: "Cover mode",
   PIN_COVER_DESC: "After those pinned images reach maximum, you can cover the earliest pinned image when you click an image once again.",
+  PIN_MAXIMUM_NOTICE: "Exceeded maximum images you can pin (non cover mode)",
 
   // >>>View Detail Settings:
   VIEW_DETAILS_SETTINGS: 'View Detail Settings:',

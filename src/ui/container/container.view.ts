@@ -1,17 +1,19 @@
-import {IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE, ViewMode} from "src/conf/constants";
+import {IMG_DEFAULT_BACKGROUND_COLOR, IMG_FULL_SCREEN_MODE, OIT_CLASS, ViewMode} from "src/conf/constants";
 import ImageToolkitPlugin from "src/main";
 import {ImgCto, ImgInfoCto, ImgStatusCto} from "src/model/imgTo";
 import {ImgUtil} from "src/util/imgUtil";
 import {OffsetSizeIto} from "../../model/commonTo";
 import {MenuView} from "../menuView";
+import {Notice} from "obsidian";
+import {t} from "../../lang/helpers";
 
 export abstract class ContainerView {
 
-  private readonly viewMode: ViewMode;
-
-  //private readonly containerType: keyof typeof CONTAINER_TYPE;
-
   protected readonly plugin: ImageToolkitPlugin;
+
+  // body
+  protected parentContainerEl: Element;
+  protected doc: Document;
 
   // the clicked original image element
   protected lastClickedImgEl: HTMLImageElement;
@@ -23,21 +25,26 @@ export abstract class ContainerView {
 
   protected imgGlobalStatus: ImgStatusCto = new ImgStatusCto();
 
-  protected imgInfoCto: ImgInfoCto = new ImgInfoCto();
+  protected imgInfo: ImgInfoCto = new ImgInfoCto();
 
-  protected pinMaximum: number;
-
+  // Right click menu
   protected menuView: MenuView;
 
-  protected constructor(plugin: ImageToolkitPlugin, viewMode: ViewMode, pinMaximum: number) {
+
+  protected constructor(plugin: ImageToolkitPlugin) {
     this.plugin = plugin;
-    this.viewMode = viewMode;
-    this.pinMaximum = pinMaximum;
+  }
+
+  public getViewMode = (): ViewMode => {
+    return this.plugin.settings.viewMode;
   }
 
   public isPinMode = (): boolean => {
-    //return 'PIN' === this.containerType;
-    return this.viewMode === ViewMode.Pin;
+    return ViewMode.Pin === this.getViewMode();
+  }
+
+  public isNormalMode = (): boolean => {
+    return ViewMode.Normal === this.getViewMode();
   }
 
   protected setMenuView = (menuView: MenuView) => {
@@ -56,25 +63,40 @@ export abstract class ContainerView {
     return this.imgGlobalStatus.activeImg;
   }
 
-  public setPinMaximum = (val: number) => {
-    this.pinMaximum = val;
+  public getDoc = (): Document => {
+    return this.doc;
   }
 
+  /*public setPinMaximum = (val: number) => {
+    this.pinMaximum = val;
+  }*/
+
   public getOitContainerViewEl = (): HTMLDivElement => {
-    return this.imgInfoCto.imgContainerEl;
+    return this.imgInfo.imgContainerEl;
   }
 
   abstract setActiveImgForMouseEvent(imgCto: ImgCto): void;
 
+  public getParentContainerEl = (targetEl?: HTMLImageElement): Element => {
+    if (!targetEl) {
+      return this.parentContainerEl;
+    }
+    if (!this.parentContainerEl) {
+      this.parentContainerEl = targetEl.matchParent('body');
+      this.doc = this.parentContainerEl.ownerDocument;
+    }
+    return this.parentContainerEl;
+  }
+
   //region ================== Container View & Init ========================
   /**
-   * render when clicking an image
-   * @param targetEl the clicked image's element
+   * Render when clicking an image (core step)
+   * @param targetEl clicked image's element
    * @returns
    */
-  public renderContainerView = (targetEl: HTMLImageElement): void => {
+  public renderContainer = (targetEl: HTMLImageElement): void => {
     if (!this.checkStatus()) return;
-    const matchedImg = this.initContainerView(targetEl, this.plugin.app.workspace.containerEl);
+    const matchedImg = this.initContainerView(targetEl, this.getParentContainerEl(targetEl));
     if (!matchedImg) return;
     this.openOitContainerView(matchedImg);
     this.renderGalleryNavbar();
@@ -82,8 +104,13 @@ export abstract class ContainerView {
     matchedImg.mtime = new Date().getTime();
   }
 
-  public initContainerView = (targetEl: HTMLImageElement, containerEl: HTMLElement): ImgCto => {
-    const matchedImg = this.initContainerViewDom(containerEl);
+  /**
+   * initContainerDom ->
+   * @param targetEl
+   * @param parentContainerEl  targetEl's body
+   */
+  public initContainerView = (targetEl: HTMLImageElement, parentContainerEl: Element): ImgCto => {
+    const matchedImg = this.initContainerDom(parentContainerEl);
     if (!matchedImg) return null;
     matchedImg.targetOriginalImgEl = targetEl;
     this.restoreBorderForLastClickedImg();
@@ -93,7 +120,7 @@ export abstract class ContainerView {
     return matchedImg;
   }
 
-  abstract initContainerViewDom(containerEl: HTMLElement): ImgCto;
+  abstract initContainerDom(parentContainerEl: Element): ImgCto;
 
   abstract openOitContainerView(matchedImg: ImgCto): void;
 
@@ -103,9 +130,9 @@ export abstract class ContainerView {
     this.restoreBorderForLastClickedImg();
     this.removeGalleryNavbar();
 
-    this.imgInfoCto.oitContainerViewEl?.remove();
-    this.imgInfoCto.oitContainerViewEl = null;
-    this.imgInfoCto.imgContainerEl = null;
+    this.imgInfo.oitContainerEl?.remove();
+    this.imgInfo.oitContainerEl = null;
+    this.imgInfo.imgContainerEl = null;
 
     this.imgGlobalStatus.dragging = false;
     this.imgGlobalStatus.popup = false;
@@ -114,40 +141,26 @@ export abstract class ContainerView {
     this.imgGlobalStatus.activeImg = null;
 
     // clear imgList
-    this.imgInfoCto.imgList.length = 0;
+    this.imgInfo.imgList.length = 0;
   }
 
   protected checkStatus = (): boolean => {
-    if (!this.viewMode) return false;
-    let oitContainerViewClass: string;
-    switch (this.viewMode) {
-      case ViewMode.Normal:
-        if (this.plugin.settings.pinMode) {
-          return false;
-        }
-        oitContainerViewClass = 'oit-main-container-view';
-        break;
-      case ViewMode.Pin:
-        if (!this.plugin.settings.pinMode) {
-          return false;
-        }
-        oitContainerViewClass = 'oit-pin-container-view';
-        break;
-      default:
-        return false;
-    }
-    if (this.imgInfoCto.oitContainerViewEl) {
-      const containerElList: HTMLCollectionOf<Element> = document.getElementsByClassName(oitContainerViewClass);
-      if (!containerElList || 0 >= containerElList.length) {
-        // when switch between workspaces, you should remove ContainerView
-        this.removeOitContainerView();
-      }
-    }
-    if (this.isPinMode() && this.plugin.settings.pinCoverMode) {
-      return true;
-    }
+    const viewMode = this.plugin.getViewMode();
+    if (!viewMode) return false;
+    // none of popped-up-images
     if (!this.imgGlobalStatus.popup) return true;
-    return this.pinMaximum > this.imgInfoCto.getPopupImgNum();
+    // Pin mode && Cover mode
+    if (this.isPinMode() && this.plugin.settings.pinCoverMode) return true;
+    // configured max images > current pop-up images
+    if (this.getConfiguredPinMaximum() > this.imgInfo.getPopupImgNum()) return true;
+    new Notice(t("PIN_MAXIMUM_NOTICE"));
+    return false;
+  }
+
+  private getConfiguredPinMaximum = (): number => {
+    if (this.isPinMode())
+      return this.plugin.settings.pinMaximum;
+    return 1;
   }
 
   public initDefaultData = (matchedImg: ImgCto, targetImgStyle: CSSStyleDeclaration) => {
@@ -221,37 +234,35 @@ export abstract class ContainerView {
   //endregion
 
   //region ================== Image ========================
-  protected updateImgViewElAndList = (pinMaximum: number) => {
-    if (!this.imgInfoCto.imgContainerEl) return;
-    const imgNum = this.imgInfoCto.imgList.length;
+  protected updateImgViewElAndList = (imgInfo: ImgInfoCto) => {
+    if (!imgInfo?.imgContainerEl) return;
+    const pinMaximum: number = this.getConfiguredPinMaximum();
+    const imgNum = this.imgInfo.imgList.length;
     if (pinMaximum < imgNum) {
-      if (this.imgInfoCto.imgContainerEl) {
-        // remove all imgViewEl and imgList
-        this.imgInfoCto.imgContainerEl.innerHTML = '';
-      }
+      // remove all imgViewEl and imgList
+      imgInfo.imgContainerEl.innerHTML = '';
       // clear imgList
-      this.imgInfoCto.imgList.length = 0;
+      imgInfo.imgList.length = 0;
     }
-    let imgViewEl: HTMLImageElement;
-    let isUpdate: boolean = false;
+    // let isUpdate: boolean = false;
     const curTime = new Date().getTime();
     for (let i = imgNum; i < pinMaximum; i++) {
-      // <div class="img-container"> <img class='img-view' data-index='0' src='' alt=''> </div>
-      imgViewEl = createEl('img');
-      imgViewEl.addClass('img-view');
-      imgViewEl.hidden = true; // hide 'img-view' for now
+      // <div class="oit-img-container"> `<img class='oit-img-view' data-index='0' src='' alt=''>` </div>
+      let imgViewEl = createEl('img');
+      imgViewEl.addClass(OIT_CLASS.IMG_VIEW);
+      imgViewEl.hidden = true; // hide 'oit-img-view' for now
       imgViewEl.dataset.index = i + ''; // set data-index
       this.setImgViewDefaultBackground(imgViewEl);
-      this.imgInfoCto.imgContainerEl.appendChild(imgViewEl);
+      imgInfo.imgContainerEl.appendChild(imgViewEl);
       // cache imgList
-      this.imgInfoCto.imgList.push(new ImgCto(i, curTime, imgViewEl));
-      isUpdate = true;
+      imgInfo.imgList.push(new ImgCto(i, curTime, imgViewEl));
+      // isUpdate = true;
     }
   }
 
   protected getMatchedImg = (): ImgCto => {
     let earliestImg: ImgCto;
-    for (const img of this.imgInfoCto.imgList) {
+    for (const img of this.imgInfo.imgList) {
       if (!earliestImg || earliestImg.mtime > img.mtime)
         earliestImg = img;
       if (img.popup)
@@ -286,7 +297,8 @@ export abstract class ContainerView {
         if (realImg.width > 0 || realImg.height > 0) {
           clearInterval(imgCto.refreshImgInterval);
           imgCto.refreshImgInterval = null;
-          this.setImgViewPosition(ImgUtil.calculateImgZoomSize(realImg, imgCto), 0);
+          this.setImgViewPosition(ImgUtil.calculateImgZoomSize(realImg, imgCto,
+            this.parentContainerEl?.clientWidth, this.parentContainerEl?.clientHeight), 0);
           this.renderImgView(imgCto.imgViewEl, imgSrc, imgAlt);
           this.renderImgTip(imgCto);
           imgCto.imgViewEl.style.setProperty('transform', imgCto.defaultImgStyle.transform);
@@ -323,37 +335,37 @@ export abstract class ContainerView {
   public renderImgTip = (activeImg?: ImgCto) => {
     if (!activeImg)
       activeImg = this.imgGlobalStatus.activeImg;
-    if (activeImg && this.imgInfoCto.imgTipEl && activeImg.realWidth > 0 && activeImg.curWidth > 0) {
-      if (this.imgInfoCto.imgTipTimeout) {
-        clearTimeout(this.imgInfoCto.imgTipTimeout);
+    if (activeImg && this.imgInfo.imgTipEl && activeImg.realWidth > 0 && activeImg.curWidth > 0) {
+      if (this.imgInfo.imgTipTimeout) {
+        clearTimeout(this.imgInfo.imgTipTimeout);
       }
       if (this.plugin.settings.imgTipToggle) {
-        this.imgInfoCto.imgTipEl.hidden = false; // display 'img-tip'
+        this.imgInfo.imgTipEl.hidden = false; // display 'oit-img-tip'
         const ratio = activeImg.curWidth * 100 / activeImg.realWidth;
         const isSingleDigit: boolean = 10 > ratio;
         const width = isSingleDigit ? 20 : 40;
         const left = activeImg.left + activeImg.curWidth / 2 - width / 2;
         const top = activeImg.top + activeImg.curHeight / 2 - 10;
 
-        this.imgInfoCto.imgTipEl.style.setProperty("width", width + 'px');
-        this.imgInfoCto.imgTipEl.style.setProperty("font-size", isSingleDigit || 100 >= activeImg.curWidth ? 'xx-small' : 'x-small');
-        this.imgInfoCto.imgTipEl.style.setProperty("left", left + 'px');
-        this.imgInfoCto.imgTipEl.style.setProperty("top", top + 'px');
-        this.imgInfoCto.imgTipEl.style.setProperty("z-index", activeImg.zIndex + '');
-        this.imgInfoCto.imgTipEl.setText(parseInt(ratio + '') + '%');
+        this.imgInfo.imgTipEl.style.setProperty("width", width + 'px');
+        this.imgInfo.imgTipEl.style.setProperty("font-size", isSingleDigit || 100 >= activeImg.curWidth ? 'xx-small' : 'x-small');
+        this.imgInfo.imgTipEl.style.setProperty("left", left + 'px');
+        this.imgInfo.imgTipEl.style.setProperty("top", top + 'px');
+        this.imgInfo.imgTipEl.style.setProperty("z-index", activeImg.zIndex + '');
+        this.imgInfo.imgTipEl.setText(parseInt(ratio + '') + '%');
 
-        this.imgInfoCto.imgTipTimeout = setTimeout(() => {
-          this.imgInfoCto.imgTipEl.hidden = true;
+        this.imgInfo.imgTipTimeout = setTimeout(() => {
+          this.imgInfo.imgTipEl.hidden = true;
         }, 1000);
       } else {
-        this.imgInfoCto.imgTipEl.hidden = true; // hide 'img-tip'
-        this.imgInfoCto.imgTipTimeout = null;
+        this.imgInfo.imgTipEl.hidden = true; // hide 'oit-img-tip'
+        this.imgInfo.imgTipTimeout = null;
       }
     }
   }
 
   public setImgViewDefaultBackgroundForImgList = () => {
-    for (const imgCto of this.imgInfoCto.imgList) {
+    for (const imgCto of this.imgInfo.imgList) {
       this.setImgViewDefaultBackground(imgCto.imgViewEl);
     }
   }
@@ -393,15 +405,15 @@ export abstract class ContainerView {
     this.imgGlobalStatus.fullScreen = true;
     activeImg.fullScreen = true;
     // activeImg.imgViewEl.style.setProperty('display', 'none', 'important'); // hide imgViewEl
-    // this.imgInfoCto.imgFooterEl?.style.setProperty('display', 'none'); // hide 'img-footer'
+    // this.imgInfoCto.imgFooterEl?.style.setProperty('display', 'none'); // hide 'oit-img-footer'
 
     // show the img-player
-    this.imgInfoCto.imgPlayerEl.style.setProperty('display', 'block');
-    this.imgInfoCto.imgPlayerEl.style.setProperty('z-index', (this.imgGlobalStatus.activeImgZIndex + 10) + '');
-    this.imgInfoCto.imgPlayerEl.addEventListener('click', this.closePlayerImg);
+    this.imgInfo.imgPlayerEl.style.setProperty('display', 'block');
+    this.imgInfo.imgPlayerEl.style.setProperty('z-index', (this.imgGlobalStatus.activeImgZIndex + 10) + '');
+    this.imgInfo.imgPlayerEl.addEventListener('click', this.closePlayerImg);
 
-    const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
-    const windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+    const windowWidth = this.doc.documentElement.clientWidth || this.doc.body.clientWidth;
+    const windowHeight = this.doc.documentElement.clientHeight || this.doc.body.clientHeight;
     let newWidth, newHeight;
     let top = 0, left = 0;
     if (IMG_FULL_SCREEN_MODE.STRETCH == this.plugin.settings.imgFullScreenMode) {
@@ -426,7 +438,7 @@ export abstract class ContainerView {
       newWidth = newWidth + 'px';
       newHeight = newHeight + 'px';
     }
-    const imgPlayerImgViewEl = this.imgInfoCto.imgPlayerImgViewEl;
+    const imgPlayerImgViewEl = this.imgInfo.imgPlayerImgViewEl;
     if (imgPlayerImgViewEl) {
       imgPlayerImgViewEl.setAttribute('src', activeImg.imgViewEl.src);
       imgPlayerImgViewEl.setAttribute('alt', activeImg.imgViewEl.alt);
@@ -442,20 +454,20 @@ export abstract class ContainerView {
    * close full screen
    */
   protected closePlayerImg = () => {
-    for (const imgCto of this.imgInfoCto.imgList) {
+    for (const imgCto of this.imgInfo.imgList) {
       if (!imgCto.fullScreen) continue;
       // show the popped up image
       // imgCto.imgViewEl?.style.setProperty('display', 'block', 'important');
       // this.imgInfoCto.imgFooterEl?.style.setProperty('display', 'block');
     }
     // hide full screen
-    if (this.imgInfoCto.imgPlayerEl) {
-      this.imgInfoCto.imgPlayerEl.style.setProperty('display', 'none'); // hide 'img-player'
-      this.imgInfoCto.imgPlayerEl.removeEventListener('click', this.closePlayerImg);
+    if (this.imgInfo.imgPlayerEl) {
+      this.imgInfo.imgPlayerEl.style.setProperty('display', 'none'); // hide 'img-player'
+      this.imgInfo.imgPlayerEl.removeEventListener('click', this.closePlayerImg);
     }
-    if (this.imgInfoCto.imgPlayerImgViewEl) {
-      this.imgInfoCto.imgPlayerImgViewEl.setAttribute('src', '');
-      this.imgInfoCto.imgPlayerImgViewEl.setAttribute('alt', '');
+    if (this.imgInfo.imgPlayerImgViewEl) {
+      this.imgInfo.imgPlayerImgViewEl.setAttribute('src', '');
+      this.imgInfo.imgPlayerImgViewEl.setAttribute('alt', '');
     }
     this.imgGlobalStatus.fullScreen = false;
   }
@@ -465,12 +477,12 @@ export abstract class ContainerView {
   protected addOrRemoveEvents = (matchedImg: ImgCto, isAdd: boolean) => {
     if (isAdd) {
       if (!this.imgGlobalStatus.popup) {
-        document.addEventListener('keydown', this.triggerKeydown);
-        document.addEventListener('keyup', this.triggerKeyup);
+        this.doc.addEventListener('keydown', this.triggerKeydown);
+        this.doc.addEventListener('keyup', this.triggerKeyup);
       }
-      if (!this.isPinMode()) {
+      if (this.isNormalMode()) {
         // click event: hide container view
-        this.imgInfoCto.oitContainerViewEl.addEventListener('click', this.closeContainerView);
+        this.imgInfo.oitContainerEl.addEventListener('click', this.closeContainerView);
       }
       matchedImg.imgViewEl.addEventListener('mouseenter', this.mouseenterImgView);
       matchedImg.imgViewEl.addEventListener('mouseleave', this.mouseleaveImgView);
@@ -481,8 +493,8 @@ export abstract class ContainerView {
       matchedImg.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer, {passive: true});
     } else {
       if (!this.imgGlobalStatus.popup) {
-        document.removeEventListener('keydown', this.triggerKeydown);
-        document.removeEventListener('keyup', this.triggerKeyup);
+        this.doc.removeEventListener('keydown', this.triggerKeydown);
+        this.doc.removeEventListener('keyup', this.triggerKeyup);
 
         if (this.imgGlobalStatus.clickTimer) {
           clearTimeout(this.imgGlobalStatus.clickTimer);
@@ -491,7 +503,7 @@ export abstract class ContainerView {
         }
       }
       if (!this.isPinMode()) {
-        this.imgInfoCto.oitContainerViewEl.removeEventListener('click', this.closeContainerView);
+        this.imgInfo.oitContainerEl.removeEventListener('click', this.closeContainerView);
       }
       matchedImg.imgViewEl.removeEventListener('mouseenter', this.mouseenterImgView);
       matchedImg.imgViewEl.removeEventListener('mouseleave', this.mouseleaveImgView);
@@ -629,6 +641,7 @@ export abstract class ContainerView {
   }
 
   public checkHotkeySettings = (event: KeyboardEvent | MouseEvent, hotkey: string): boolean => {
+    // console.log("[oit] checkHotkeySettings: ", event.ctrlKey, event.altKey, event.shiftKey)
     switch (hotkey) {
       case "NONE":
         return !event.ctrlKey && !event.altKey && !event.shiftKey;
@@ -752,7 +765,7 @@ export abstract class ContainerView {
     const targetEl = (<HTMLImageElement>event.target);
     let index: string;
     if (!targetEl || !(index = targetEl.dataset.index)) return;
-    const activeImg: ImgCto = this.imgInfoCto.imgList[parseInt(index)];
+    const activeImg: ImgCto = this.imgInfo.imgList[parseInt(index)];
     if (activeImg && (!this.imgGlobalStatus.activeImg || activeImg.index !== this.imgGlobalStatus.activeImg.index)) {
       this.setActiveImgForMouseEvent(activeImg); // update activeImg
     }

@@ -12,7 +12,9 @@ import {
   IMG_FULL_SCREEN_MODE,
   MODIFIER_HOTKEYS,
   MOVE_THE_IMAGE,
-  SWITCH_THE_IMAGE, TOOLBAR_CONF, ViewMode
+  SWITCH_THE_IMAGE,
+  TOOLBAR_CONF,
+  ViewMode
 } from './constants';
 import Pickr from '@simonwep/pickr';
 import {SettingsIto} from "../model/settings.to";
@@ -26,7 +28,7 @@ export const DEFAULT_SETTINGS: SettingsIto = {
   viewImageWithLink: true,
   viewImageOther: true,
 
-  pinMode: false,
+  // pinMode: false,
   pinMaximum: 3,
   pinCoverMode: true, // cover the earliest image which is being popped up
 
@@ -70,103 +72,11 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
     // Common Settings:
     this.displayCommonSettings(containerEl);
 
+    // View Trigger Settings:
+    this.displayViewTriggerSettings(containerEl);
 
-    //region >>> VIEW_TRIGGER_SETTINGS
-    containerEl.createEl('h3', {text: t("VIEW_TRIGGER_SETTINGS")});
-
-    new Setting(containerEl)
-      .setName(t("VIEW_IMAGE_IN_EDITOR_NAME"))
-      .setDesc(t("VIEW_IMAGE_IN_EDITOR_DESC"))
-      .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.viewImageInEditor)
-        .onChange(async (value) => {
-          this.plugin.settings.viewImageInEditor = value;
-          this.plugin.toggleViewImage();
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName(t("VIEW_IMAGE_IN_CPB_NAME"))
-      .setDesc(t("VIEW_IMAGE_IN_CPB_DESC"))
-      .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.viewImageInCPB)
-        .onChange(async (value) => {
-          this.plugin.settings.viewImageInCPB = value;
-          this.plugin.toggleViewImage();
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName(t("VIEW_IMAGE_WITH_A_LINK_NAME"))
-      .setDesc(t("VIEW_IMAGE_WITH_A_LINK_DESC"))
-      .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.viewImageWithLink)
-        .onChange(async (value) => {
-          this.plugin.settings.viewImageWithLink = value;
-          this.plugin.toggleViewImage();
-          await this.plugin.saveSettings();
-        }));
-
-    new Setting(containerEl)
-      .setName(t("VIEW_IMAGE_OTHER_NAME"))
-      .setDesc(t("VIEW_IMAGE_OTHER_DESC"))
-      .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.viewImageOther)
-        .onChange(async (value) => {
-          this.plugin.settings.viewImageOther = value;
-          this.plugin.toggleViewImage();
-          await this.plugin.saveSettings();
-        }));
-    //endregion
-
-    //region >>> PIN_MODE_SETTINGS
-    let pinMaximumSetting: Setting, pinCoverSetting: Setting;
-
-    containerEl.createEl('h3', {text: t("PIN_MODE_SETTINGS")});
-
-    new Setting(containerEl)
-      .setName(t("PIN_MODE_NAME"))
-      .setDesc(t("PIN_MODE_DESC"))
-      .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.pinMode)
-        .onChange(async (value) => {
-          this.plugin.settings.pinMode = value;
-          this.switchSettingsDisabled(!value, pinMaximumSetting, pinCoverSetting);
-          //this.plugin.togglePinMode(value);
-          await this.plugin.saveSettings();
-        }));
-
-    let pinMaximumScaleText: HTMLDivElement;
-    pinMaximumSetting = new Setting(containerEl)
-      .setName(t("PIN_MAXIMUM_NAME"))
-      .addSlider(slider => slider
-        .setLimits(1, 5, 1)
-        .setValue(this.plugin.settings.pinMaximum)
-        .onChange(async (value) => {
-          pinMaximumScaleText.innerText = " " + value.toString();
-          this.plugin.settings.pinMaximum = value;
-          this.plugin.containerView?.setPinMaximum(value);
-          this.plugin.saveSettings();
-        }));
-    pinMaximumSetting.settingEl.createDiv('', (el) => {
-      pinMaximumScaleText = el;
-      el.style.minWidth = "2.3em";
-      el.style.textAlign = "right";
-      el.innerText = " " + this.plugin.settings.pinMaximum.toString();
-    });
-
-    pinCoverSetting = new Setting(containerEl)
-      .setName(t("PIN_COVER_NAME"))
-      .setDesc(t("PIN_COVER_DESC"))
-      .addToggle(toggle => toggle
-        .setValue(this.plugin.settings.pinCoverMode)
-        .onChange(async (value) => {
-          this.plugin.settings.pinCoverMode = value;
-          await this.plugin.saveSettings();
-        }));
-
-    this.switchSettingsDisabled(!this.plugin.settings.pinMode, pinMaximumSetting, pinCoverSetting);
-    //endregion
+    // Pin Mode Settings:
+    this.displayPinModeSettings(containerEl);
 
     //region >>> VIEW_DETAILS_SETTINGS
     containerEl.createEl('h3', {text: t("VIEW_DETAILS_SETTINGS")});
@@ -393,7 +303,6 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         });
       });
     //endregion
-
   }
 
   private displayCommonSettings(containerEl: HTMLElement) {
@@ -408,11 +317,111 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         }
         dropdown.setValue(this.plugin.settings.viewMode);
         dropdown.onChange(async (option: ViewMode) => {
-          this.plugin.settings.viewMode = option;
-          await this.plugin.saveSettings();
+          await this.plugin.switchViewMode(option);
         });
       });
   }
+
+  private displayViewTriggerSettings(containerEl: HTMLElement) {
+    containerEl.createEl('h3', {text: t("VIEW_TRIGGER_SETTINGS")});
+
+    new Setting(containerEl)
+      .setName(t("VIEW_IMAGE_IN_EDITOR_NAME"))
+      .setDesc(t("VIEW_IMAGE_IN_EDITOR_DESC"))
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.viewImageInEditor)
+        .onChange(async (value) => {
+          this.plugin.settings.viewImageInEditor = value;
+          this.plugin.refreshViewTrigger();
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName(t("VIEW_IMAGE_IN_CPB_NAME"))
+      .setDesc(t("VIEW_IMAGE_IN_CPB_DESC"))
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.viewImageInCPB)
+        .onChange(async (value) => {
+          this.plugin.settings.viewImageInCPB = value;
+          this.plugin.refreshViewTrigger();
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName(t("VIEW_IMAGE_WITH_A_LINK_NAME"))
+      .setDesc(t("VIEW_IMAGE_WITH_A_LINK_DESC"))
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.viewImageWithLink)
+        .onChange(async (value) => {
+          this.plugin.settings.viewImageWithLink = value;
+          this.plugin.refreshViewTrigger();
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName(t("VIEW_IMAGE_OTHER_NAME"))
+      .setDesc(t("VIEW_IMAGE_OTHER_DESC"))
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.viewImageOther)
+        .onChange(async (value) => {
+          this.plugin.settings.viewImageOther = value;
+          this.plugin.refreshViewTrigger();
+          await this.plugin.saveSettings();
+        }));
+  }
+
+  private displayPinModeSettings(containerEl: HTMLElement) {
+    //region >>> PIN_MODE_SETTINGS
+    let pinMaximumSetting: Setting,
+      pinCoverSetting: Setting;
+
+    containerEl.createEl('h3', {text: t("PIN_MODE_SETTINGS")});
+
+    /*new Setting(containerEl)
+      .setName(t("PIN_MODE_NAME"))
+      .setDesc(t("PIN_MODE_DESC"))
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.pinMode)
+        .onChange(async (value) => {
+          this.plugin.settings.pinMode = value;
+          this.switchSettingsDisabled(!value, pinMaximumSetting, pinCoverSetting);
+          //this.plugin.togglePinMode(value);
+          await this.plugin.saveSettings();
+        }));*/
+
+    let pinMaximumScaleText: HTMLDivElement;
+    pinMaximumSetting = new Setting(containerEl)
+      .setName(t("PIN_MAXIMUM_NAME"))
+      .addSlider(slider => slider
+        .setLimits(1, 5, 1)
+        .setValue(this.plugin.settings.pinMaximum)
+        .onChange(async (value) => {
+          pinMaximumScaleText.innerText = " " + value.toString();
+          this.plugin.settings.pinMaximum = value;
+          // this.plugin.containerView?.setPinMaximum(value);
+          this.plugin.saveSettings();
+        }));
+    pinMaximumSetting.settingEl.createDiv('', (el) => {
+      pinMaximumScaleText = el;
+      el.style.minWidth = "2.3em";
+      el.style.textAlign = "right";
+      el.innerText = " " + this.plugin.settings.pinMaximum.toString();
+    });
+
+    pinCoverSetting = new Setting(containerEl)
+      .setName(t("PIN_COVER_NAME"))
+      .setDesc(t("PIN_COVER_DESC"))
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.pinCoverMode)
+        .onChange(async (value) => {
+          this.plugin.settings.pinCoverMode = value;
+          await this.plugin.saveSettings();
+        }));
+
+    //this.switchSettingsDisabled(!this.plugin.settings.pinMode, pinMaximumSetting, pinCoverSetting);
+    //endregion
+  }
+
 
   switchSettingsDisabled(disabled: boolean, ...settings: Setting[]) {
     for (const setting of settings) {
@@ -497,7 +506,10 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
       this.plugin.settings.galleryImgBorderActiveColor = savedColor;
     } else if ('IMG_VIEW_BACKGROUND_COLOR_NAME' === name) {
       this.plugin.settings.imgViewBackgroundColor = savedColor;
-      this.plugin.containerView?.setImgViewDefaultBackgroundForImgList();
+      // this.plugin.containerView?.setImgViewDefaultBackgroundForImgList();
+      this.plugin.getAllContainerViews().forEach(container => {
+        container.setImgViewDefaultBackgroundForImgList();
+      });
     }
     this.plugin.saveSettings();
   }

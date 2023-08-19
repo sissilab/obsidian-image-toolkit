@@ -1,4 +1,4 @@
-import {CONTAINER_TYPE, TOOLBAR_CONF, ViewMode} from 'src/conf/constants';
+import {OIT_CLASS, TOOLBAR_CONF} from 'src/conf/constants';
 import {t} from 'src/lang/helpers';
 import ImageToolkitPlugin from 'src/main';
 import {ContainerView} from './container.view';
@@ -9,8 +9,8 @@ export class NormalContainerView extends ContainerView {
 
   private galleryNavbarView: GalleryNavbarView;
 
-  constructor(plugin: ImageToolkitPlugin, viewMode: ViewMode) {
-    super(plugin, viewMode, 1);
+  constructor(plugin: ImageToolkitPlugin) {
+    super(plugin);
   }
 
   public setActiveImgForMouseEvent(imgCto: ImgCto): void {
@@ -18,36 +18,37 @@ export class NormalContainerView extends ContainerView {
   }
 
   //region ================== Container View ========================
-  public initContainerViewDom = (containerEl: HTMLElement): ImgCto => {
+  public initContainerDom = (parentContainerEl: Element): ImgCto => {
     let imgCto: ImgCto;
-    if (!this.imgInfoCto.oitContainerViewEl) {
-      // init at first time
-      // create: <div class="oit-main-container-view">
-      containerEl.appendChild(this.imgInfoCto.oitContainerViewEl = createDiv('oit-main-container-view'));
-      // <div class="oit-main-container-view"> <div class="img-container"/> </div>
-      this.imgInfoCto.oitContainerViewEl.append(this.imgInfoCto.imgContainerEl = createDiv('img-container'));
+    if (!this.imgInfo.oitContainerEl) {
+      // init `oit-normal` dom at first time
+      // <div class="oit oit-normal"> ... <div>
+      (this.imgInfo.oitContainerEl = createDiv()).addClass(OIT_CLASS.CONTAINER_ROOT, OIT_CLASS.CONTAINER_NORMAL)
+      parentContainerEl.appendChild(this.imgInfo.oitContainerEl);
 
-      // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
-      this.updateImgViewElAndList(this.pinMaximum);
+      // 1. <div class="oit-img-container">...</div>
+      this.imgInfo.oitContainerEl.append(this.imgInfo.imgContainerEl = createDiv(OIT_CLASS.IMG_CONTAINER));
+      // 1.1. <div class="oit-img-container"> `<img class="oit-img-view" src="" alt="">` </div>
+      this.updateImgViewElAndList(this.imgInfo);
 
-      // <div class="img-tip"></div>
-      this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgTipEl = createDiv()); // img-tip
-      this.imgInfoCto.imgTipEl.addClass('img-tip');
-      this.imgInfoCto.imgTipEl.hidden = true; // hide 'img-tip'
+      // 2. <div class="oit-img-tip"></div>
+      this.imgInfo.oitContainerEl.appendChild(this.imgInfo.imgTipEl = createDiv(OIT_CLASS.IMG_TTP));
+      this.imgInfo.imgTipEl.hidden = true;
 
-      // <div class="img-footer"> ... <div>
-      this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgFooterEl = createDiv()); // img-footer
-      this.imgInfoCto.imgFooterEl.addClass('img-footer');
+      // 3. <div class="oit-img-footer"> ... <div>
+      this.imgInfo.oitContainerEl.appendChild(this.imgInfo.imgFooterEl = createDiv(OIT_CLASS.IMG_FOOTER));
 
-      // <div class="img-title"></div>
-      this.imgInfoCto.imgFooterEl.appendChild(this.imgInfoCto.imgTitleEl = createDiv('img-title')); // img-title
-      this.imgInfoCto.imgTitleEl.appendChild(this.imgInfoCto.imgTitleNameEl = createSpan('img-title-name'));
-      this.imgInfoCto.imgTitleEl.appendChild(this.imgInfoCto.imgTitleIndexEl = createSpan('img-title-index'));
+      // 3.1. <div class="oit-img-title"></div>
+      this.imgInfo.imgFooterEl.appendChild(this.imgInfo.imgTitleEl = createDiv(OIT_CLASS.IMG_TITLE));
+      // <span class="oit-img-title-name"></span>
+      this.imgInfo.imgTitleEl.appendChild(this.imgInfo.imgTitleNameEl = createSpan(OIT_CLASS.IMG_TITLE_NAME));
+      // <span class="oit-img-title-index"></span>
+      this.imgInfo.imgTitleEl.appendChild(this.imgInfo.imgTitleIndexEl = createSpan(OIT_CLASS.IMG_TITLE_INDEX));
 
-      // <ul class="img-toolbar">
-      const imgToolbarUlEL = createEl('ul'); // img-toolbar
-      imgToolbarUlEL.addClass('img-toolbar');
-      this.imgInfoCto.imgFooterEl.appendChild(imgToolbarUlEL);
+      // 3.2. <ul class="oit-img-toolbar">
+      const imgToolbarUlEL = createEl('ul');
+      imgToolbarUlEL.addClass(OIT_CLASS.IMG_TOOLBAR);
+      this.imgInfo.imgFooterEl.appendChild(imgToolbarUlEL);
       let toolbarLi: HTMLLIElement;
       for (const toolbar of TOOLBAR_CONF) {
         if (!toolbar.enableToolbarIcon) continue;
@@ -57,38 +58,39 @@ export class NormalContainerView extends ContainerView {
         // @ts-ignore
         toolbarLi.setAttribute('title', t(toolbar.title));
       }
-      // add event: for img-toolbar ul
+      // add event: for oit-img-toolbar ul
       imgToolbarUlEL.addEventListener('click', this.clickImgToolbar);
 
       // <div class="img-player"> <img class='img-fullscreen' src=''> </div>
-      this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgPlayerEl = createDiv('img-player')); // img-player for full screen mode
-      this.imgInfoCto.imgPlayerEl.appendChild(this.imgInfoCto.imgPlayerImgViewEl = createEl('img'));
-      this.imgInfoCto.imgPlayerImgViewEl.addClass('img-fullscreen');
+      this.imgInfo.oitContainerEl.appendChild(this.imgInfo.imgPlayerEl = createDiv(OIT_CLASS.IMG_PLAYER)); // img-player for full screen mode
+      this.imgInfo.imgPlayerEl.appendChild(this.imgInfo.imgPlayerImgViewEl = createEl('img'));
+      this.imgInfo.imgPlayerImgViewEl.addClass(OIT_CLASS.IMG_FULLSCREEN);
     }
-    imgCto = this.imgInfoCto.imgList[0];
+    imgCto = this.imgInfo.imgList[0];
     this.imgGlobalStatus.activeImg = imgCto;
     return imgCto;
   }
 
   public openOitContainerView = (matchedImg: ImgCto): void => {
-    if (!this.imgInfoCto.oitContainerViewEl) {
+    if (!this.imgInfo.oitContainerEl) {
       console.error('obsidian-image-toolkit: oit-*-container-view has not been initialized!');
       return;
     }
     matchedImg.popup = true;
     this.imgGlobalStatus.popup = true;
-    // display 'oit-main-container-view'
-    this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'block');
+    // display 'oit-normal'
+    this.imgInfo.oitContainerEl.style.setProperty('display', 'block');
   }
 
   public closeContainerView = (event?: MouseEvent, activeImg?: ImgCto): void => {
     if (event) {
-      const targetClassName = (<HTMLElement>event.target).className;
-      if ('img-container' != targetClassName && 'oit-main-container-view' != targetClassName) return;
+      const target = <HTMLElement>event.target;
+      if (!target || !(target.hasClass(OIT_CLASS.CONTAINER_ROOT) || target.hasClass(OIT_CLASS.IMG_CONTAINER)))
+        return;
     }
     if (!activeImg && !(activeImg = this.imgGlobalStatus.activeImg)) return;
-    if (this.imgInfoCto.oitContainerViewEl) {
-      this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'none'); // hide 'oit-main-container-view'
+    if (this.imgInfo.oitContainerEl) {
+      this.imgInfo.oitContainerEl.style.setProperty('display', 'none'); // hide 'oit-normal'
       this.renderImgTitle('', '');
       this.renderImgView(activeImg.imgViewEl, '', '');
       // remove events
@@ -110,7 +112,7 @@ export class NormalContainerView extends ContainerView {
     if (!this.galleryNavbarView) {
       this.galleryNavbarView = new GalleryNavbarView(this, this.plugin);
     }
-    this.galleryNavbarView.renderGalleryImg(this.imgInfoCto.imgFooterEl);
+    this.galleryNavbarView.renderGalleryImg(this.imgInfo.imgFooterEl);
   }
 
   protected removeGalleryNavbar = () => {
@@ -122,9 +124,9 @@ export class NormalContainerView extends ContainerView {
 
   public renderImgTitle = (name?: string, index?: string): void => {
     if (undefined !== name && null !== name)
-      this.imgInfoCto.imgTitleNameEl?.setText(name);
+      this.imgInfo.imgTitleNameEl?.setText(name);
     if (undefined !== index && null !== index)
-      this.imgInfoCto.imgTitleIndexEl?.setText(' ' + index);
+      this.imgInfo.imgTitleIndexEl?.setText(' ' + index);
   }
 
   protected switchImageOnGalleryNavBar = (event: KeyboardEvent, next: boolean) => {

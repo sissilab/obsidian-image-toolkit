@@ -1,16 +1,26 @@
-import {addIcon, MarkdownView, Plugin} from 'obsidian';
+import {addIcon, Plugin, WorkspaceLeaf} from 'obsidian';
 import {DEFAULT_SETTINGS, ImageToolkitSettingTab} from './conf/settings'
 import {DEFAULT_VIEW_MODE, ICONS, VIEW_IMG_SELECTOR, ViewMode} from './conf/constants'
 import {NormalContainerView} from './ui/container/normalContainer.view';
 import {PinContainerView} from './ui/container/pinContainer.view';
 import {ContainerView} from "./ui/container/container.view";
 import {SettingsIto} from "./model/settings.to";
+import {ContainerFactory} from "./factory/containerFactory";
+import {randomUUID} from "crypto";
 
 export default class ImageToolkitPlugin extends Plugin {
 
   public settings: SettingsIto;
-  public containerView: ContainerView;
+
+  private readonly containerFactory = new ContainerFactory();
+
   public imgSelector: string = ``;
+
+  private static readonly IMG_ORIGIN_CURSOR = 'data-oit-origin-cursor';
+
+  // data-oit-event: 标识new window是否已addEventListener for click
+  private static readonly POPOUT_WINDOW_EVENT = 'data-oit-event';
+
 
   async onload() {
     console.log('loading %s plugin v%s ...', this.manifest.id, this.manifest.version);
@@ -21,70 +31,55 @@ export default class ImageToolkitPlugin extends Plugin {
 
     // this.registerCommands();
 
-    await this.initContainerView(this.settings.viewMode);
+    await this.initContainer(this.settings.viewMode);
 
-    this.toggleViewImage();
+    this.refreshViewTrigger();
 
-    console.log(this.app.workspace.containerEl)
-
-    this.app.workspace.containerEl.matchParent('.app-container').addClass('oit-root');
-    //.appendChild(createDiv('oitoit'));
+    // addEventListener for opened new windows
     this.app.workspace.on('layout-change', () => {
-      // console.log('layout-change..');
-      const activeViewOfType = this.app.workspace.getActiveViewOfType(MarkdownView);
-      console.log('activeViewOfType', activeViewOfType, activeViewOfType?.getDisplayText());
-      const containerEl = activeViewOfType?.containerEl;
-      if (containerEl) {
-        containerEl.on('click',`img`, (e: MouseEvent) => {
-          console.log('img click...', e.target)
-          const targetEl = (<HTMLImageElement>e.target);
-          const appContainerEl = targetEl.matchParent('.app-container');
-          console.log(appContainerEl.id)
-          const oitoit = appContainerEl.getElementsByClassName('oitoit');
-          console.log('oit zai..',oitoit)
-        });
-      }
-      console.log('=======================')
-      /*app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
-          const viewState = leaf.getViewState();
-          if (viewState.type === 'markdown') {
-            console.log('leaf:', leaf, leaf.getDisplayText(), leaf.getViewState());
-            const appContainer = leaf.view.containerEl.matchParent('.app-container');
-            let oit = appContainer.getElementsByClassName('oit');
-            if (!oit || 0 === oit.length) {
-              console.log('new oit...')
-              appContainer.appendChild(createDiv('oit'));
-              appContainer.addEventListener('click', (e: MouseEvent) => {
-                if (e.target.tagName === 'IMG') {
-                  console.log('img click...', e.target)
-                }
-              });
-            } else {
-              console.log('yicunzai~~', oit)
+      this.app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
+          if (['markdown', 'image'].includes(leaf.getViewState()?.type)) {
+            const bodyEl = leaf.view.containerEl.matchParent('body');
+            if (bodyEl.hasClass('is-popout-window')) {
+              if (!bodyEl.hasAttribute(ImageToolkitPlugin.POPOUT_WINDOW_EVENT)) {
+                console.log('popout leaf:', leaf, leaf.getDisplayText());
+                const eventId = randomUUID();
+                this.initContainer(this.settings.viewMode, eventId);
+                bodyEl.setAttr(ImageToolkitPlugin.POPOUT_WINDOW_EVENT, eventId);
+                this.refreshViewTrigger(bodyEl.ownerDocument);
+              }
             }
           }
         }
-      )*/
+      )
     });
   }
 
   onunload() {
     console.log('unloading ' + this.manifest.id + ' plugin...');
-    this.containerView.removeOitContainerView();
-    this.containerView = null;
+    this.getAllContainerViews().forEach(container => {
+      container.removeOitContainerView();
+    });
+    this.containerFactory.clearAll();
     document.off('click', this.imgSelector, this.clickImage);
     document.off('mouseover', this.imgSelector, this.mouseoverImg);
     document.off('mouseout', this.imgSelector, this.mouseoutImg);
   }
 
-  async loadSettings() {
+  private async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-    await this.checkViewMode(this.settings.viewMode);
-    this.addIcons();
+    await this.checkViewMode(this.getViewMode());
+    await this.addIcons();
   }
 
-  async saveSettings() {
+  public async saveSettings() {
     await this.saveData(this.settings);
+  }
+
+  private addIcons = async () => {
+    for (const icon of ICONS) {
+      addIcon(icon.id, icon.svg);
+    }
   }
 
   async registerCommands() {
@@ -99,60 +94,102 @@ export default class ImageToolkitPlugin extends Plugin {
     }); */
   }
 
+  public getViewMode = (): ViewMode => {
+    return this.settings.viewMode;
+  }
+  public setViewMode = (viewMode: ViewMode) => {
+    return this.settings.viewMode = viewMode;
+  }
+
   private checkViewMode = async (viewMode: ViewMode) => {
     for (const key in ViewMode) {
       if (key == viewMode) {
         return;
       }
     }
-    this.settings.viewMode = DEFAULT_VIEW_MODE;
-    console.log('[%s] Reset view mode: %s', this.manifest.id, this.settings.viewMode);
+    this.setViewMode(DEFAULT_VIEW_MODE)
+    console.log('[oit] Reset view mode: %s', DEFAULT_VIEW_MODE);
     await this.saveSettings();
   }
 
-  private addIcons = () => {
-    for (const icon of ICONS) {
-      addIcon(icon.id, icon.svg);
+  public getAllContainerViews = (): ContainerView[] => {
+    return this.containerFactory.getAllContainers();
+  }
+
+  private initContainer = async (viewMode: ViewMode, popoutWindowEventId?: string) => {
+    const container = await this.initContainerByViewMode(viewMode);
+    if (!container) {
+      console.error('[oit] Cannot init container');
+      return;
+    }
+    if (popoutWindowEventId) {
+      // popoutWindowEventId will be recorded into data-oit-event'of body tag
+      this.containerFactory.setPopoutContainer(popoutWindowEventId, container);
+    } else {
+      this.containerFactory.setMainContainer(container);
     }
   }
 
-  private initContainerView = async (viewMode: ViewMode) => {
+  private initContainerByViewMode = async (viewMode: ViewMode, fromDefault?: boolean): Promise<ContainerView> => {
     switch (viewMode) {
       case ViewMode.Normal:
-        this.containerView = new NormalContainerView(this, viewMode);
-        break;
+        return new NormalContainerView(this);
       case ViewMode.Pin:
-        this.containerView = new PinContainerView(this, viewMode);
-        break;
+        return new PinContainerView(this);
       default:
-        this.settings.viewMode = ViewMode.Normal;
-        console.log('[%s] Reset view mode: %s', this.manifest.id, ViewMode.Normal);
+        if (fromDefault) {
+          return null;
+        }
+        this.setViewMode(viewMode = DEFAULT_VIEW_MODE);
         await this.saveSettings();
-        this.containerView = new NormalContainerView(this, viewMode);
-        break;
+        console.log('[oit] Reset view mode to: %s', viewMode);
+        return this.initContainerByViewMode(viewMode, true);
     }
   }
 
-  private switchViewMode = async (viewMode: ViewMode) => {
-    this.containerView.removeOitContainerView();
-    await this.initContainerView(viewMode);
+  private isImageElement = (imgEl: HTMLImageElement): boolean => {
+    return imgEl && 'IMG' === imgEl.tagName;
   }
 
-  public togglePinMode = (pinMode: boolean) => {
-    this.containerView.removeOitContainerView();
-    this.initContainerView(ViewMode.Pin);
+  private isClickable = (targetEl: HTMLImageElement, event: MouseEvent): ContainerView => {
+    let container: ContainerView;
+    if (this.isImageElement(targetEl)
+      && (container = this.containerFactory.getContainer(targetEl))
+      && container.checkHotkeySettings(event, this.settings.viewTriggerHotkey)) {
+      return container;
+    }
+    return null;
   }
 
-  public switchViewTrigger = () => {
-    const viewImageInEditor = this.settings.viewImageInEditor; // .workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img
-    const viewImageInCPB = this.settings.viewImageInCPB; // .community-plugin-readme img
-    const viewImageWithLink = this.settings.viewImageWithLink; // false: ... img:not(a img)
-    const viewImageOther = this.settings.viewImageOther; // #sr-flashcard-view img
+  public switchViewMode = async (viewMode: ViewMode) => {
+    this.settings.viewMode = viewMode;
+    await this.saveSettings();
+    this.getAllContainerViews().forEach(container => {
+      container.removeOitContainerView();
+      this.initContainer(viewMode, container.getParentContainerEl()?.getAttribute('data-oit-event'));
+    });
+  }
 
+  /**
+   * refresh events for main container
+   */
+  public refreshViewTrigger = (doc?: Document) => {
+    // .workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img
+    const viewImageInEditor = this.settings.viewImageInEditor;
+    // .community-modal-details img
+    const viewImageInCPB = this.settings.viewImageInCPB;
+    // false: ... img:not(a img)
+    const viewImageWithLink = this.settings.viewImageWithLink;
+    // #sr-flashcard-view img
+    const viewImageOther = this.settings.viewImageOther;
+
+    if (!doc) {
+      doc = document;
+    }
     if (this.imgSelector) {
-      document.off('click', this.imgSelector, this.clickImage);
-      document.off('mouseover', this.imgSelector, this.mouseoverImg);
-      document.off('mouseout', this.imgSelector, this.mouseoutImg);
+      doc.off('click', this.imgSelector, this.clickImage);
+      doc.off('mouseover', this.imgSelector, this.mouseoverImg);
+      doc.off('mouseout', this.imgSelector, this.mouseoutImg);
     }
     if (!viewImageOther && !viewImageInEditor && !viewImageInCPB && !viewImageWithLink) {
       return;
@@ -169,74 +206,38 @@ export default class ImageToolkitPlugin extends Plugin {
     }
 
     if (selector) {
-      // console.log('selector: ', selector);
       this.imgSelector = selector;
-      document.on('click', this.imgSelector, this.clickImage);
-      document.on('mouseover', this.imgSelector, this.mouseoverImg);
-      document.on('mouseout', this.imgSelector, this.mouseoutImg);
+      doc.on('click', this.imgSelector, this.clickImage);
+      doc.on('mouseover', this.imgSelector, this.mouseoverImg);
+      doc.on('mouseout', this.imgSelector, this.mouseoutImg);
     }
   }
 
   private clickImage = (event: MouseEvent) => {
-    const targetEl = (<HTMLImageElement>event.target);
-    // console.log('clickImage:', targetEl)
-    //new Notice('clickImage');
-    if (!targetEl || 'IMG' !== targetEl.tagName
-      || !this.containerView.checkHotkeySettings(event, this.settings.viewTriggerHotkey))
-      return;
-    this.containerView.renderContainerView(targetEl);
+    const targetEl = <HTMLImageElement>event.target;
+    let container: ContainerView = this.isClickable(targetEl, event);
+    if (container) {
+      container.renderContainer(targetEl);
+    }
   }
 
   private mouseoverImg = (event: MouseEvent) => {
     const targetEl = (<HTMLImageElement>event.target);
-    if (!targetEl || 'IMG' !== targetEl.tagName)
+    if (!this.isClickable(targetEl, event)) {
       return;
-    // console.log('mouseoverImg......');
-    const defaultCursor = targetEl.getAttribute('data-oit-default-cursor');
-    if (null === defaultCursor) {
-      targetEl.setAttribute('data-oit-default-cursor', targetEl.style.cursor || '');
+    }
+    if (null == targetEl.getAttribute(ImageToolkitPlugin.IMG_ORIGIN_CURSOR)) {
+      targetEl.setAttribute(ImageToolkitPlugin.IMG_ORIGIN_CURSOR, targetEl.style.cursor || '');
     }
     targetEl.style.cursor = 'zoom-in';
   }
 
   private mouseoutImg = (event: MouseEvent) => {
     const targetEl = (<HTMLImageElement>event.target);
-    // console.log('mouseoutImg....');
-    if (!targetEl || 'IMG' !== targetEl.tagName) return;
-    targetEl.style.cursor = targetEl.getAttribute('data-oit-default-cursor');
-  }
-
-  public toggleViewImage = () => {
-    const viewImageInEditor = this.settings.viewImageInEditor; // .workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img
-    const viewImageInCPB = this.settings.viewImageInCPB; // .community-plugin-readme img
-    const viewImageWithLink = this.settings.viewImageWithLink; // false: ... img:not(a img)
-    const viewImageOther = this.settings.viewImageOther; // #sr-flashcard-view img
-
-    if (this.imgSelector) {
-      document.off('click', this.imgSelector, this.clickImage);
-      document.off('mouseover', this.imgSelector, this.mouseoverImg);
-      document.off('mouseout', this.imgSelector, this.mouseoutImg);
-    }
-    if (!viewImageOther && !viewImageInEditor && !viewImageInCPB && !viewImageWithLink) {
+    if (!this.isClickable(targetEl, event)) {
       return;
     }
-    let selector = ``;
-    if (viewImageInEditor) {
-      selector += (viewImageWithLink ? VIEW_IMG_SELECTOR.EDITOR_AREAS : VIEW_IMG_SELECTOR.EDITOR_AREAS_NO_LINK);
-    }
-    if (viewImageInCPB) {
-      selector += (1 < selector.length ? `,` : ``) + (viewImageWithLink ? VIEW_IMG_SELECTOR.CPB : VIEW_IMG_SELECTOR.CPB_NO_LINK);
-    }
-    if (viewImageOther) {
-      selector += (1 < selector.length ? `,` : ``) + (viewImageWithLink ? VIEW_IMG_SELECTOR.OTHER : VIEW_IMG_SELECTOR.OTHER_NO_LINK);
-    }
-
-    if (selector) {
-      // console.log('selector: ', selector);
-      this.imgSelector = selector;
-      document.on('click', this.imgSelector, this.clickImage);
-      document.on('mouseover', this.imgSelector, this.mouseoverImg);
-      document.on('mouseout', this.imgSelector, this.mouseoutImg);
-    }
+    targetEl.style.cursor = targetEl.getAttribute(ImageToolkitPlugin.IMG_ORIGIN_CURSOR);
   }
+
 }

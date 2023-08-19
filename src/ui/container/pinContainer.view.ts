@@ -1,4 +1,4 @@
-import {CONTAINER_TYPE, ViewMode} from "src/conf/constants";
+import {OIT_CLASS} from "src/conf/constants";
 import ImageToolkitPlugin from "src/main";
 import {ContainerView} from "./container.view";
 import {ImgCto} from "../../model/imgTo";
@@ -11,8 +11,8 @@ import {MenuView} from "../menuView";
  */
 export class PinContainerView extends ContainerView {
 
-  constructor(plugin: ImageToolkitPlugin, viewMode: ViewMode) {
-    super(plugin, viewMode, plugin.settings.pinMaximum);
+  constructor(plugin: ImageToolkitPlugin/*, viewMode: ViewMode*/) {
+    super(plugin/*, viewMode, plugin.settings.pinMaximum*/);
     this.setMenuView(new MenuView(this));
   }
 
@@ -21,38 +21,39 @@ export class PinContainerView extends ContainerView {
   }
 
   //region ================== Container View ========================
-  public initContainerViewDom = (containerEl: HTMLElement): ImgCto => {
+  public initContainerDom = (parentContainerEl: Element): ImgCto => {
     /*
     <div class="oit-pin-container-view">
-      <div class="img-container">
-        <img class="img-view" data-index='0' src="" alt="">
-        <img class="img-view" data-index='1' src="" alt="">
+      <div class="oit-img-container">
+        <img class="oit-img-view" data-index='0' src="" alt="">
+        <img class="oit-img-view" data-index='1' src="" alt="">
         ...
       </div>
     </div>
      */
-    if (!this.imgInfoCto.oitContainerViewEl) { // init at first time
-      // create: <div class="oit-pin-container-view">
-      containerEl.appendChild(this.imgInfoCto.oitContainerViewEl = createDiv('oit-pin-container-view'));
-      // <div class="oit-pin-container-view"> <div class="img-container"/> </div>
-      this.imgInfoCto.oitContainerViewEl.append(this.imgInfoCto.imgContainerEl = createDiv('img-container'));
+    if (!this.imgInfo.oitContainerEl) { // init at first time
+      // create: <div class="oit oit-pin">
+      (this.imgInfo.oitContainerEl = createDiv()).addClass(OIT_CLASS.CONTAINER_ROOT, OIT_CLASS.CONTAINER_PIN)
+      parentContainerEl.appendChild(this.imgInfo.oitContainerEl);
+      // <div class="oit oit-pin"> <div class="oit-img-container"/> </div>
+      this.imgInfo.oitContainerEl.append(this.imgInfo.imgContainerEl = createDiv(OIT_CLASS.IMG_CONTAINER));
 
-      // <div class="img-tip"></div>
-      this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgTipEl = createDiv('img-tip')); // img-tip
-      this.imgInfoCto.imgTipEl.hidden = true; // hide 'img-tip'
+      // <div class="oit-img-tip"></div>
+      this.imgInfo.oitContainerEl.appendChild(this.imgInfo.imgTipEl = createDiv(OIT_CLASS.IMG_TTP)); // oit-img-tip
+      this.imgInfo.imgTipEl.hidden = true; // hide 'oit-img-tip'
 
       // <div class="img-player"> <img class='img-fullscreen' src=''> </div>
-      this.imgInfoCto.oitContainerViewEl.appendChild(this.imgInfoCto.imgPlayerEl = createDiv('img-player')); // img-player for full screen mode
-      this.imgInfoCto.imgPlayerEl.appendChild(this.imgInfoCto.imgPlayerImgViewEl = createEl('img'));
-      this.imgInfoCto.imgPlayerImgViewEl.addClass('img-fullscreen');
+      this.imgInfo.oitContainerEl.appendChild(this.imgInfo.imgPlayerEl = createDiv(OIT_CLASS.IMG_PLAYER)); // img-player for full screen mode
+      this.imgInfo.imgPlayerEl.appendChild(this.imgInfo.imgPlayerImgViewEl = createEl('img'));
+      this.imgInfo.imgPlayerImgViewEl.addClass(OIT_CLASS.IMG_FULLSCREEN);
     }
-    // <div class="img-container"> <img class="img-view" src="" alt=""> </div>
-    this.updateImgViewElAndList(this.pinMaximum);
+    // <div class="oit-img-container"> <img class="oit-img-view" src="" alt=""> </div>
+    this.updateImgViewElAndList(this.imgInfo);
     return this.getMatchedImg();
   }
 
   public openOitContainerView = (matchedImg: ImgCto): void => {
-    if (!this.imgInfoCto.oitContainerViewEl) {
+    if (!this.imgInfo.oitContainerEl) {
       console.error('obsidian-image-toolkit: oit-*-container-view has not been initialized!');
       return;
     }
@@ -60,7 +61,7 @@ export class PinContainerView extends ContainerView {
     if (!this.imgGlobalStatus.popup) {
       this.imgGlobalStatus.popup = true;
       this.imgGlobalStatus.activeImgZIndex = 0;
-      this.imgInfoCto.imgList.forEach(value => {
+      this.imgInfo.imgList.forEach(value => {
         value.zIndex = 0;
       });
     } else {
@@ -68,7 +69,7 @@ export class PinContainerView extends ContainerView {
     }
     matchedImg.imgViewEl.style.setProperty('z-index', matchedImg.zIndex + '');
     // display 'oit-pin-container-view'
-    this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'block');
+    this.imgInfo.oitContainerEl.style.setProperty('display', 'block');
   }
 
   /**
@@ -81,7 +82,7 @@ export class PinContainerView extends ContainerView {
       // PinContainerView doesn't need click event to hide container for now
       return;
     }
-    if (!this.imgInfoCto.oitContainerViewEl) return;
+    if (!this.imgInfo.oitContainerEl) return;
     if (!activeImg && !(activeImg = this.imgGlobalStatus.activeImg)) return;
     // console.log('closeContainerView', event, activeImg)
     this.renderImgView(activeImg.imgViewEl, '', '');
@@ -89,16 +90,16 @@ export class PinContainerView extends ContainerView {
     activeImg.mtime = 0;
 
     let globalPopupFlag: boolean = false;
-    for (const imgCto of this.imgInfoCto.imgList) {
+    for (const imgCto of this.imgInfo.imgList) {
       if (imgCto.popup) {
         globalPopupFlag = true;
         break;
       }
     }
     if (!globalPopupFlag) {
-      this.imgInfoCto.oitContainerViewEl.style.setProperty('display', 'none'); // hide 'oit-pin-container-view'
+      this.imgInfo.oitContainerEl.style.setProperty('display', 'none'); // hide 'oit-pin-container-view'
       this.imgGlobalStatus.activeImgZIndex = 0;
-      this.imgInfoCto.imgList.forEach(value => {
+      this.imgInfo.imgList.forEach(value => {
         value.zIndex = 0;
       });
     }
@@ -109,7 +110,7 @@ export class PinContainerView extends ContainerView {
 
   protected setActiveImgZIndex = (activeImg: ImgCto) => {
     let isUpdate: boolean = false;
-    for (const imgCto of this.imgInfoCto.imgList) {
+    for (const imgCto of this.imgInfo.imgList) {
       if (activeImg.index !== imgCto.index && activeImg.zIndex <= imgCto.zIndex) {
         isUpdate = true;
         break;

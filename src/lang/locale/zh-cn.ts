@@ -5,6 +5,12 @@ export default {
   // settings
   IMAGE_TOOLKIT_SETTINGS_TITLE: "Image Toolkit 设置",
 
+  // >>>Common Settings:
+  COMMON_SETTINGS: '通用设置：',
+  VIEW_MODE_NAME: '选择查看模式',
+  VIEW_MODE_NORMAL: '🖼 普通',
+  VIEW_MODE_PIN: '📌 贴图',
+
   // >>> 预览触发配置：
   VIEW_TRIGGER_SETTINGS: '预览触发配置：',
   VIEW_IMAGE_GLOBAL_NAME: '支持全局预览图片',
@@ -26,6 +32,7 @@ export default {
   PIN_MAXIMUM_NAME: "最大贴图数量",
   PIN_COVER_NAME: "覆盖模式",
   PIN_COVER_DESC: "当贴图数量达到最大值后，此时再次点击图片，该图片会覆盖最早弹出的那个贴图。",
+  PIN_MAXIMUM_NOTICE: "超过最大Pin图设置（非覆盖模式）",
 
   // >>>查看细节设置：
   VIEW_DETAILS_SETTINGS: '查看细节设置：',

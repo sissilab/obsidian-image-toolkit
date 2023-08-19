@@ -1,6 +1,4 @@
-import {
-  ViewMode
-} from "../conf/constants";
+import {ViewMode} from "../conf/constants";
 
 /**
  * interface ts object: global settings
@@ -15,7 +13,7 @@ export interface SettingsIto {
   viewImageOther: boolean;
 
   // PIN MODE
-  pinMode: boolean;
+  //pinMode: boolean;
   pinMaximum: number;
   pinCoverMode: boolean; // cover the earliest image which is being popped up
 

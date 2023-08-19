@@ -40,7 +40,7 @@ export class GalleryNavbarView {
     if (!activeView
       || 'markdown' !== activeView.getViewType()
       // modal-container: community plugin, flashcards (Space Repetition)
-      || 0 < document.getElementsByClassName('modal-container').length) {
+      || 0 < this.mainContainerView.getDoc().getElementsByClassName('modal-container').length) {
       if (this.galleryNavbarEl) this.galleryNavbarEl.hidden = true;
       if (this.galleryListEl) this.galleryListEl.innerHTML = '';
       return;
@@ -72,7 +72,7 @@ export class GalleryNavbarView {
       // <li> <img class='gallery-img' src='' alt=''> </li>
       this.galleryListEl.append(liEl = createEl('li'));
       liEl.append(imgEl = createEl('img'));
-      imgEl.addClass('gallery-img');
+      imgEl.addClass('gallery-img', 'oit-img');
       imgEl.setAttr('alt', img.alt);
       imgEl.setAttr('src', img.src);
       imgListEl.push(imgEl);
@@ -117,7 +117,7 @@ export class GalleryNavbarView {
         }
       }
 
-      this.galleryTranslateX = (document.documentElement.clientWidth || document.body.clientWidth) / 2.5 - targetImageIdx * 52;
+      this.galleryTranslateX = (this.mainContainerView.getDoc().documentElement.clientWidth || this.mainContainerView.getDoc().body.clientWidth) / 2.5 - targetImageIdx * 52;
       this.galleryListEl.style.transform = 'translateX(' + this.galleryTranslateX + 'px)';
     }
   }
@@ -304,7 +304,7 @@ export class GalleryNavbarView {
     this.galleryMouseDownClientX = event.clientX;
     this.galleryTranslateX += moveDistance;
 
-    const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
+    const windowWidth = this.mainContainerView.getDoc().documentElement.clientWidth || this.mainContainerView.getDoc().body.clientWidth;
     const imgLiWidth = (this.galleryListEl.childElementCount - 1) * 52;
     // console.log('move...', 'windowWidth=' + windowWidth, 'galleryTranslateX=' + galleryTranslateX, 'li count=' + imgInfo.galleryList.childElementCount);
     if (this.galleryTranslateX + 50 >= windowWidth) this.galleryTranslateX = windowWidth - 50;

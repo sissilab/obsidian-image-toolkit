@@ -53,7 +53,7 @@ const locale = localeMap[moment.locale()];
 
 export function t(str: keyof typeof en): string {
   if (!locale) {
-    console.error("Error: Image toolkit locale not found", moment.locale());
+    console.error("[oit] Image toolkit locale not found", moment.locale());
   }
 
   return (locale && locale[str]) || en[str];

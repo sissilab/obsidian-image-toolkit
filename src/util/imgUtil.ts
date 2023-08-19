@@ -9,9 +9,13 @@ import {OffsetSizeIto} from "../model/commonTo";
  */
 export class ImgUtil {
 
-  public static calculateImgZoomSize = (realImg: HTMLImageElement, imgCto: ImgCto): ImgCto => {
-    const windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
-    const windowHeight = (document.documentElement.clientHeight || document.body.clientHeight) - 100;
+  public static calculateImgZoomSize = (realImg: HTMLImageElement, imgCto: ImgCto, windowWidth: number, windowHeight: number): ImgCto => {
+    if (!windowWidth) {
+      windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
+    }
+    if (!windowHeight) {
+      windowHeight = (document.documentElement.clientHeight || document.body.clientHeight) - 100;
+    }
     const windowZoomWidth = windowWidth * ZOOM_FACTOR;
     const windowZoomHeight = windowHeight * ZOOM_FACTOR;
 
