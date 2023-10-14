@@ -40,7 +40,7 @@ export default class ImageToolkitPlugin extends Plugin {
       this.app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
           if (['markdown', 'image'].includes(leaf.getViewState()?.type)) {
             const bodyEl = leaf.view.containerEl.matchParent('body');
-            if (bodyEl.hasClass('is-popout-window')) {
+            if (bodyEl?.hasClass('is-popout-window')) {
               if (!bodyEl.hasAttribute(ImageToolkitPlugin.POPOUT_WINDOW_EVENT)) {
                 console.log('popout leaf:', leaf, leaf.getDisplayText());
                 const eventId = randomUUID();
