@@ -61,12 +61,15 @@ const getNonCodeAreaTexts = (lineText: string): string[] => {
   return textArr;
 }
 
-
 const IMAGE_LINK_REGEX1 = /\[\s*?(!\[(.*?)\]\((.*?)\))\s*?\]\(.*?\)/; // 1-link: [ ![alt1|alt2|...|altn|width](src) ](https://...)
-const IMAGE_REGEX1 = /!\[(.*?)\]\((.*?)\)/; // 1: ![alt1|alt2|...|altn|width](src)
-
+// markdown: `![alt1|alt2|...|altn|width](src)` -> 1: alt (alt+width), 2: src
+const RE_MARKDOWN_IMAGE = /!\[(.*?)\]\(\s*(.*?\.(jpe?g|png|svg|gif|bmp|webp))\s*\)/i; // 1: ![alt1|alt2|...|altn|width](src)
+// const RE_MARKDOWN_IMAGE = /!\[(.*?)\]\(\s*(.*?)\s*\)/i; // 1: ![alt1|alt2|...|altn|width](src)
+const RE_IMGAGE = /.*?\.(jpe?g|png|svg|gif|bmp|webp)/i;
+const RE_IMGAGE_BASE64 = /data:image\/[^;]+;base64.*/i;
 const IMAGE_LINK_REGEX2 = /\[\s*?(!\[\[(.*?[jpe?g|png|gif|svg|bmp].*?)\]\])\s*?\]\(.*?\)/i; // 2-link: [ ![[src|alt1|alt2|width]] ](https://...)
-const IMAGE_REGEX2 = /!\[\[(.*?[jpe?g|png|gif|svg|bmp].*?)\]\]/i; // 2: ![[src|alt1|alt2|width]]
+// RE_WIKILINK_IMAGE wikilink: `![[bird.png|alt1|alt2|2.1|50]]` -> 1: src+alt+width
+const RE_WIKILINK_IMAGE = /!\[\[(.*?\.(jpe?g|png|svg|gif|bmp|webp).*?)\]\]/i; // 2: ![[src|alt1|alt2|width]]
 
 const SRC_LINK_REGEX = /[a-z][a-z0-9+\-.]+:\/.*/i; // match link: http://, file://, app:// 
 const SRC_IMG_REGREX = /.*?\.jpe?g|png|gif|svg|bmp/i; // match image ext: .jpg/.jpeg/.png/.gif/.svg/.bmp
@@ -81,6 +84,8 @@ const BLOCKQUOTE_PREFIX = `#^`;
 const IMG_MATCH_MIN_LEN: number = 7;
 
 const extractImage = (text: string, imgList: Array<GalleryImgCto>) => {
+  text = text.replace('\\|', '|');
+  
   let img: GalleryImgCto;
   if (!(img = matchImage1(text))) {
     if (!(img = matchImage2(text))) {
@@ -111,7 +116,7 @@ const matchImage1 = (text: string): GalleryImgCto => {
     alt = match[2];
     src = match[3];
   } else {
-    match = text.match(IMAGE_REGEX1); // 1: ![alt1|alt2|...|altn|width](src)
+    match = text.match(RE_MARKDOWN_IMAGE); // 1: ![alt1|alt2|...|altn|width](src)
     if (match) {
       if (alt = match[1]) {
         if (0 <= alt.indexOf('[') && 0 <= alt.indexOf(']')) return;
@@ -162,7 +167,7 @@ const matchImage2 = (text: string): GalleryImgCto => {
     link = true;
     content = match[2];
   } else {
-    match = text.match(IMAGE_REGEX2); // 2: ![[src|alt1|alt2|width]]
+    match = text.match(RE_WIKILINK_IMAGE); // 2: ![[src|alt1|alt2|width]]
     content = match ? match[1] : null;
     if (content && content.startsWith(BLOCKQUOTE_PREFIX)) return;
   }
@@ -172,7 +177,7 @@ const matchImage2 = (text: string): GalleryImgCto => {
   img.match = match;
   let width: string;
   const contentArr = content?.split('|');
-  if (contentArr && 0 < contentArr.length && (img.src = contentArr[0])) {
+  if (contentArr && 0 < contentArr.length && (img.src = contentArr[0].trim())) {
     const srcArr = img.src.split('/');
     if (srcArr && 0 < srcArr.length) {
       img.name = srcArr[srcArr.length - 1];
@@ -227,7 +232,7 @@ const extractImg = (lineText: string): GalleryImgCto => {
   let matchFlag: boolean = false;
   let alt: string, src: string, width: string, name: string;
   let convert: boolean = false;
-  if (match = lineText.match(IMAGE_REGEX1)) {  // 1: ![alt1|alt2|...|altn|width](src)
+  if (match = lineText.match(RE_MARKDOWN_IMAGE)) {  // 1: ![alt1|alt2|...|altn|width](src)
     if (!(src = match[2])) return null;
     if (SRC_LINK_REGEX.test(src)) { // 1.2: match link: http://, file://, app://local/
       if (src.startsWith('file://')) {
@@ -249,7 +254,7 @@ const extractImg = (lineText: string): GalleryImgCto => {
       }
     }
     // console.log('IMAGE_REGEX1: ', match, 'alt=' + alt, 'src=' + src);
-  } else if (match = lineText.match(IMAGE_REGEX2)) { // 2: ![[src|alt1|alt2|width]]
+  } else if (match = lineText.match(RE_WIKILINK_IMAGE)) { // 2: ![[src|alt1|alt2|width]]
     const contentArr = match[1]?.split('|');
     if (contentArr && 0 < contentArr.length && (src = contentArr[0])) {
       const srcArr = src.split('/');
