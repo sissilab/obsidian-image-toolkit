@@ -1,3 +1,8 @@
+export const SYMBOL = {
+  WHITESPACE: ' ',
+  BACKTICK: '`'
+}
+
 export enum ViewMode {
   Normal = 'Normal',
   Pin = 'Pin',

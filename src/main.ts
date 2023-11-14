@@ -1,12 +1,13 @@
-import {addIcon, Plugin, WorkspaceLeaf} from 'obsidian';
-import {DEFAULT_SETTINGS, ImageToolkitSettingTab} from './conf/settings'
-import {DEFAULT_VIEW_MODE, ICONS, VIEW_IMG_SELECTOR, ViewMode} from './conf/constants'
-import {NormalContainerView} from './ui/container/normalContainer.view';
-import {PinContainerView} from './ui/container/pinContainer.view';
-import {ContainerView} from "./ui/container/container.view";
-import {SettingsIto} from "./model/settings.to";
-import {ContainerFactory} from "./factory/containerFactory";
-import {randomUUID} from "crypto";
+import { addIcon, Plugin, WorkspaceLeaf } from 'obsidian';
+import { DEFAULT_SETTINGS, ImageToolkitSettingTab } from './conf/settings'
+import { DEFAULT_VIEW_MODE, ICONS, VIEW_IMG_SELECTOR, ViewMode } from './conf/constants'
+import { NormalContainerView } from './ui/container/normalContainer.view';
+import { PinContainerView } from './ui/container/pinContainer.view';
+import { ContainerView } from "./ui/container/container.view";
+import { SettingsIto } from "./model/settings.to";
+import { ContainerFactory } from "./factory/containerFactory";
+import { randomUUID } from "crypto";
+import { log } from 'console';
 
 export default class ImageToolkitPlugin extends Plugin {
 
@@ -38,19 +39,19 @@ export default class ImageToolkitPlugin extends Plugin {
     // addEventListener for opened new windows
     this.app.workspace.on('layout-change', () => {
       this.app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
-          if (['markdown', 'image'].includes(leaf.getViewState()?.type)) {
-            const bodyEl = leaf.view.containerEl.matchParent('body');
-            if (bodyEl?.hasClass('is-popout-window')) {
-              if (!bodyEl.hasAttribute(ImageToolkitPlugin.POPOUT_WINDOW_EVENT)) {
-                console.log('popout leaf:', leaf, leaf.getDisplayText());
-                const eventId = randomUUID();
-                this.initContainer(this.settings.viewMode, eventId);
-                bodyEl.setAttr(ImageToolkitPlugin.POPOUT_WINDOW_EVENT, eventId);
-                this.refreshViewTrigger(bodyEl.ownerDocument);
-              }
+        if (['markdown', 'image'].includes(leaf.getViewState()?.type)) {
+          const bodyEl = leaf.view.containerEl.matchParent('body');
+          if (bodyEl?.hasClass('is-popout-window')) {
+            if (!bodyEl.hasAttribute(ImageToolkitPlugin.POPOUT_WINDOW_EVENT)) {
+              console.log('popout leaf:', leaf, leaf.getDisplayText());
+              const eventId = randomUUID();
+              this.initContainer(this.settings.viewMode, eventId);
+              bodyEl.setAttr(ImageToolkitPlugin.POPOUT_WINDOW_EVENT, eventId);
+              this.refreshViewTrigger(bodyEl.ownerDocument);
             }
           }
         }
+      }
       )
     });
   }
@@ -207,6 +208,9 @@ export default class ImageToolkitPlugin extends Plugin {
 
     if (selector) {
       this.imgSelector = selector;
+      // doc.onclick = (event: MouseEvent) =>{
+      //     console.log(event.target);
+      // }
       doc.on('click', this.imgSelector, this.clickImage);
       doc.on('mouseover', this.imgSelector, this.mouseoverImg);
       doc.on('mouseout', this.imgSelector, this.mouseoutImg);
