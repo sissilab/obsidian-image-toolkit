@@ -7,7 +7,6 @@ import { ContainerView } from "./ui/container/container.view";
 import { SettingsIto } from "./model/settings.to";
 import { ContainerFactory } from "./factory/containerFactory";
 import { randomUUID } from "crypto";
-import { log } from 'console';
 
 export default class ImageToolkitPlugin extends Plugin {
 

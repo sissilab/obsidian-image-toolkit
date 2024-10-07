@@ -23,7 +23,7 @@ export default {
   VIEW_IMAGE_WITH_A_LINK_NAME: 'Click and view an image with a link',
   VIEW_IMAGE_WITH_A_LINK_DESC: 'Turn on this option if you want to click and view an image with a link. (NOTE: The browser will be opened for you to visit the link and the image will be popped up for being viewed at the same time when you click the image.)',
   VIEW_IMAGE_OTHER_NAME: 'Click and view in the other areas except the above',
-  VIEW_IMAGE_OTHER_DESC: 'Except for the above mentioned, it also supports other areas, e.g. flashcards.',
+  VIEW_IMAGE_OTHER_DESC: 'Except for the above mentioned, it also supports other areas, like some modal user interface components.',
 
   // >>> PIN_MODE_SETTINGS
   PIN_MODE_SETTINGS: "Pin Mode Settings:",

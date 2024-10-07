@@ -148,8 +148,8 @@ export const VIEW_IMG_SELECTOR = {
   CPB: `.community-modal-details img`,
   CPB_NO_LINK: `.community-modal-details img:not(a img)`,
 
-  OTHER: `#sr-flashcard-view img`,
-  OTHER_NO_LINK: `#sr-flashcard-view img:not(a img)`,
+  OTHER: `.modal-content img`,
+  OTHER_NO_LINK: `.modal-content img:not(a img)`,
 }
 
 export const IMG_BORDER_WIDTH = {
