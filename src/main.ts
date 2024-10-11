@@ -84,13 +84,13 @@ export default class ImageToolkitPlugin extends Plugin {
 
   async registerCommands() {
     /* this.addCommand({
-        "id": "oit-move-up-image",
-        "name": "move up the image",
-        hotkeys: [{ modifiers: ["Ctrl"], key: "ArrowUp" }],
-        checkCallback: (checking: boolean) => {
-            if (checking) return false;
-            this.containerView.moveImgViewByHotkey('UP');
-        },
+      "id": "oit-move-up-image",
+      "name": "move up the image",
+      hotkeys: [{ modifiers: ["Ctrl"], key: "ArrowUp" }],
+      checkCallback: (checking: boolean) => {
+        if (checking) return false;
+        this.containerView.moveImgViewByHotkey('UP');
+      },
     }); */
   }
 
