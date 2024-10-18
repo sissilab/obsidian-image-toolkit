@@ -484,6 +484,7 @@ export abstract class ContainerView {
         // click event: hide container view
         this.imgInfo.oitContainerEl.addEventListener('click', this.closeContainerView);
       }
+      matchedImg.imgViewEl.addEventListener('dblclick', this.dblclickImgView);
       matchedImg.imgViewEl.addEventListener('mouseenter', this.mouseenterImgView);
       matchedImg.imgViewEl.addEventListener('mouseleave', this.mouseleaveImgView);
       // drag the image via mouse
@@ -505,6 +506,7 @@ export abstract class ContainerView {
       if (!this.isPinMode()) {
         this.imgInfo.oitContainerEl.removeEventListener('click', this.closeContainerView);
       }
+      matchedImg.imgViewEl.removeEventListener('dblclick', this.dblclickImgView);
       matchedImg.imgViewEl.removeEventListener('mouseenter', this.mouseenterImgView);
       matchedImg.imgViewEl.removeEventListener('mouseleave', this.mouseleaveImgView);
       matchedImg.imgViewEl.removeEventListener('mousedown', this.mousedownImgView);
@@ -689,6 +691,16 @@ export abstract class ContainerView {
     }
   }
 
+  protected dblclickImgView = (event: MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    const activeImg = this.getAndUpdateActiveImg(event);
+    if (!activeImg) return;
+    if (0 == event.button) { // left click
+      this.clickImgToolbar(null, this.plugin.settings.doubleClickToolbar, activeImg);
+    }
+  }
+
   /**
    * move the image by mouse or keyboard
    * @param event
@@ -748,11 +760,6 @@ export abstract class ContainerView {
     this.imgGlobalStatus.clickTimer = setTimeout(() => {
       const clickCount = this.imgGlobalStatus.clickCount;
       this.resetClickTimer();
-      if (2 === clickCount) { // double click
-        if (!activeImg) activeImg = this.imgGlobalStatus.activeImg;
-        // console.log('mousedownImgView: double click...', activeImg.index);
-        this.clickImgToolbar(null, this.plugin.settings.doubleClickToolbar, activeImg);
-      }
     }, 200);
   }
 
