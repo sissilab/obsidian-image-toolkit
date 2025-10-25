@@ -13,6 +13,21 @@
     <a href="/README.md">English</a>
 </p>
 
+## 🌻 Thank You All for Your Support
+
+First of all, thank you so much for all your support, stars, and contributions over time. 🙏
+I’m truly grateful for the love and interest this little project has received. ❤️
+
+I’m really sorry 😔 that I haven’t been able to keep maintaining it lately.
+There have been quite a few changes in my life recently, and so for now, I need to take a step back and focus on adapting to new things, so I’m putting development on pause temporarily. 🌱
+
+👉 The good news is that this project has been officially migrated to the Obsidian Community Plugins organization: https://github.com/obsidian-community/obsidian-image-toolkit!
+Please feel free to check it out, contribute, and keep it growing there 🚀
+
+I still have many ideas 💡 and new features I’d love to explore in the future.
+When things settle down, I’ll come back and continue improving it in current repo. ✨
+
+Thanks again for your kindness and understanding! 💖
 
 ## About the Plugin
 When you click an image, it will be popped up and you can preview, zoom, move, rotate, flip, invert and copy the image.
