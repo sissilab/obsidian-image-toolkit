@@ -2,11 +2,6 @@ body {
     --layer-image-toolkit-popup: 1024;
     --layer-image-toolkit-player: 1025;
     --layer-image-toolkit-notice: 1026;
-    --layer-menu: 1027;
-}
-
-.menu {
-    z-index: var(--layer-menu);
 }
 
 .notice-container {
