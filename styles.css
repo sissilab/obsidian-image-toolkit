@@ -161,7 +161,10 @@ body {
     width: 385px;
     height: 30px;
     margin: 0 auto 5px;
-    padding: 3px 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .oit-normal .oit-img-footer .oit-img-toolbar:hover {
@@ -170,18 +173,15 @@ body {
 }
 
 .oit-normal .oit-img-footer .oit-img-toolbar > li {
-    float: left;
     width: 25px;
     height: 25px;
-    margin: 0 5px;
     padding: 0;
     line-height: 0;
     border: none;
     cursor: pointer;
-    overflow: hidden;
 }
 
-.oit-normal .oit-img-footer .oit-img-toolbar > li:hover {
+.oit-normal .oit-img-footer .oit-img-toolbar > li:hover::before {
     animation: bounce .5s cubic-bezier(0.51, 0.23, 0.02, 0.96)
 }
 
