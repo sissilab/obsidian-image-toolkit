@@ -21,6 +21,7 @@ export default class ImageToolkitPlugin extends Plugin {
   // data-oit-event: 标识new window是否已addEventListener for click
   private static readonly POPOUT_WINDOW_EVENT = 'data-oit-event';
 
+  private readonly registeredDocs = new Set<Document>();
 
   async onload() {
     console.log('loading %s plugin v%s ...', this.manifest.id, this.manifest.version);
@@ -36,9 +37,9 @@ export default class ImageToolkitPlugin extends Plugin {
     this.refreshViewTrigger();
 
     // addEventListener for opened new windows
-    this.app.workspace.on('layout-change', () => {
+    this.registerEvent(this.app.workspace.on('layout-change', () => {
       this.app.workspace.iterateAllLeaves((leaf: WorkspaceLeaf) => {
-        if (['markdown', 'image'].includes(leaf.getViewState()?.type)) {
+        if (['markdown', 'image', 'bases', 'canvas'].includes(leaf.getViewState()?.type)) {
           const bodyEl = leaf.view.containerEl.matchParent('body');
           if (bodyEl?.hasClass('is-popout-window')) {
             if (!bodyEl.hasAttribute(ImageToolkitPlugin.POPOUT_WINDOW_EVENT)) {
@@ -50,9 +51,8 @@ export default class ImageToolkitPlugin extends Plugin {
             }
           }
         }
-      }
-      )
-    });
+      });
+    }));
   }
 
   onunload() {
@@ -61,9 +61,15 @@ export default class ImageToolkitPlugin extends Plugin {
       container.removeOitContainerView();
     });
     this.containerFactory.clearAll();
-    document.off('click', this.imgSelector, this.clickImage);
-    document.off('mouseover', this.imgSelector, this.mouseoverImg);
-    document.off('mouseout', this.imgSelector, this.mouseoutImg);
+    for (const d of this.registeredDocs) {
+      d.removeEventListener('click', this.clickImage, true);
+      if (this.imgSelector) {
+        d.off('click', this.imgSelector, this.clickImage);
+        d.off('mouseover', this.imgSelector, this.mouseoverImg);
+        d.off('mouseout', this.imgSelector, this.mouseoutImg);
+      }
+    }
+    this.registeredDocs.clear();
   }
 
   private async loadSettings() {
@@ -151,6 +157,33 @@ export default class ImageToolkitPlugin extends Plugin {
     return imgEl && 'IMG' === imgEl.tagName;
   }
 
+  private resolveTargetImg = (rawTarget: EventTarget | null): HTMLImageElement => {
+    if (!rawTarget || !(rawTarget instanceof Element)) {
+      return null;
+    }
+    if (rawTarget.closest('.oit')) {
+      return null;
+    }
+    if (this.isImageElement(rawTarget as HTMLImageElement)) {
+      if (this.imgSelector && rawTarget.matches(this.imgSelector)) {
+        return rawTarget as HTMLImageElement;
+      }
+      return null;
+    }
+    // Support Obsidian 1.15+ native hover zoom button (.image-embed .embed-actions .clickable-icon)
+    if (this.settings.viewImageInEditor) {
+      const actionBtn = rawTarget.closest('.image-embed .embed-actions .clickable-icon:not(.edit-block-button)');
+      if (actionBtn) {
+        const embedEl = actionBtn.closest('.image-embed');
+        const imgEl = embedEl ? embedEl.querySelector('img') as HTMLImageElement : null;
+        if (imgEl && (!this.imgSelector || imgEl.matches(this.imgSelector))) {
+          return imgEl;
+        }
+      }
+    }
+    return null;
+  }
+
   private isClickable = (targetEl: HTMLImageElement, event: MouseEvent): ContainerView => {
     let container: ContainerView;
     if (this.isImageElement(targetEl)
@@ -174,24 +207,25 @@ export default class ImageToolkitPlugin extends Plugin {
    * refresh events for main container
    */
   public refreshViewTrigger = (doc?: Document) => {
-    // .workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img
     const viewImageInEditor = this.settings.viewImageInEditor;
-    // .community-modal-details img
     const viewImageInCPB = this.settings.viewImageInCPB;
-    // false: ... img:not(a img)
     const viewImageWithLink = this.settings.viewImageWithLink;
-    // #sr-flashcard-view img
     const viewImageOther = this.settings.viewImageOther;
 
     if (!doc) {
       doc = document;
     }
-    if (this.imgSelector) {
-      doc.off('click', this.imgSelector, this.clickImage);
-      doc.off('mouseover', this.imgSelector, this.mouseoverImg);
-      doc.off('mouseout', this.imgSelector, this.mouseoutImg);
+    this.registeredDocs.add(doc);
+    for (const d of this.registeredDocs) {
+      d.removeEventListener('click', this.clickImage, true);
+      if (this.imgSelector) {
+        d.off('click', this.imgSelector, this.clickImage);
+        d.off('mouseover', this.imgSelector, this.mouseoverImg);
+        d.off('mouseout', this.imgSelector, this.mouseoutImg);
+      }
     }
     if (!viewImageOther && !viewImageInEditor && !viewImageInCPB && !viewImageWithLink) {
+      this.imgSelector = '';
       return;
     }
     let selector = ``;
@@ -207,19 +241,32 @@ export default class ImageToolkitPlugin extends Plugin {
 
     if (selector) {
       this.imgSelector = selector;
-      // doc.onclick = (event: MouseEvent) =>{
-      //     console.log(event.target);
-      // }
-      doc.on('click', this.imgSelector, this.clickImage);
-      doc.on('mouseover', this.imgSelector, this.mouseoverImg);
-      doc.on('mouseout', this.imgSelector, this.mouseoutImg);
+      for (const d of this.registeredDocs) {
+        d.addEventListener('click', this.clickImage, true);
+        d.off('mouseover', this.imgSelector, this.mouseoverImg);
+        d.on('mouseover', this.imgSelector, this.mouseoverImg);
+        d.off('mouseout', this.imgSelector, this.mouseoutImg);
+        d.on('mouseout', this.imgSelector, this.mouseoutImg);
+      }
     }
   }
 
   private clickImage = (event: MouseEvent) => {
-    const targetEl = <HTMLImageElement>event.target;
+    if (event.button !== 0) {
+      return;
+    }
+    const targetEl = this.resolveTargetImg(event.target);
+    if (!targetEl) {
+      return;
+    }
     let container: ContainerView = this.isClickable(targetEl, event);
     if (container) {
+      // Prevent Obsidian 1.15+ native image selection and native .lightbox from firing
+      event.preventDefault();
+      if (!targetEl.closest('a')) {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      }
       container.renderContainer(targetEl);
     }
   }

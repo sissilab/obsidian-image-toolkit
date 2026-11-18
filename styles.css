@@ -1,11 +1,6 @@
 body {
-    --layer-image-toolkit-popup: 1024;
-    --layer-image-toolkit-player: 1025;
-    --layer-image-toolkit-notice: 1026;
-}
-
-.notice-container {
-    z-index: var(--layer-image-toolkit-notice);
+    --layer-image-toolkit-popup: 55;
+    --layer-image-toolkit-player: 56;
 }
 
 .oit li::before {
@@ -45,7 +40,8 @@ body {
 }
 
 .oit .oit-img-container .oit-img-view {
-    max-height: none;
+    max-width: none !important;
+    max-height: none !important;
     pointer-events: auto;
 }
 
@@ -112,7 +108,8 @@ body {
     display: inline;
     float: none;
     padding: 0;
-    max-height: none;
+    max-width: none !important;
+    max-height: none !important;
     transform: none;
     cursor: pointer;
 }

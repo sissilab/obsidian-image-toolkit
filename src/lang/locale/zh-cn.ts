@@ -2,6 +2,7 @@
 
 export default {
 
+  RESET: '重置为默认',
   VIEW_MODE_NAME: '选择查看模式',
   VIEW_MODE_NORMAL: '🖼 普通',
   VIEW_MODE_PIN: '📌 贴图',

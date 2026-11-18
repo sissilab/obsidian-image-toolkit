@@ -1,4 +1,4 @@
-import {Notice} from 'obsidian';
+import {Notice, requestUrl} from 'obsidian';
 import {t} from 'src/lang/helpers';
 import {IMG_VIEW_MIN, ZOOM_FACTOR} from '../conf/constants'
 import {ImgCto, ImgInfoIto} from "../model/imgTo";
@@ -130,33 +130,76 @@ export class ImgUtil {
       });
   }
 
-  public static copyImage(imgEle: HTMLImageElement, width: number, height: number) {
-    let image = new Image();
-    image.crossOrigin = 'anonymous';
-    image.src = imgEle.src;
-    image.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = image.width;
-      canvas.height = image.height;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0);
-      try {
-        canvas.toBlob(async (blob: any) => {
-          await navigator.clipboard.write([new ClipboardItem({"image/png": blob})])
-            .then(() => {
-              new Notice(t("COPY_IMAGE_SUCCESS"));
-            }, () => {
-              new Notice(t("COPY_IMAGE_ERROR"));
-            });
-        });
-      } catch (error) {
+  public static async copyImage(imgEle: HTMLImageElement, width: number, height: number) {
+    try {
+      const src = imgEle?.src;
+      if (!src) {
         new Notice(t("COPY_IMAGE_ERROR"));
-        console.error(error);
+        return;
       }
-    };
-    image.onerror = () => {
+      let srcBlob: Blob = null;
+      if (/^https?:\/\//i.test(src) && typeof requestUrl === 'function') {
+        const resp = await requestUrl({ url: src });
+        const mime = (resp.headers && (resp.headers['content-type'] || resp.headers['Content-Type'])) || 'image/png';
+        srcBlob = new Blob([resp.arrayBuffer], { type: mime });
+      } else if (/^app:\/\//i.test(src)) {
+        try {
+          const res = await fetch(src);
+          if (res.ok) {
+            srcBlob = await res.blob();
+          }
+        } catch (_e) {
+          // Fallback to Node fs on desktop if fetch fails
+        }
+        if (!srcBlob) {
+          const fs = require('fs');
+          const urlMod = require('url');
+          const cleanUrl = src.split('?')[0].replace(/^app:\/\/[^/]+\//i, 'file:///');
+          const filePath = urlMod.fileURLToPath(cleanUrl);
+          const buf = await fs.promises.readFile(filePath);
+          const isSvg = /\.svg$/i.test(filePath);
+          srcBlob = new Blob([buf], { type: isSvg ? 'image/svg+xml' : 'application/octet-stream' });
+        }
+      } else {
+        const res = await fetch(src);
+        srcBlob = await res.blob();
+      }
+      const objectUrl = URL.createObjectURL(srcBlob);
+      const image = new Image();
+      image.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = image.naturalWidth || image.width || width || 300;
+          canvas.height = image.naturalHeight || image.height || height || 300;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(async (pngBlob: Blob) => {
+            URL.revokeObjectURL(objectUrl);
+            if (!pngBlob) {
+              new Notice(t("COPY_IMAGE_ERROR"));
+              return;
+            }
+            try {
+              await navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]);
+              new Notice(t("COPY_IMAGE_SUCCESS"));
+            } catch (err) {
+              console.error(err);
+              new Notice(t("COPY_IMAGE_ERROR"));
+            }
+          }, 'image/png');
+        } catch (error) {
+          URL.revokeObjectURL(objectUrl);
+          console.error(error);
+          new Notice(t("COPY_IMAGE_ERROR"));
+        }
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        new Notice(t("COPY_IMAGE_ERROR"));
+      };
+      image.src = objectUrl;
+    } catch (error) {
+      console.error(error);
       new Notice(t("COPY_IMAGE_ERROR"));
     }
   }

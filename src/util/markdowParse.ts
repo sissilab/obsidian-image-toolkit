@@ -63,21 +63,21 @@ const getNonCodeAreaTexts = (lineText: string): string[] => {
 
 const IMAGE_LINK_REGEX1 = /\[\s*?(!\[(.*?)\]\((.*?)\))\s*?\]\(.*?\)/; // 1-link: [ ![alt1|alt2|...|altn|width](src) ](https://...)
 // markdown: `![alt1|alt2|...|altn|width](src)` -> 1: alt (alt+width), 2: src
-const RE_MARKDOWN_IMAGE = /!\[(.*?)\]\(\s*(.*?\.(jpe?g|png|svg|gif|bmp|webp))\s*\)/i; // 1: ![alt1|alt2|...|altn|width](src)
+const RE_MARKDOWN_IMAGE = /!\[(.*?)\]\(\s*(.*?\.(jpe?g|png|svg|gif|bmp|webp|avif))\s*\)/i; // 1: ![alt1|alt2|...|altn|width](src)
 // const RE_MARKDOWN_IMAGE = /!\[(.*?)\]\(\s*(.*?)\s*\)/i; // 1: ![alt1|alt2|...|altn|width](src)
-const RE_IMGAGE = /.*?\.(jpe?g|png|svg|gif|bmp|webp)/i;
+const RE_IMGAGE = /.*?\.(jpe?g|png|svg|gif|bmp|webp|avif)/i;
 const RE_IMGAGE_BASE64 = /data:image\/[^;]+;base64.*/i;
-const IMAGE_LINK_REGEX2 = /\[\s*?(!\[\[(.*?[jpe?g|png|gif|svg|bmp].*?)\]\])\s*?\]\(.*?\)/i; // 2-link: [ ![[src|alt1|alt2|width]] ](https://...)
+const IMAGE_LINK_REGEX2 = /\[\s*?(!\[\[(.*?\.(jpe?g|png|gif|svg|bmp|webp|avif).*?)\]\])\s*?\]\(.*?\)/i; // 2-link: [ ![[src|alt1|alt2|width]] ](https://...)
 // RE_WIKILINK_IMAGE wikilink: `![[bird.png|alt1|alt2|2.1|50]]` -> 1: src+alt+width
-const RE_WIKILINK_IMAGE = /!\[\[(.*?\.(jpe?g|png|svg|gif|bmp|webp).*?)\]\]/i; // 2: ![[src|alt1|alt2|width]]
+const RE_WIKILINK_IMAGE = /!\[\[(.*?\.(jpe?g|png|svg|gif|bmp|webp|avif).*?)\]\]/i; // 2: ![[src|alt1|alt2|width]]
 
 const SRC_LINK_REGEX = /[a-z][a-z0-9+\-.]+:\/.*/i; // match link: http://, file://, app:// 
-const SRC_IMG_REGREX = /.*?\.jpe?g|png|gif|svg|bmp/i; // match image ext: .jpg/.jpeg/.png/.gif/.svg/.bmp
+const SRC_IMG_REGREX = /.*?\.(jpe?g|png|gif|svg|bmp|webp|avif)/i; // match image ext: .jpg/.jpeg/.png/.gif/.svg/.bmp/.webp/.avif
 
 const IMG_TAG_LINK_SRC_REGEX = /<a.*?(<img.*?src=[\'"](.*?)[\'"].*?\/?>).*?\/a>/i; // 3-a-img-src: <a> <img ... src=''/> </a>
 const IMG_TAG_SRC_REGEX = /<img.*?src=[\'"](.*?)[\'"].*?\/?>/i; // 3-img-src: <img ... src='' />
 const IMG_TAG_ALT_REGEX = /<img.*?alt=[\'"](.*?)[\'"].*?\/?>/i; // 3-img-alt: <img ... alt='' />
-const FULL_PATH_REGEX = /^[a-z]\:.*?[jpe?g|png|gif|svg|bmp]/i;
+const FULL_PATH_REGEX = /^[a-z]:.*?\.(jpe?g|png|gif|svg|bmp|webp|avif)/i;
 
 const BLOCKQUOTE_PREFIX = `#^`;
 

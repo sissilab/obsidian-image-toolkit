@@ -166,8 +166,8 @@ export abstract class ContainerView {
   public initDefaultData = (matchedImg: ImgCto, targetImgStyle: CSSStyleDeclaration) => {
     if (targetImgStyle) {
       matchedImg.defaultImgStyle.transform = 'none';
-      matchedImg.defaultImgStyle.filter = targetImgStyle.filter;
-      matchedImg.defaultImgStyle.mixBlendMode = targetImgStyle.mixBlendMode;
+      matchedImg.defaultImgStyle.filter = 'none';
+      matchedImg.defaultImgStyle.mixBlendMode = 'normal';
 
       matchedImg.defaultImgStyle.borderWidth = targetImgStyle.borderWidth;
       matchedImg.defaultImgStyle.borderStyle = targetImgStyle.borderStyle;
@@ -317,6 +317,8 @@ export abstract class ContainerView {
     if (!imgViewEl) return;
     if (imgZoomSize) {
       imgViewEl.setAttribute('width', imgZoomSize.curWidth + 'px');
+      imgViewEl.style.setProperty('width', imgZoomSize.curWidth + 'px', 'important');
+      imgViewEl.style.setProperty('max-width', 'none', 'important');
       imgViewEl.style.setProperty('margin-top', imgZoomSize.top + 'px', 'important');
       imgViewEl.style.setProperty('margin-left', imgZoomSize.left + 'px', 'important');
     }
@@ -490,7 +492,7 @@ export abstract class ContainerView {
       matchedImg.imgViewEl.addEventListener('mousedown', this.mousedownImgView);
       matchedImg.imgViewEl.addEventListener('mouseup', this.mouseupImgView);
       // zoom the image via mouse wheel
-      matchedImg.imgViewEl.addEventListener('mousewheel', this.mousewheelViewContainer, {passive: true});
+      matchedImg.imgViewEl.addEventListener('wheel', this.mousewheelViewContainer, {passive: false});
     } else {
       if (!this.imgGlobalStatus.popup) {
         this.doc.removeEventListener('keydown', this.triggerKeydown);
@@ -509,7 +511,7 @@ export abstract class ContainerView {
       matchedImg.imgViewEl.removeEventListener('mouseleave', this.mouseleaveImgView);
       matchedImg.imgViewEl.removeEventListener('mousedown', this.mousedownImgView);
       matchedImg.imgViewEl.removeEventListener('mouseup', this.mouseupImgView);
-      matchedImg.imgViewEl.removeEventListener('mousewheel', this.mousewheelViewContainer);
+      matchedImg.imgViewEl.removeEventListener('wheel', this.mousewheelViewContainer);
       if (matchedImg.refreshImgInterval) {
         clearInterval(matchedImg.refreshImgInterval);
         matchedImg.refreshImgInterval = null;
@@ -518,30 +520,36 @@ export abstract class ContainerView {
   }
 
   protected triggerKeyup = (event: KeyboardEvent) => {
-    // console.log('keyup', event, event.key);
     const key = event.key;
-    if (!key) return;
-    if (!('Escape' === key)) {
+    if (!key || !this.imgGlobalStatus.popup) return;
+    if ('Escape' === key) {
       event.preventDefault();
       event.stopPropagation();
+      this.imgGlobalStatus.fullScreen ? this.closePlayerImg() : this.closeContainerView();
+      return;
     }
+    if (this.isPinMode()) return;
     switch (key) {
-      case 'Escape':
-        // close full screen, hide container view
-        this.imgGlobalStatus.fullScreen ? this.closePlayerImg() : this.closeContainerView();
-        break;
       case 'ArrowUp':
+        event.preventDefault();
+        event.stopPropagation();
         this.imgGlobalStatus.arrowUp = false;
         break;
       case 'ArrowDown':
+        event.preventDefault();
+        event.stopPropagation();
         this.imgGlobalStatus.arrowDown = false;
         break;
       case 'ArrowLeft':
+        event.preventDefault();
+        event.stopPropagation();
         this.imgGlobalStatus.arrowLeft = false;
         // switch to the previous image on the gallery navBar
         this.switchImageOnGalleryNavBar(event, false);
         break;
       case 'ArrowRight':
+        event.preventDefault();
+        event.stopPropagation();
         this.imgGlobalStatus.arrowRight = false;
         // switch to the next image on the gallery navBar
         this.switchImageOnGalleryNavBar(event, true);
@@ -556,8 +564,8 @@ export abstract class ContainerView {
    * @param event
    */
   protected triggerKeydown = (event: KeyboardEvent) => {
-    //console.log('keydown', event, event.key, this.imgStatus);
-    if (this.isPinMode()) return;
+    if (this.isPinMode() || !this.imgGlobalStatus.popup) return;
+    if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
     event.preventDefault();
     event.stopPropagation();
     if (this.imgGlobalStatus.arrowUp && this.imgGlobalStatus.arrowLeft) {
@@ -774,10 +782,11 @@ export abstract class ContainerView {
   }
 
   protected mousewheelViewContainer = (event: WheelEvent) => {
-    // event.preventDefault();
+    event.preventDefault();
     event.stopPropagation();
     // @ts-ignore
-    this.zoomAndRender(0 < event.wheelDelta ? 0.1 : -0.1, event);
+    const delta = typeof event.wheelDelta === 'number' ? event.wheelDelta : -event.deltaY;
+    this.zoomAndRender(0 < delta ? 0.1 : -0.1, event);
   }
 
   protected zoomAndRender = (ratio: number, event?: WheelEvent, actualSize?: boolean, activeImg?: ImgCto) => {
@@ -797,6 +806,8 @@ export abstract class ContainerView {
     const zoomData: ImgCto = ImgUtil.zoom(ratio, activeImg, offsetSize, actualSize);
     this.renderImgTip(activeImg);
     activeImgViewEl.setAttribute('width', zoomData.curWidth + 'px');
+    activeImgViewEl.style.setProperty('width', zoomData.curWidth + 'px', 'important');
+    activeImgViewEl.style.setProperty('max-width', 'none', 'important');
     activeImgViewEl.style.setProperty('margin-top', zoomData.top + 'px', 'important');
     activeImgViewEl.style.setProperty('margin-left', zoomData.left + 'px', 'important');
   }

@@ -142,14 +142,14 @@ export const IMG_FULL_SCREEN_MODE = {
 }
 
 export const VIEW_IMG_SELECTOR = {
-  EDITOR_AREAS: `.workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img`,
-  EDITOR_AREAS_NO_LINK: `.workspace-leaf-content[data-type='markdown'] img:not(a img),.workspace-leaf-content[data-type='image'] img:not(a img)`,
+  EDITOR_AREAS: `.workspace-leaf-content[data-type='markdown'] img,.workspace-leaf-content[data-type='image'] img,.workspace-leaf-content[data-type='bases'] img,.workspace-leaf-content[data-type='canvas'] img`,
+  EDITOR_AREAS_NO_LINK: `.workspace-leaf-content[data-type='markdown'] img:not(a img),.workspace-leaf-content[data-type='image'] img:not(a img),.workspace-leaf-content[data-type='bases'] img:not(a img),.workspace-leaf-content[data-type='canvas'] img:not(a img)`,
 
   CPB: `.community-modal-details img`,
   CPB_NO_LINK: `.community-modal-details img:not(a img)`,
 
-  OTHER: `.modal-content img`,
-  OTHER_NO_LINK: `.modal-content img:not(a img)`,
+  OTHER: `.modal-content img,.popover.hover-popover img`,
+  OTHER_NO_LINK: `.modal-content img:not(a img),.popover.hover-popover img:not(a img)`,
 }
 
 export const IMG_BORDER_WIDTH = {

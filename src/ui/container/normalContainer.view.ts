@@ -89,6 +89,9 @@ export class NormalContainerView extends ContainerView {
         return;
     }
     if (!activeImg && !(activeImg = this.imgGlobalStatus.activeImg)) return;
+    if (this.imgGlobalStatus.fullScreen) {
+      this.closePlayerImg();
+    }
     if (this.imgInfo.oitContainerEl) {
       this.imgInfo.oitContainerEl.style.setProperty('display', 'none'); // hide 'oit-normal'
       this.renderImgTitle('', '');

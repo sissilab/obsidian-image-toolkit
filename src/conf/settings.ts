@@ -121,15 +121,17 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         });
       });
 
+    const toHex6 = (c: string) => (typeof c === 'string' && /^#[0-9a-fA-F]{8}$/.test(c) ? c.slice(0, 7) : c);
     new Setting(containerEl)
         .setName(t("IMG_VIEW_BACKGROUND_COLOR_NAME"))
         .addColorPicker(picker => {
            picker
-               .setValue(this.plugin.settings.imgViewBackgroundColor || DEFAULT_SETTINGS.imgViewBackgroundColor)
+               .setValue(toHex6(this.plugin.settings.imgViewBackgroundColor || DEFAULT_SETTINGS.imgViewBackgroundColor))
 
                .onChange(async(value) => {
                    this.plugin.settings.imgViewBackgroundColor = value;
-                    await this.plugin.saveSettings();
+                   this.plugin.getAllContainerViews().forEach(container => container.setImgViewDefaultBackgroundForImgList());
+                   await this.plugin.saveSettings();
                });
         })
         .addExtraButton(button => {
@@ -137,8 +139,9 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
                 .setTooltip(t('RESET'))
                 .onClick(async () => {
                    this.plugin.settings.imgViewBackgroundColor = DEFAULT_SETTINGS.imgViewBackgroundColor;
+                   this.plugin.getAllContainerViews().forEach(container => container.setImgViewDefaultBackgroundForImgList());
                    await this.plugin.saveSettings();
-                    this.display();
+                   this.display();
                 });
         });
     //endregion
@@ -221,7 +224,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
           .setName(t("GALLERY_NAVBAR_DEFAULT_COLOR_NAME"))
           .addColorPicker(picker => {
               picker
-                  .setValue(this.plugin.settings.galleryNavbarDefaultColor || DEFAULT_SETTINGS.galleryNavbarDefaultColor)
+                  .setValue(toHex6(this.plugin.settings.galleryNavbarDefaultColor || DEFAULT_SETTINGS.galleryNavbarDefaultColor))
                   .onChange(async (value) => {
                       this.plugin.settings.galleryNavbarDefaultColor = value;
                       await this.plugin.saveSettings();
@@ -241,7 +244,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
         .setName(t("GALLERY_NAVBAR_HOVER_COLOR_NAME"))
         .addColorPicker(picker => {
            picker
-               .setValue(this.plugin.settings.galleryNavbarHoverColor || DEFAULT_SETTINGS.galleryNavbarHoverColor)
+               .setValue(toHex6(this.plugin.settings.galleryNavbarHoverColor || DEFAULT_SETTINGS.galleryNavbarHoverColor))
                .onChange(async (value) => {
                   this.plugin.settings.galleryNavbarHoverColor = value;
                   await this.plugin.saveSettings();
@@ -270,7 +273,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
     const galleryImgBorderActiveColorSetting = new Setting(containerEl)
         .setName(t("GALLERY_IMG_BORDER_ACTIVE_COLOR_NAME"))
         .addColorPicker(picker => {
-           picker.setValue(this.plugin.settings.galleryImgBorderActiveColor || DEFAULT_SETTINGS.galleryImgBorderActiveColor)
+           picker.setValue(toHex6(this.plugin.settings.galleryImgBorderActiveColor || DEFAULT_SETTINGS.galleryImgBorderActiveColor))
                .onChange(async (value) => {
                    this.plugin.settings.galleryImgBorderActiveColor = value;
                    await this.plugin.saveSettings();
@@ -280,7 +283,7 @@ export class ImageToolkitSettingTab extends PluginSettingTab {
             button.setIcon('rotate-ccw')
                 .setTooltip(t('RESET'))
                 .onClick(async () => {
-                    this.plugin.settings.imgViewBackgroundColor = DEFAULT_SETTINGS.galleryImgBorderActiveColor;
+                    this.plugin.settings.galleryImgBorderActiveColor = DEFAULT_SETTINGS.galleryImgBorderActiveColor;
                     await this.plugin.saveSettings();
                     this.display();
                 });
